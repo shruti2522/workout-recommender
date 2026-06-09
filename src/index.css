@@ -11,15 +11,15 @@
   --bg-glass-hover: rgba(0, 0, 0, 0.06);
 
   
-  --accent-primary:   #2a9d8f;
+  --accent-primary:   #22887b;
   --accent-secondary: #264653;
   --accent-tertiary:  #e9c46a;
   --accent-success:   #57cc99;
   --accent-danger:    #e76f51;
 
   
-  --gradient-hero: #2a9d8f;
-  --gradient-card: rgba(42, 157, 143, 0.05);
+  --gradient-hero: #22887b;
+  --gradient-card: rgba(34, 136, 123, 0.05);
 
   
   --text-primary:   #1a1f2e;
@@ -29,7 +29,7 @@
   
   --border-subtle: rgba(0, 0, 0, 0.08);
   --border-light:  rgba(0, 0, 0, 0.05);
-  --border-accent: rgba(42, 157, 143, 0.35);
+  --border-accent: rgba(26, 107, 95, 0.35);
 
   
   --radius-sm: 6px;
@@ -48,8 +48,8 @@
   --transition-slow: 0.25s ease;
 
   
-  --font-heading: 'Samsung Sans', 'Poppins', sans-serif;
-  --font-body:    'Samsung Sans', 'Inter', sans-serif;
+  --font-heading: 'Space Grotesk', sans-serif;
+  --font-body:    'Inter', sans-serif;
 }
 
 *, *::before, *::after {
@@ -138,7 +138,7 @@ h1, h2, h3, h4 {
   font-weight: 600;
 }
 .btn-primary:hover {
-  background: #22887b;
+  background: #1a6b5f;
 }
 
 .btn-secondary {
@@ -226,7 +226,7 @@ h1, h2, h3, h4 {
 
 .form-input:focus {
   border-color: var(--accent-primary);
-  box-shadow: 0 0 0 3px rgba(42, 157, 143, 0.12);
+  box-shadow: 0 0 0 3px rgba(26, 107, 95, 0.12);
 }
 
 .form-input::placeholder { color: var(--text-muted); }
@@ -249,7 +249,7 @@ h1, h2, h3, h4 {
 
 .select-card:hover {
   border-color: var(--accent-primary);
-  box-shadow: 0 2px 10px rgba(42, 157, 143, 0.10);
+  box-shadow: 0 2px 10px rgba(34, 136, 123, 0.10);
 }
 
 .select-card.selected {
@@ -781,22 +781,22 @@ h1, h2, h3, h4 {
   font-size: 0.95rem;
   color: var(--text-primary);
   display: block;
-  margin-bottom: 4px;
+  margin-bottom: 8px;
 }
 
 .ex-row-meta {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 20px;
   flex-wrap: wrap;
-  margin-bottom: 6px;
+  margin-bottom: 10px;
 }
 
 .ex-row-note {
   font-size: 0.78rem;
   color: var(--text-muted);
-  margin-top: 4px;
-  line-height: 1.4;
+  margin-top: 6px;
+  line-height: 1.5;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -1300,7 +1300,7 @@ h1, h2, h3, h4 {
 
 .layout-sidebar {
   width: 240px;
-  background: #fff;
+  background: var(--accent-primary);
   border-right: 0.5px solid var(--border-subtle);
   display: flex;
   flex-direction: column;
@@ -1336,7 +1336,7 @@ h1, h2, h3, h4 {
   font-family: var(--font-heading);
   font-weight: 700;
   font-size: 1.1rem;
-  color: var(--text-primary);
+  color: #fff;
   text-decoration: none;
   margin-bottom: 40px;
   padding: 0 8px;
@@ -1345,21 +1345,21 @@ h1, h2, h3, h4 {
 .sidebar-logo-icon {
   width: 28px;
   height: 28px;
-  background: var(--accent-primary);
+  background: #fff;
   border-radius: 6px;
   display: flex;
   align-items: center;
   justify-content: center;
   font-size: 0.65rem;
   font-weight: 700;
-  color: #fff;
+  color: var(--accent-primary);
   font-family: var(--font-heading);
 }
 
 .sidebar-section-title {
   font-size: 0.7rem;
   font-weight: 700;
-  color: var(--text-muted);
+  color: rgba(255, 255, 255, 0.9);
   text-transform: uppercase;
   letter-spacing: 0.05em;
   margin: 20px 8px 8px;
@@ -1371,7 +1371,7 @@ h1, h2, h3, h4 {
   justify-content: space-between;
   padding: 8px 12px;
   border-radius: var(--radius-sm);
-  color: var(--text-secondary);
+  color: rgba(255, 255, 255, 0.85);
   font-size: 0.9rem;
   font-weight: 500;
   text-decoration: none;
@@ -1380,20 +1380,23 @@ h1, h2, h3, h4 {
 }
 
 .sidebar-link:hover {
-  background: var(--bg-base);
-  color: var(--text-primary);
+  background: rgba(255, 255, 255, 0.15);
+  color: #fff;
 }
 
 .sidebar-link.active {
-  background: #e0f2f0;
+  background: #fff;
   color: var(--accent-primary);
   font-weight: 600;
 }
 
 .sidebar-link-badge {
   font-size: 0.7rem;
-  color: var(--accent-primary);
+  color: #fff;
   font-weight: 600;
+  background: rgba(255, 255, 255, 0.2);
+  padding: 2px 6px;
+  border-radius: 4px;
 }
 
 .sidebar-spacer {

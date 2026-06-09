@@ -88,22 +88,29 @@ export default function PlanPage({ exercises, prefs, savedPlan, setSavedPlan, on
   
   useEffect(() => {
     if (savedPlan) return;
-    let cancelled = false;
+
+    //hard cancel the inflight network request when React
+    const controller = new AbortController();
+
     async function fetchPlan() {
       setIsLoading(true);
       setPlanError(null);
       try {
-        const planResult = await generatePlan({ ...prefs, level, score }, filtered);
-        if (!cancelled) setSavedPlan(planResult);
+        const planResult = await generatePlan({ ...prefs, level, score }, filtered, controller.signal);
+        setSavedPlan(planResult);
+        setIsLoading(false);
       } catch (err) {
-        if (!cancelled) setPlanError(err.message);
-      } finally {
-        if (!cancelled) setIsLoading(false);
+        //the second mount cycle will start a fresh request
+        if (controller.signal.aborted) return;
+        setPlanError(err.message);
+        setIsLoading(false);
       }
     }
+
     if (filtered.length > 0) fetchPlan();
     else setIsLoading(false);
-    return () => { cancelled = true; };
+
+    return () => controller.abort();
   }, [filtered, prefs, level, score, savedPlan, setSavedPlan]);
 
   const currentDay = savedPlan ? (savedPlan[activeDay] ?? savedPlan[0]) : null;
@@ -309,17 +316,15 @@ export default function PlanPage({ exercises, prefs, savedPlan, setSavedPlan, on
           <div className="plan-banner">
             <div className="plan-banner-inner">
               <div>
-                <h1 className="plan-title">Your Custom Plan</h1>
+                <h1 className="plan-title">Your Weekly Plan</h1>
                 <div className="plan-meta">
-                  <span className={`badge ${LEVEL_COLORS[level] || 'badge-gray'}`}>{capitalize(level)}</span>
-                  <span style={{ width: "4px", height: "4px", borderRadius: "50%", background: "var(--border-subtle)", margin: "0 4px" }} />
-                  <span className="badge badge-gray" style={{ background: 'transparent', border: '1px solid var(--border-subtle)' }}>
-                    Level: {score}/10
-                  </span>
-                  {goalLabel && <><span style={{ width: "4px", height: "4px", borderRadius: "50%", background: "var(--border-subtle)", margin: "0 4px" }} /><span>{goalLabel}</span></>}
-                  {areaLabels.length > 0 && <><span style={{ width: "4px", height: "4px", borderRadius: "50%", background: "var(--border-subtle)", margin: "0 4px" }} /><span>{areaLabels.join(', ')}</span></>}
-                  <span style={{ width: "4px", height: "4px", borderRadius: "50%", background: "var(--border-subtle)", margin: "0 4px" }} />
-                  <span>{dayCount} day{dayCount !== 1 ? 's' : ''}/week</span>
+                  <span style={{ fontSize: '0.86rem', fontWeight: '600', color: 'var(--accent-primary)' }}>{capitalize(level)}</span>
+                  <span style={{ margin: '0 12px', color: 'var(--border-subtle)' }}>·</span>
+                  <span style={{ fontSize: '0.86rem', fontWeight: '400', color: 'var(--text-secondary)' }}>Level: {score}/10</span>
+                  {goalLabel && <><span style={{ margin: '0 12px', color: 'var(--border-subtle)' }}>·</span><span style={{ fontSize: '0.86rem', fontWeight: '400', color: 'var(--text-secondary)' }}>{goalLabel}</span></>}
+                  {areaLabels.length > 0 && <><span style={{ margin: '0 12px', color: 'var(--border-subtle)' }}>·</span><span style={{ fontSize: '0.86rem', fontWeight: '400', color: 'var(--text-secondary)' }}>{areaLabels.join(', ')}</span></>}
+                  <span style={{ margin: '0 12px', color: 'var(--border-subtle)' }}>·</span>
+                  <span style={{ fontSize: '0.86rem', fontWeight: '400', color: 'var(--text-secondary)' }}>{dayCount} day{dayCount !== 1 ? 's' : ''}/week</span>
                 </div>
               </div>
             </div>
@@ -353,19 +358,17 @@ export default function PlanPage({ exercises, prefs, savedPlan, setSavedPlan, on
             <div id={`day-panel-${activeDay}`} className="plan-day-content" role="tabpanel" aria-labelledby={`day-tab-${activeDay}`}>
               <div className="plan-day-header">
                 <div className="plan-day-header-text">
-                  <h2 className="plan-day-title">Day {currentDay.dayNumber} — {currentDay.label}</h2>
-                  <p className="plan-day-focus">{currentDay.focus}</p>
+                  <h2 className="plan-day-title">{currentDay.label}</h2>
                 </div>
                 <div style={{ display: 'flex', gap: '16px', alignItems: 'center', fontSize: '0.85rem', fontWeight: '500' }}>
+                  <span>{currentDay.exercises.length} exercises</span>
                   <button 
                     className="btn btn-sm btn-ghost" 
                     onClick={() => setIsReordering(!isReordering)}
-                    style={{ color: isReordering ? 'var(--accent-primary)' : 'var(--text-primary)', padding: 0 }}
+                    style={{ color: isReordering ? 'var(--accent-primary)' : 'var(--text-primary)', padding: '6px 12px', border: '1px solid var(--border-subtle)' }}
                   >
                     {isReordering ? 'Done Editing' : 'Edit Order'}
                   </button>
-                  <span>{currentDay.exercises.length} exercises</span>
-                  <span className="badge badge-gray" style={{fontSize: "0.85rem", padding: "4px 10px", fontWeight: "600"}}>~{estMinutes} min</span>
                 </div>
               </div>
 
@@ -397,7 +400,7 @@ export default function PlanPage({ exercises, prefs, savedPlan, setSavedPlan, on
               )}
 
               <div style={{ marginTop: '20px', paddingBottom: '40px' }}>
-                <button className="btn btn-sm btn-ghost" onClick={() => setShowAddPicker(true)} style={{ color: 'var(--text-primary)', padding: 0 }}>
+                <button className="btn btn-sm btn-ghost" onClick={() => setShowAddPicker(true)} style={{ color: 'var(--text-primary)', padding: '8px 16px', border: '1px solid var(--border-subtle)', borderRadius: '6px', fontSize: '0.9rem', fontWeight: '500' }}>
                   + Add Exercise
                 </button>
               </div>

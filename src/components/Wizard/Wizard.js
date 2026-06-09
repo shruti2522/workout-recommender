@@ -2,6 +2,8 @@ import React, { useState } from 'react';
 import {
   ProgressIndicator,
   StepFrequency,
+  StepSessionDuration,
+  StepWeeklyTime,
   StepDuration,
   StepGoal,
   StepTargetAreas,
@@ -9,28 +11,41 @@ import {
   StepInjuries,
 } from './WizardSteps';
 
-const TOTAL_STEPS = 6;
+const TOTAL_STEPS = 8;
 
 export default function Wizard({ onComplete }) {
   const [step, setStep] = useState(1);
-  const [frequency, setFrequency]     = useState('');
-  const [duration, setDuration]       = useState('');
-  const [goal, setGoal]               = useState('');
-  const [targetAreas, setTargetAreas] = useState([]);
-  const [equipment, setEquipment]     = useState([]);
-  const [injuries, setInjuries]       = useState([]);
+  const [frequency,       setFrequency]       = useState('');
+  const [sessionDuration, setSessionDuration] = useState('');
+  const [weeklyTime,      setWeeklyTime]      = useState('');
+  const [duration,        setDuration]        = useState('');
+  const [goal,            setGoal]            = useState('');
+  const [targetAreas,     setTargetAreas]     = useState([]);
+  const [equipment,       setEquipment]       = useState([]);
+  const [injuries,        setInjuries]        = useState([]);
 
   const canProceed =
     step === 1 ? !!frequency :
-    step === 2 ? !!duration :
-    step === 3 ? !!goal :
-    true; 
+    step === 2 ? !!sessionDuration :
+    step === 3 ? !!weeklyTime :
+    step === 4 ? !!duration :
+    step === 5 ? !!goal :
+    true;
 
   const handleNext = () => {
     if (step < TOTAL_STEPS) {
       setStep((s) => s + 1);
     } else {
-      onComplete({ frequency, duration, goal, targetAreas, equipment, injuries });
+      onComplete({
+        frequency,
+        sessionDuration,
+        weeklyTime,
+        duration,
+        goal,
+        targetAreas,
+        equipment,
+        injuries,
+      });
     }
   };
 
@@ -42,12 +57,14 @@ export default function Wizard({ onComplete }) {
         <ProgressIndicator step={step} totalSteps={TOTAL_STEPS} />
 
         <div className="wizard-body">
-          {step === 1 && <StepFrequency value={frequency} onChange={setFrequency} />}
-          {step === 2 && <StepDuration value={duration} onChange={setDuration} />}
-          {step === 3 && <StepGoal value={goal} onChange={setGoal} />}
-          {step === 4 && <StepTargetAreas selected={targetAreas} onChange={setTargetAreas} />}
-          {step === 5 && <StepEquipment selected={equipment} onChange={setEquipment} />}
-          {step === 6 && <StepInjuries selected={injuries} onChange={setInjuries} />}
+          {step === 1 && <StepFrequency       value={frequency}       onChange={setFrequency} />}
+          {step === 2 && <StepSessionDuration value={sessionDuration} onChange={setSessionDuration} />}
+          {step === 3 && <StepWeeklyTime      value={weeklyTime}      onChange={setWeeklyTime} />}
+          {step === 4 && <StepDuration        value={duration}        onChange={setDuration} />}
+          {step === 5 && <StepGoal            value={goal}            onChange={setGoal} />}
+          {step === 6 && <StepTargetAreas     selected={targetAreas}  onChange={setTargetAreas} />}
+          {step === 7 && <StepEquipment       selected={equipment}    onChange={setEquipment} />}
+          {step === 8 && <StepInjuries        selected={injuries}     onChange={setInjuries} />}
         </div>
 
         <div className="wizard-footer">

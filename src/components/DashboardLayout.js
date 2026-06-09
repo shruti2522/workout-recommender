@@ -28,7 +28,6 @@ export default function DashboardLayout({ children, activeTab, onViewChange, sum
         <div className="sidebar-section-title">Track</div>
         <div className="sidebar-link">
           <span>Progress</span>
-          <span className="sidebar-link-badge" style={{color: 'var(--text-muted)'}}>New</span>
         </div>
         <div className="sidebar-link">History</div>
         <div className="sidebar-link">Goals</div>

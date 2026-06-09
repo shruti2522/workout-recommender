@@ -1,6 +1,88 @@
 import React from 'react';
 import { FREQUENCY_OPTIONS, DURATION_OPTIONS, EQUIPMENT_OPTIONS, INJURY_MUSCLES } from '../../filterExercises';
 
+export const SESSION_DURATION_OPTIONS = [
+  { key: '20_30',   label: '20 – 30 min',  desc: 'Quick, focused session — perfect for busy schedules' },
+  { key: '30_45',   label: '30 – 45 min',  desc: 'Efficient session with solid working volume' },
+  { key: '45_60',   label: '45 – 60 min',  desc: 'Standard gym session with good exercise variety' },
+  { key: '60_90',   label: '60 – 90 min',  desc: 'Extended session for comprehensive training blocks' },
+  { key: '90_plus', label: '90 + min',     desc: 'High-volume session for advanced training goals' },
+];
+
+export const WEEKLY_TIME_OPTIONS = [
+  { key: 'under_2h', label: 'Under 2 hrs / week', desc: 'Minimal time — high-efficiency workouts only' },
+  { key: '2_4h',     label: '2 – 4 hrs / week',   desc: 'Moderate commitment, consistent progress' },
+  { key: '4_6h',     label: '4 – 6 hrs / week',   desc: 'Solid training volume for clear results' },
+  { key: '6_plus',   label: '6 + hrs / week',     desc: 'High commitment — serious performance gains' },
+];
+
+export function StepSessionDuration({ value, onChange }) {
+  return (
+    <div className="wizard-step animate-fade-up">
+      <div className="wizard-step-header">
+        <h2 className="wizard-step-title">How long is each workout session?</h2>
+        <p className="wizard-step-subtitle">
+          We'll calibrate exercise count and rest periods to fit your time window.
+        </p>
+      </div>
+      <div className="wizard-options-grid" role="radiogroup" aria-label="Session duration">
+        {SESSION_DURATION_OPTIONS.map((opt) => (
+          <button
+            key={opt.key}
+            id={`session-duration-${opt.key}`}
+            role="radio"
+            aria-checked={value === opt.key}
+            className={`select-card${value === opt.key ? ' selected' : ''}`}
+            onClick={() => onChange(opt.key)}
+          >
+            <div className="select-card-content">
+              <div className="select-card-title">{opt.label}</div>
+              <div className="select-card-desc">{opt.desc}</div>
+            </div>
+            {value === opt.key && (
+              <span className="select-card-check">✓</span>
+            )}
+          </button>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+export function StepWeeklyTime({ value, onChange }) {
+  return (
+    <div className="wizard-step animate-fade-up">
+      <div className="wizard-step-header">
+        <h2 className="wizard-step-title">How much time can you dedicate each week?</h2>
+        <p className="wizard-step-subtitle">
+          Your total weekly budget helps us balance volume across all sessions.
+        </p>
+      </div>
+      <div className="wizard-options-grid" role="radiogroup" aria-label="Weekly time commitment">
+        {WEEKLY_TIME_OPTIONS.map((opt) => (
+          <button
+            key={opt.key}
+            id={`weekly-time-${opt.key}`}
+            role="radio"
+            aria-checked={value === opt.key}
+            className={`select-card${value === opt.key ? ' selected' : ''}`}
+            onClick={() => onChange(opt.key)}
+          >
+            <div className="select-card-content">
+              <div className="select-card-title">{opt.label}</div>
+              <div className="select-card-desc">{opt.desc}</div>
+            </div>
+            {value === opt.key && (
+              <span className="select-card-check">✓</span>
+            )}
+          </button>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+
 export function ProgressIndicator({ step, totalSteps }) {
   return (
     <div className="wizard-progress" aria-label={`Step ${step} of ${totalSteps}`}>
@@ -16,6 +98,7 @@ export function ProgressIndicator({ step, totalSteps }) {
     </div>
   );
 }
+
 
 export function StepFrequency({ value, onChange }) {
   return (

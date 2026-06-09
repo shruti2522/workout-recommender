@@ -4,12 +4,11 @@ import { formatCategoryLabel, CATEGORY_COLORS, getExerciseImageUrl } from '../ut
 import { TARGET_AREA_OPTIONS } from './Wizard/WizardSteps';
 import { INJURY_MUSCLES } from '../filterExercises';
 
-
 const TARGET_AREA_MUSCLES = {
   upper_body: ['chest', 'lats', 'middle back', 'lower back', 'shoulders', 'biceps', 'triceps', 'forearms', 'neck', 'traps'],
   lower_body: ['quadriceps', 'hamstrings', 'calves', 'glutes', 'abductors', 'adductors'],
   core: ['abdominals', 'obliques', 'lower back'],
-  full_body: [] // Full body matches everything
+  full_body: []
 };
 
 export default function LibraryPage({ exercises, onViewChange, savedPlan, setSavedPlan }) {
@@ -62,7 +61,7 @@ export default function LibraryPage({ exercises, onViewChange, savedPlan, setSav
 
   return (
     <DashboardLayout activeTab="library" onViewChange={onViewChange}>
-      <div className="plan-page animate-fade-in" style={{ maxWidth: 'none', margin: '0', padding: '32px 24px', background: 'var(--bg-base)', minHeight: '100%' }}>
+      <div className="plan-page animate-fade-in" style={{ maxWidth: 'none', margin: '0', padding: '24px 12px', background: 'var(--bg-base)', minHeight: '100%' }}>
         <div className="plan-day-header">
           <div className="plan-day-header-text">
             <h1 className="plan-day-title" style={{ fontSize: '1.8rem', marginBottom: '8px' }}>Exercise Library</h1>
@@ -126,7 +125,6 @@ export default function LibraryPage({ exercises, onViewChange, savedPlan, setSav
               </div>
 
               <div style={{ display: 'flex', flexDirection: 'column', gap: '32px', flex: 1, paddingRight: '8px' }}>
-                {/* Category Chips */}
                 <div>
                   <h3 style={{ fontSize: '1rem', fontWeight: 700, color: 'var(--text-primary)', marginBottom: '16px' }}>Category</h3>
                   <div style={{ display: 'flex', flexWrap: 'wrap', gap: '10px' }}>
@@ -146,7 +144,6 @@ export default function LibraryPage({ exercises, onViewChange, savedPlan, setSav
                   </div>
                 </div>
 
-                {/* Area Chips */}
                 <div>
                   <h3 style={{ fontSize: '1rem', fontWeight: 700, color: 'var(--text-primary)', marginBottom: '16px' }}>Target Area</h3>
                   <div style={{ display: 'flex', flexWrap: 'wrap', gap: '10px' }}>
@@ -166,7 +163,6 @@ export default function LibraryPage({ exercises, onViewChange, savedPlan, setSav
                   </div>
                 </div>
 
-                {/* Level Chips */}
                 <div>
                   <h3 style={{ fontSize: '1rem', fontWeight: 700, color: 'var(--text-primary)', marginBottom: '16px' }}>Level</h3>
                   <div style={{ display: 'flex', flexWrap: 'wrap', gap: '10px' }}>
@@ -186,7 +182,6 @@ export default function LibraryPage({ exercises, onViewChange, savedPlan, setSav
                   </div>
                 </div>
 
-                {/* Equipment Chips */}
                 <div>
                   <h3 style={{ fontSize: '1rem', fontWeight: 700, color: 'var(--text-primary)', marginBottom: '16px' }}>Equipment</h3>
                   <div style={{ display: 'flex', flexWrap: 'wrap', gap: '10px' }}>
@@ -239,7 +234,7 @@ export default function LibraryPage({ exercises, onViewChange, savedPlan, setSav
               <p>No exercises found matching your criteria.</p>
             </div>
           ) : (
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))', gap: '16px' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '16px' }}>
               {filteredExercises.map((ex, i) => (
                 <ExerciseCard key={ex.id} exercise={ex} savedPlan={savedPlan} setSavedPlan={setSavedPlan} onAdded={handleShowToast} />
               ))}
@@ -279,7 +274,6 @@ function ExerciseCard({ exercise, savedPlan, setSavedPlan, onAdded }) {
   const [showInstructions, setShowInstructions] = useState(false);
   const categoryClass = CATEGORY_COLORS[exercise.category] || 'badge-gray';
 
-  // Determine what injuries this might aggravate
   const avoidFor = useMemo(() => {
     const avoid = [];
     const allMuscles = [...(exercise.primaryMuscles || []), ...(exercise.secondaryMuscles || [])].map(m => m.toLowerCase());
@@ -331,7 +325,7 @@ function ExerciseCard({ exercise, savedPlan, setSavedPlan, onAdded }) {
                 <span className="badge badge-gray" style={{ fontSize: '0.75rem', fontWeight: 600 }}>Level: {capitalize(exercise.level)}</span>
               </div>
             )}
-            <AddToPlanButton exercise={exercise} savedPlan={savedPlan} setSavedPlan={setSavedPlan} onAdded={onAdded} />
+            <AddToPlanButton style={{ padding: '0px' }} exercise={exercise} savedPlan={savedPlan} setSavedPlan={setSavedPlan} onAdded={onAdded} />
           </div>
 
         </div>
@@ -342,7 +336,6 @@ function ExerciseCard({ exercise, savedPlan, setSavedPlan, onAdded }) {
           <div className="modal-content" onClick={(e) => e.stopPropagation()} style={{ maxWidth: '1000px', width: '100%', borderRadius: 'var(--radius-xl)', overflow: 'hidden', display: 'flex', flexDirection: 'column', maxHeight: '90vh', padding: 0 }}>
             <div style={{ padding: '40px', overflowY: 'auto', flex: 1 }}>
             
-            {/* Modal Header */}
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '32px' }}>
               <div>
                 <div style={{ display: 'flex', gap: '8px', marginBottom: '8px' }}>
@@ -357,10 +350,8 @@ function ExerciseCard({ exercise, savedPlan, setSavedPlan, onAdded }) {
               <button className="modal-close-btn" onClick={() => setShowInstructions(false)} style={{ position: 'relative', top: '-10px', right: '-10px', width: '36px', height: '36px', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'var(--bg-elevated)', borderRadius: '50%' }}>✕</button>
             </div>
 
-            {/* Modal Two Column Layout */}
             <div style={{ display: 'grid', gridTemplateColumns: '1.2fr 1fr', gap: '48px' }}>
               
-              {/* Left Column: Execution Steps */}
               <div style={{ display: 'flex', flexDirection: 'column', gap: '40px' }}>
                 <div>
                   <h3 style={{ fontSize: '1.1rem', marginBottom: '20px', color: 'var(--text-primary)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Execution Steps</h3>
@@ -390,7 +381,6 @@ function ExerciseCard({ exercise, savedPlan, setSavedPlan, onAdded }) {
                   )}
                 </div>
 
-                {/* Avoid For (Injuries) */}
                 {avoidFor.length > 0 && (
                   <div style={{ background: '#fdf0ed', border: '1px solid #fad3cc', borderRadius: 'var(--radius-md)', padding: '20px', display: 'flex', gap: '16px', alignItems: 'flex-start' }}>
                     <div style={{ color: '#e74c3c', marginTop: '2px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
@@ -406,10 +396,8 @@ function ExerciseCard({ exercise, savedPlan, setSavedPlan, onAdded }) {
                 )}
               </div>
 
-              {/* Right Column: Images, Muscles, Avoid */}
               <div style={{ display: 'flex', flexDirection: 'column', gap: '32px' }}>
                 
-                {/* Images */}
                 {exercise.images && exercise.images.length > 0 ? (
                   <div style={{ 
                     display: 'flex',
@@ -426,7 +414,7 @@ function ExerciseCard({ exercise, savedPlan, setSavedPlan, onAdded }) {
                         height: '240px'
                       }}>
                         <img 
-                          src={getExerciseImageUrl(img)} 
+                           src={getExerciseImageUrl(img)} 
                           alt={`${exercise.name} step ${idx + 1}`} 
                           style={{ height: '100%', width: '100%', objectFit: 'contain', borderRadius: 'var(--radius-lg)' }} 
                         />
@@ -439,7 +427,6 @@ function ExerciseCard({ exercise, savedPlan, setSavedPlan, onAdded }) {
                   </div>
                 )}
 
-                {/* Muscles Targeted */}
                 <div>
                   <h3 style={{ fontSize: '0.85rem', marginBottom: '12px', color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.05em', fontWeight: 700 }}>Muscles Targeted</h3>
                   <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
@@ -483,7 +470,6 @@ function capitalize(str) {
   if (!str) return '';
   return str.charAt(0).toUpperCase() + str.slice(1);
 }
-
 
 function AddToPlanButton({ exercise, savedPlan, setSavedPlan, onAdded }) {
   const [showDropdown, setShowDropdown] = useState(false);

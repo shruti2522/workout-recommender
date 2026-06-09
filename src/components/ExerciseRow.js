@@ -41,7 +41,7 @@ export default function ExerciseRow({ exercise, index, isCompleted, filteredPool
         )}
 
         <div className="ex-row-info" style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
             <span className="ex-row-name" style={{ margin: 0, textDecoration: isCompleted ? 'line-through' : 'none' }}>
               {exercise.name}
             </span>
@@ -51,17 +51,17 @@ export default function ExerciseRow({ exercise, index, isCompleted, filteredPool
                 <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
               </span>
             ) : (
-              <span className={`badge ${categoryClass}`} style={{ fontSize: '0.7rem', padding: '2px 8px', background: '#e0f2f0', color: 'var(--accent-primary)', border: 'none' }}>
+              <span className={`badge ${categoryClass}`} style={{ fontSize: '0.75rem', padding: '3px 10px', background: '#fff', color: 'var(--accent-primary)', border: '1px solid var(--accent-primary)', borderRadius: '4px', fontWeight: '500' }}>
                 {formatCategoryLabel(exercise.category)}
               </span>
             )}
           </div>
           
-          <div className="ex-row-meta" style={{ marginBottom: 0, fontSize: '0.85rem', color: 'var(--text-secondary)' }}>
+          <div className="ex-row-meta" style={{ marginTop: '8px', marginBottom: 0, fontSize: '0.85rem', color: 'var(--text-primary)' }}>
             {effort && <span>{effort}</span>}
             {exercise.restSeconds && (
               <>
-                <span style={{ padding: '0 6px', color: 'var(--border-subtle)' }}>|</span>
+                <span style={{ padding: '0 2px', color: 'var(--border-subtle)' }}>|</span>
                 <span>Rest {exercise.restSeconds}s</span>
               </>
             )}
