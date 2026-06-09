@@ -1,6 +1,6 @@
 import React, { useState, useMemo, useEffect, useRef } from 'react';
 import { filterExercises, inferLevel, getDayCount } from '../filterExercises';
-import { LEVEL_COLORS, capitalize } from '../utils/helpers';
+import { capitalize } from '../utils/helpers';
 import { generatePlan } from '../services/geminiService';
 import { GOAL_OPTIONS, TARGET_AREA_OPTIONS } from './Wizard/WizardSteps';
 import LoadingScreen from './LoadingScreen';
