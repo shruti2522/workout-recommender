@@ -91,6 +91,13 @@ function App() {
     setView('session');
   }, [setSessionDay, setView]);
 
+  const handleUpdateSessionProgress = useCallback((stepIdx, phase) => {
+    setSavedPlan(prev => {
+      if (!prev) return prev;
+      return prev.map(d => d.key === sessionDay.key ? { ...d, progress: { stepIdx, phase } } : d);
+    });
+  }, [sessionDay, setSavedPlan]);
+
   const handleSessionComplete = useCallback((elapsed) => {
     setWorkoutElapsed(elapsed);
     setSavedPlan(prev => {
@@ -163,6 +170,7 @@ function App() {
             day={sessionDay}
             onBack={handleBackToPlan}
             onComplete={handleSessionComplete}
+            onUpdateProgress={handleUpdateSessionProgress}
           />
         ) : view === 'complete' ? (
           <WorkoutComplete

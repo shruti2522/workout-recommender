@@ -213,8 +213,15 @@ export default function PlanPage({ exercises, prefs, savedPlan, setSavedPlan, on
   const totalSets = currentDay ? currentDay.exercises.reduce((sum, ex) => sum + (ex?.sets || 0), 0) : 0;
   const totalReps = currentDay ? currentDay.exercises.reduce((sum, ex) => sum + ((ex?.sets || 0) * (ex?.reps || 0)), 0) : 0;
   const estMinutes = currentDay ? Math.round(currentDay.exercises.reduce((sum, ex) => sum + ((ex?.sets || 0) * ((ex?.reps || 10) * 4 + (ex?.restSeconds || 60))), 0) / 60) : 0;
-  const completedDays = savedPlan.filter(d => d.completed).length;
-  const progressPct = Math.round((completedDays / savedPlan.length) * 100);
+
+
+  
+  // Session progress
+  const currentStepIdx = currentDay?.progress?.stepIdx || 0;
+  const sessionProgressPct = currentDay?.completed ? 100 : Math.round((currentStepIdx / Math.max(1, totalSets)) * 100);
+  const setsDone = currentDay?.completed ? totalSets : currentStepIdx;
+  const remMinutes = currentDay?.completed ? 0 : Math.max(0, Math.round(estMinutes * (1 - sessionProgressPct / 100)));
+
 
   const summaryPanel = (
     <>
@@ -224,13 +231,13 @@ export default function PlanPage({ exercises, prefs, savedPlan, setSavedPlan, on
           <div className="summary-circle">
             <svg viewBox="0 0 36 36">
               <circle className="summary-circle-bg" cx="18" cy="18" r="15.915" />
-              <circle className="summary-circle-fill" cx="18" cy="18" r="15.915" strokeDasharray={`${progressPct}, 100`} />
+              <circle className="summary-circle-fill" cx="18" cy="18" r="15.915" strokeDasharray={`${sessionProgressPct}, 100`} />
             </svg>
-            <div className="summary-circle-text">{progressPct}%</div>
+            <div className="summary-circle-text">{sessionProgressPct}%</div>
           </div>
           <div className="summary-progress-info">
-            <span className="summary-progress-done">{completedDays} of {savedPlan.length} done</span>
-            <span className="summary-progress-rem">~{estMinutes} min remaining</span>
+            <span className="summary-progress-done">{setsDone} of {totalSets} sets done</span>
+            <span className="summary-progress-rem">~{remMinutes} min remaining</span>
           </div>
         </div>
       </div>
@@ -281,16 +288,14 @@ export default function PlanPage({ exercises, prefs, savedPlan, setSavedPlan, on
         </div>
       </div>
 
-      <div className="summary-section">
-        <div className="summary-title">Coach's Note</div>
-        <div className="summary-note">
-          Focus on form over weight today. Pause for 1s at the bottom of each squat to build control.
-        </div>
-      </div>
+
 
       <div className="sidebar-spacer" />
-      <button className="btn btn-primary btn-lg" style={{width: '100%'}} onClick={() => onStartSession(currentDay)}>
-        {currentDay?.completed ? 'Review Session' : 'Resume Session'}
+      <button className="btn btn-primary btn-lg" style={{width: '100%', marginBottom: '12px'}} onClick={() => onStartSession(currentDay)}>
+        {currentDay?.completed ? 'Review Session' : currentStepIdx > 0 ? 'Resume Session' : 'Start Session'}
+      </button>
+      <button className="btn btn-ghost" style={{width: '100%', border: '1px solid var(--accent-primary)', color: 'var(--accent-primary)'}} onClick={onReset}>
+        Change Preferences
       </button>
     </>
   );
@@ -317,16 +322,6 @@ export default function PlanPage({ exercises, prefs, savedPlan, setSavedPlan, on
                   <span>{dayCount} day{dayCount !== 1 ? 's' : ''}/week</span>
                 </div>
               </div>
-              <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
-                <button className="btn btn-ghost" onClick={onReset} style={{ fontSize: '0.9rem', color: 'var(--text-primary)', fontWeight: 600 }}>
-                  Change Preferences
-                </button>
-                {!currentDay?.completed && (
-                  <button className="btn btn-primary" onClick={() => onStartSession(currentDay)}>
-                    Start Session
-                  </button>
-                )}
-              </div>
             </div>
           </div>
 
@@ -345,7 +340,6 @@ export default function PlanPage({ exercises, prefs, savedPlan, setSavedPlan, on
                 >
                   <span className="plan-tab-inner">
                     <span className="plan-tab-day">
-                      {activeDay === i ? <div style={{width: '10px', height: '10px', borderRadius: '50%', background: 'var(--accent-primary)', marginRight: '6px'}} /> : null}
                       Day {day.dayNumber}
                     </span>
                   </span>

@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { formatCategoryLabel, CATEGORY_COLORS } from '../utils/helpers';
 import PickExerciseModal from './PickExerciseModal';
 
-export default function ExerciseRow({ exercise, index, filteredPool, onShuffle, onDelete, onPick, isReordering, onDragStart, onDragEnter, onDragEnd }) {
+export default function ExerciseRow({ exercise, index, isCompleted, filteredPool, onShuffle, onDelete, onPick, isReordering, onDragStart, onDragEnter, onDragEnd }) {
   const [showPicker, setShowPicker] = useState(false);
   
   if (!exercise) return null;
@@ -12,8 +12,7 @@ export default function ExerciseRow({ exercise, index, filteredPool, onShuffle, 
     ? `${exercise.sets} sets × ${exercise.durationSeconds}s`
     : exercise.sets ? `${exercise.sets} sets × ${exercise.reps} reps` : null;
 
-  // Mock completion state for the first item to show the requested UI
-  const isCompleted = index === 0;
+  // Completion state comes from props now
 
   return (
     <>

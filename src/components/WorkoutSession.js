@@ -78,7 +78,7 @@ function RestTimer({ seconds, onDone }) {
   );
 }
 
-export default function WorkoutSession({ day, onBack, onComplete }) {
+export default function WorkoutSession({ day, onBack, onComplete, onUpdateProgress }) {
   const exercises = day.exercises;
 
   
@@ -86,8 +86,8 @@ export default function WorkoutSession({ day, onBack, onComplete }) {
     Array.from({ length: ex.sets || 1 }, (_, si) => ({ ei, si, total: ex.sets || 1 }))
   );
 
-  const [stepIdx, setStepIdx] = useState(0);
-  const [phase, setPhase] = useState('exercise'); 
+  const [stepIdx, setStepIdx] = useState(day.progress?.stepIdx || 0);
+  const [phase, setPhase] = useState(day.progress?.phase || 'exercise'); 
   const [elapsed, setElapsed] = useState(0);
   const [setTimerKey, setSetTimerKey] = useState(0); 
   const [imgError, setImgError] = useState(false);
@@ -100,6 +100,12 @@ export default function WorkoutSession({ day, onBack, onComplete }) {
     }, 1000);
     return () => clearInterval(interval);
   }, []);
+
+  useEffect(() => {
+    if (onUpdateProgress) {
+      onUpdateProgress(stepIdx, phase);
+    }
+  }, [stepIdx, phase, onUpdateProgress]);
 
   const totalSteps = steps.length;
   const progress = ((stepIdx + (phase === 'rest' ? 0.5 : 0)) / totalSteps) * 100;
