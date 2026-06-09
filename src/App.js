@@ -6,6 +6,8 @@ import { EXERCISES_URL } from './utils/helpers';
 import HeroPage from './components/HeroPage';
 import Wizard from './components/Wizard/Wizard';
 import PlanPage from './components/PlanPage';
+import LibraryPage from './components/LibraryPage';
+
 import WorkoutSession from './components/WorkoutSession';
 import WorkoutComplete from './components/WorkoutComplete';
 
@@ -106,7 +108,7 @@ function App() {
   return (
     <>
       {}
-      {view !== 'session' && (
+      {view !== 'session' && view !== 'results' && view !== 'library' && (
         <nav className="site-nav" aria-label="Site navigation">
           <a href="/" className="site-logo" id="site-logo-link">
             <span className="site-logo-icon">FS</span>
@@ -152,7 +154,10 @@ function App() {
             setSavedPlan={setSavedPlan}
             onReset={handleReset}
             onStartSession={handleStartSession}
+              onViewChange={setView}
           />
+        ) : view === 'library' ? (
+          <LibraryPage exercises={exercises} onViewChange={setView} savedPlan={savedPlan} setSavedPlan={setSavedPlan} />
         ) : view === 'session' && sessionDay ? (
           <WorkoutSession
             day={sessionDay}

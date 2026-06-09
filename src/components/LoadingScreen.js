@@ -12,7 +12,7 @@ export default function LoadingScreen() {
   useEffect(() => {
     const interval = setInterval(() => setMsgIndex((i) => (i + 1) % messages.length), 1800);
     return () => clearInterval(interval);
-  }, []); 
+  }, [messages.length]); 
 
   return (
     <div className="loading-screen animate-fade-in">

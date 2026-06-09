@@ -357,7 +357,7 @@
 
 .plan-banner {
   padding: 24px 24px 20px;
-  border-bottom: 1px solid var(--border-subtle);
+  border-bottom: 0.5px solid var(--border-subtle);
   background: #fff;
   position: sticky;
   top: calc(57px);
@@ -395,7 +395,7 @@
 
 .plan-tabs-wrap {
   background: #fff;
-  border-bottom: 1px solid var(--border-subtle);
+  border-bottom: 0.5px solid var(--border-subtle);
   position: sticky;
   top: calc(57px + 76px);
   z-index: 9;

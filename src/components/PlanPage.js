@@ -1,13 +1,15 @@
 import React, { useState, useMemo, useEffect, useRef } from 'react';
 import { filterExercises, inferLevel, getDayCount } from '../filterExercises';
-import { LEVEL_COLORS, capitalize, getExerciseImageUrl, formatCategoryLabel, CATEGORY_COLORS } from '../utils/helpers';
+import { LEVEL_COLORS, capitalize } from '../utils/helpers';
 import { generatePlan } from '../services/geminiService';
 import { GOAL_OPTIONS, TARGET_AREA_OPTIONS } from './Wizard/WizardSteps';
 import LoadingScreen from './LoadingScreen';
 import ExerciseRow from './ExerciseRow';
 import PickExerciseModal from './PickExerciseModal';
 
-export default function PlanPage({ exercises, prefs, savedPlan, setSavedPlan, onReset, onStartSession }) {
+import DashboardLayout from "./DashboardLayout";
+
+export default function PlanPage({ exercises, prefs, savedPlan, setSavedPlan, onReset, onStartSession, onViewChange }) {
   const [activeDay, setActiveDay] = useState(0);
   const [showAddPicker, setShowAddPicker] = useState(false);
   const [isLoading, setIsLoading] = useState(!savedPlan);
@@ -207,144 +209,216 @@ export default function PlanPage({ exercises, prefs, savedPlan, setSavedPlan, on
     );
   }
 
-  return (
-    <div className="plan-page animate-fade-in">
+  // Calculate metrics for right panel
+  const totalSets = currentDay ? currentDay.exercises.reduce((sum, ex) => sum + (ex?.sets || 0), 0) : 0;
+  const totalReps = currentDay ? currentDay.exercises.reduce((sum, ex) => sum + ((ex?.sets || 0) * (ex?.reps || 0)), 0) : 0;
+  const estMinutes = currentDay ? Math.round(currentDay.exercises.reduce((sum, ex) => sum + ((ex?.sets || 0) * ((ex?.reps || 10) * 4 + (ex?.restSeconds || 60))), 0) / 60) : 0;
+  const completedDays = savedPlan.filter(d => d.completed).length;
+  const progressPct = Math.round((completedDays / savedPlan.length) * 100);
 
-      {}
-      <div className="plan-banner">
-        <div className="plan-banner-inner">
+  const summaryPanel = (
+    <>
+      <div className="summary-section">
+        <div className="summary-title">Session Progress</div>
+        <div className="summary-progress-wrap">
+          <div className="summary-circle">
+            <svg viewBox="0 0 36 36">
+              <circle className="summary-circle-bg" cx="18" cy="18" r="15.915" />
+              <circle className="summary-circle-fill" cx="18" cy="18" r="15.915" strokeDasharray={`${progressPct}, 100`} />
+            </svg>
+            <div className="summary-circle-text">{progressPct}%</div>
+          </div>
+          <div className="summary-progress-info">
+            <span className="summary-progress-done">{completedDays} of {savedPlan.length} done</span>
+            <span className="summary-progress-rem">~{estMinutes} min remaining</span>
+          </div>
+        </div>
+      </div>
+
+      <div className="summary-section">
+        <div className="summary-title">Today's Volume</div>
+        <div className="summary-grid">
           <div>
-            <h1 className="plan-title">Your Custom Plan</h1>
-            <div className="plan-meta">
-              <span className={`badge ${LEVEL_COLORS[level] || 'badge-gray'}`}>{capitalize(level)}</span>
-              <span className="plan-meta-dot">·</span>
-              <span className="badge badge-gray" style={{ background: 'transparent', border: '1px solid var(--border-subtle)' }}>
-                Level: {score}/10
-              </span>
-              {goalLabel && <><span className="plan-meta-dot">·</span><span>{goalLabel}</span></>}
-              {areaLabels.length > 0 && <><span className="plan-meta-dot">·</span><span>{areaLabels.join(', ')}</span></>}
-              <span className="plan-meta-dot">·</span>
-              <span>{dayCount} day{dayCount !== 1 ? 's' : ''}/week</span>
-            </div>
+            <div className="summary-stat-val">{totalSets}</div>
+            <div className="summary-stat-label">Total sets</div>
           </div>
-          <button id="reset-preferences-btn" className="btn btn-secondary" onClick={onReset} aria-label="Change preferences">
-            ← Change Preferences
-          </button>
+          <div>
+            <div className="summary-stat-val">{totalReps}</div>
+            <div className="summary-stat-label">Total reps</div>
+          </div>
+          <div>
+            <div className="summary-stat-val">{estMinutes}</div>
+            <div className="summary-stat-label">Est. minutes</div>
+          </div>
+          <div>
+            <div className="summary-stat-val" style={{color: 'var(--accent-primary)'}}>~{Math.round(estMinutes * 7)}</div>
+            <div className="summary-stat-label">Est. kcal</div>
+          </div>
         </div>
       </div>
 
-      {}
-      <div className="plan-tabs-wrap">
-        <div className="plan-tabs" role="tablist" aria-label="Workout days">
-          {savedPlan.map((day, i) => (
-            <button
-              key={day.key}
-              id={`day-tab-${i}`}
-              role="tab"
-              aria-selected={activeDay === i}
-              aria-controls={`day-panel-${i}`}
-              className={`plan-tab${activeDay === i ? ' active' : ''}`}
-              onClick={() => setActiveDay(i)}
-            >
-              <span className="plan-tab-inner">
-                <span className="plan-tab-day">
-                  Day {day.dayNumber}
-                  {day.completed && (
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" style={{color: 'var(--accent-primary)', marginLeft: '6px'}}><polyline points="20 6 9 17 4 12"></polyline></svg>
-                  )}
-                </span>
-              </span>
-            </button>
-          ))}
+      <div className="summary-section">
+        <div className="summary-title">Muscles Targeted</div>
+        <div className="summary-muscle-row">
+          <div className="summary-muscle-name">Quadriceps</div>
+          <div className="summary-muscle-bar-wrap"><div className="summary-muscle-bar" style={{width: '90%'}} /></div>
+          <div className="summary-muscle-pct">90%</div>
+        </div>
+        <div className="summary-muscle-row">
+          <div className="summary-muscle-name">Hamstrings</div>
+          <div className="summary-muscle-bar-wrap"><div className="summary-muscle-bar" style={{width: '70%'}} /></div>
+          <div className="summary-muscle-pct">70%</div>
+        </div>
+        <div className="summary-muscle-row">
+          <div className="summary-muscle-name">Glutes</div>
+          <div className="summary-muscle-bar-wrap"><div className="summary-muscle-bar" style={{width: '55%'}} /></div>
+          <div className="summary-muscle-pct">55%</div>
+        </div>
+        <div className="summary-muscle-row">
+          <div className="summary-muscle-name">Calves</div>
+          <div className="summary-muscle-bar-wrap"><div className="summary-muscle-bar" style={{width: '30%'}} /></div>
+          <div className="summary-muscle-pct">30%</div>
         </div>
       </div>
 
-      {}
-      {currentDay && (
-        <div id={`day-panel-${activeDay}`} className="plan-day-content" role="tabpanel" aria-labelledby={`day-tab-${activeDay}`}>
-          <div className="plan-day-header">
-            <div className="plan-day-header-text">
-              <h2 className="plan-day-title">Day {currentDay.dayNumber} - {currentDay.label}</h2>
-              <p className="plan-day-focus">{currentDay.focus}</p>
-            </div>
-            <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
-              <span className="badge badge-gray">{currentDay.exercises.length} exercises</span>
-              <button 
-                className="btn btn-sm btn-ghost" 
-                onClick={() => setIsReordering(!isReordering)}
-                style={{ color: isReordering ? 'var(--accent-primary)' : 'var(--text-secondary)' }}
-              >
-                {isReordering ? 'Done Editing' : 'Edit Order'}
-              </button>
-              <button 
-                className="btn btn-sm btn-ghost" 
-                onClick={() => setShowAddPicker(true)}
-              >
-                + Add Exercise
-              </button>
+      <div className="summary-section">
+        <div className="summary-title">Coach's Note</div>
+        <div className="summary-note">
+          Focus on form over weight today. Pause for 1s at the bottom of each squat to build control.
+        </div>
+      </div>
+
+      <div className="sidebar-spacer" />
+      <button className="btn btn-primary btn-lg" style={{width: '100%'}} onClick={() => onStartSession(currentDay)}>
+        {currentDay?.completed ? 'Review Session' : 'Resume Session'}
+      </button>
+    </>
+  );
+
+  return (
+    <DashboardLayout activeTab="plan" onViewChange={onViewChange} summaryPanel={summaryPanel}>
+      <div className="plan-page">
+
+
+          {/* Banner */}
+          <div className="plan-banner">
+            <div className="plan-banner-inner">
+              <div>
+                <h1 className="plan-title">Your Custom Plan</h1>
+                <div className="plan-meta">
+                  <span className={`badge ${LEVEL_COLORS[level] || 'badge-gray'}`}>{capitalize(level)}</span>
+                  <span style={{ width: "4px", height: "4px", borderRadius: "50%", background: "var(--border-subtle)", margin: "0 4px" }} />
+                  <span className="badge badge-gray" style={{ background: 'transparent', border: '1px solid var(--border-subtle)' }}>
+                    Level: {score}/10
+                  </span>
+                  {goalLabel && <><span style={{ width: "4px", height: "4px", borderRadius: "50%", background: "var(--border-subtle)", margin: "0 4px" }} /><span>{goalLabel}</span></>}
+                  {areaLabels.length > 0 && <><span style={{ width: "4px", height: "4px", borderRadius: "50%", background: "var(--border-subtle)", margin: "0 4px" }} /><span>{areaLabels.join(', ')}</span></>}
+                  <span style={{ width: "4px", height: "4px", borderRadius: "50%", background: "var(--border-subtle)", margin: "0 4px" }} />
+                  <span>{dayCount} day{dayCount !== 1 ? 's' : ''}/week</span>
+                </div>
+              </div>
+              <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
+                <button className="btn btn-ghost" onClick={onReset} style={{ fontSize: '0.9rem', color: 'var(--text-primary)', fontWeight: 600 }}>
+                  Change Preferences
+                </button>
+                {!currentDay?.completed && (
+                  <button className="btn btn-primary" onClick={() => onStartSession(currentDay)}>
+                    Start Session
+                  </button>
+                )}
+              </div>
             </div>
           </div>
 
-          {}
-          {currentDay.exercises.length === 0 ? (
-            <div className="results-empty" style={{ padding: '40px 0' }}>
-              <p>No exercises left. Go back to add more.</p>
+          {/* Tabs */}
+          <div className="plan-tabs-wrap">
+            <div className="plan-tabs" role="tablist" aria-label="Workout days">
+              {savedPlan.map((day, i) => (
+                <button
+                  key={day.key}
+                  id={`day-tab-${i}`}
+                  role="tab"
+                  aria-selected={activeDay === i}
+                  aria-controls={`day-panel-${i}`}
+                  className={`plan-tab${activeDay === i ? ' active' : ''}`}
+                  onClick={() => setActiveDay(i)}
+                >
+                  <span className="plan-tab-inner">
+                    <span className="plan-tab-day">
+                      {activeDay === i ? <div style={{width: '10px', height: '10px', borderRadius: '50%', background: 'var(--accent-primary)', marginRight: '6px'}} /> : null}
+                      Day {day.dayNumber}
+                    </span>
+                  </span>
+                </button>
+              ))}
             </div>
-          ) : (
-            <div className="ex-list animate-fade-up">
-              {currentDay.exercises.filter(Boolean).map((ex, exIdx) => {
-                if (!ex) return null;
-                return (
-                  <ExerciseRow
-                    key={`${ex.id}-${exIdx}`}
-                    exercise={ex}
-                    index={exIdx}
-                    filteredPool={filtered}
-                    onShuffle={() => handleShuffle(activeDay, exIdx)}
-                    onDelete={() => handleDelete(activeDay, exIdx)}
-                    onPick={(newEx) => handlePick(activeDay, exIdx, newEx)}
-                    isReordering={isReordering}
-                    onDragStart={isReordering ? handleDragStart : undefined}
-                    onDragEnter={isReordering ? handleDragEnter : undefined}
-                    onDragEnd={isReordering ? handleDragEnd : undefined}
-                  />
-                );
-              })}
-            </div>
-          )}
+          </div>
 
-          {}
-          {currentDay.exercises.length > 0 && !currentDay.completed && (
-            <div className="start-workout-wrap">
-              <button
-                id="start-workout-btn"
-                className="btn btn-lg btn-primary start-workout-btn"
-                onClick={() => onStartSession(currentDay)}
-              >
-                Start Today's Workout
-              </button>
-            </div>
-          )}
-          {currentDay.exercises.length > 0 && currentDay.completed && (
-            <div className="start-workout-wrap">
-              <span className="badge badge-gray" style={{ padding: '8px 16px', fontSize: '0.95rem' }}>
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--accent-primary)" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" style={{ marginRight: '8px' }}><polyline points="20 6 9 17 4 12"></polyline></svg>
-                Workout Completed
-              </span>
-            </div>
-          )}
+          {/* Content */}
+          {currentDay && (
+            <div id={`day-panel-${activeDay}`} className="plan-day-content" role="tabpanel" aria-labelledby={`day-tab-${activeDay}`}>
+              <div className="plan-day-header">
+                <div className="plan-day-header-text">
+                  <h2 className="plan-day-title">Day {currentDay.dayNumber} — {currentDay.label}</h2>
+                  <p className="plan-day-focus">{currentDay.focus}</p>
+                </div>
+                <div style={{ display: 'flex', gap: '16px', alignItems: 'center', fontSize: '0.85rem', fontWeight: '500' }}>
+                  <button 
+                    className="btn btn-sm btn-ghost" 
+                    onClick={() => setIsReordering(!isReordering)}
+                    style={{ color: isReordering ? 'var(--accent-primary)' : 'var(--text-primary)', padding: 0 }}
+                  >
+                    {isReordering ? 'Done Editing' : 'Edit Order'}
+                  </button>
+                  <span>{currentDay.exercises.length} exercises</span>
+                  <span className="badge badge-gray" style={{fontSize: "0.85rem", padding: "4px 10px", fontWeight: "600"}}>~{estMinutes} min</span>
+                </div>
+              </div>
 
-          {}
-          {showAddPicker && (
-            <PickExerciseModal
-              allExercises={filtered}
-              currentId={null}
-              onPick={(ex) => { handleAdd(activeDay, ex); setShowAddPicker(false); }}
-              onClose={() => setShowAddPicker(false)}
-            />
+              {currentDay.exercises.length === 0 ? (
+                <div className="results-empty" style={{ padding: '40px 0' }}>
+                  <p>No exercises left. Go back to add more.</p>
+                </div>
+              ) : (
+                <div className="ex-list animate-fade-up">
+                  {currentDay.exercises.filter(Boolean).map((ex, exIdx) => {
+                    if (!ex) return null;
+                    return (
+                      <ExerciseRow
+                        key={`${ex.id}-${exIdx}`}
+                        exercise={ex}
+                        index={exIdx}
+                        filteredPool={filtered}
+                        onShuffle={() => handleShuffle(activeDay, exIdx)}
+                        onDelete={() => handleDelete(activeDay, exIdx)}
+                        onPick={(newEx) => handlePick(activeDay, exIdx, newEx)}
+                        isReordering={isReordering}
+                        onDragStart={isReordering ? handleDragStart : undefined}
+                        onDragEnter={isReordering ? handleDragEnter : undefined}
+                        onDragEnd={isReordering ? handleDragEnd : undefined}
+                      />
+                    );
+                  })}
+                </div>
+              )}
+
+              <div style={{ marginTop: '20px', paddingBottom: '40px' }}>
+                <button className="btn btn-sm btn-ghost" onClick={() => setShowAddPicker(true)} style={{ color: 'var(--text-primary)', padding: 0 }}>
+                  + Add Exercise
+                </button>
+              </div>
+
+              {showAddPicker && (
+                <PickExerciseModal
+                  allExercises={filtered}
+                  currentId={null}
+                  onPick={(ex) => { handleAdd(activeDay, ex); setShowAddPicker(false); }}
+                  onClose={() => setShowAddPicker(false)}
+                />
+              )}
+            </div>
           )}
         </div>
-      )}
-    </div>
+      </DashboardLayout>
   );
 }
