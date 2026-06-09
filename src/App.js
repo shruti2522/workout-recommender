@@ -7,6 +7,9 @@ import HeroPage from './components/HeroPage';
 import Wizard from './components/Wizard/Wizard';
 import PlanPage from './components/PlanPage';
 import LibraryPage from './components/LibraryPage';
+import ProgressPage from './components/ProgressPage';
+import GoalPage from './components/GoalPage';
+import HistoryPage from './components/HistoryPage';
 
 import WorkoutSession from './components/WorkoutSession';
 import WorkoutComplete from './components/WorkoutComplete';
@@ -50,6 +53,7 @@ function App() {
   const [sessionDay, setSessionDay] = useLocalStorage('fs_sessionDay', null);
   const [workoutElapsed, setWorkoutElapsed] = useLocalStorage('fs_elapsed', 0);
   const [savedPlan, setSavedPlan] = useLocalStorage('fs_plan', null);
+  const [history, setHistory] = useLocalStorage('fs_history', []);
 
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
@@ -126,20 +130,50 @@ function App() {
       if (!prev) return prev;
       return prev.map(d => d.key === sessionDay.key ? { ...d, completed: true } : d);
     });
+    // Record in history
+    if (sessionDay) {
+      const muscles = [...new Set(
+        (sessionDay.exercises ?? []).flatMap(ex => ex.primaryMuscles ?? [])
+          .map(m => m.charAt(0).toUpperCase() + m.slice(1))
+      )].slice(0, 6);
+      const totalSets = (sessionDay.exercises ?? []).reduce((s, ex) => s + (ex.sets ?? 1), 0);
+      setHistory(prev => [
+        ...(prev ?? []),
+        {
+          date: new Date().toISOString().slice(0, 10),
+          dayLabel: sessionDay.label ?? '',
+          elapsed,
+          totalSets,
+          exercises: sessionDay.exercises?.length ?? 0,
+          muscles,
+        },
+      ]);
+    }
     setView('complete');
-  }, [sessionDay, setWorkoutElapsed, setSavedPlan, setView]);
+  }, [sessionDay, setWorkoutElapsed, setSavedPlan, setHistory, setView]);
 
   const handleBackToPlan = useCallback(() => {
     setSessionDay(null);
     setView('results');
   }, [setSessionDay, setView]);
 
+  // Shared sidebar props for all dashboard pages
+  const sidebarProps = {
+    sidebarOpen: isSidebarOpen,
+    onToggleSidebar: () => setIsSidebarOpen(v => !v),
+    isMobile,
+    onOpenSidebar: () => setIsSidebarOpen(true),
+    onCloseSidebar: () => setIsSidebarOpen(false),
+  };
+
+  const isDashboardView = ['results', 'library', 'progress', 'goal', 'history'].includes(view);
+
   return (
     <>
       {}
-      {view !== 'session' && view !== 'results' && view !== 'library' && (
+      {!isDashboardView && view !== 'session' && (
         <nav className="site-nav" aria-label="Site navigation">
-          <a href="/" className="site-logo" id="site-logo-link">
+          <a className="site-logo" id="site-logo-link">
             <span className="site-logo-icon">T</span>
             Trainr
           </a>
@@ -184,11 +218,7 @@ function App() {
             onReset={handleReset}
             onStartSession={handleStartSession}
             onViewChange={setView}
-            sidebarOpen={isSidebarOpen}
-            onToggleSidebar={() => setIsSidebarOpen(v => !v)}
-            isMobile={isMobile}
-            onOpenSidebar={() => setIsSidebarOpen(true)}
-            onCloseSidebar={() => setIsSidebarOpen(false)}
+            {...sidebarProps}
           />
         ) : view === 'library' ? (
           <LibraryPage
@@ -196,11 +226,28 @@ function App() {
             onViewChange={setView}
             savedPlan={savedPlan}
             setSavedPlan={setSavedPlan}
-            sidebarOpen={isSidebarOpen}
-            onToggleSidebar={() => setIsSidebarOpen(v => !v)}
-            isMobile={isMobile}
-            onOpenSidebar={() => setIsSidebarOpen(true)}
-            onCloseSidebar={() => setIsSidebarOpen(false)}
+            {...sidebarProps}
+          />
+        ) : view === 'progress' ? (
+          <ProgressPage
+            savedPlan={savedPlan}
+            history={history}
+            onViewChange={setView}
+            {...sidebarProps}
+          />
+        ) : view === 'goal' ? (
+          <GoalPage
+            prefs={prefs}
+            savedPlan={savedPlan}
+            onReset={handleReset}
+            onViewChange={setView}
+            {...sidebarProps}
+          />
+        ) : view === 'history' ? (
+          <HistoryPage
+            history={history}
+            onViewChange={setView}
+            {...sidebarProps}
           />
         ) : view === 'session' && sessionDay ? (
           <WorkoutSession

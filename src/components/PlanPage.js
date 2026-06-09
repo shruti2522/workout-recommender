@@ -289,9 +289,9 @@ export default function PlanPage({ exercises, prefs, savedPlan, setSavedPlan, on
         <div className="summary-title">Session Progress</div>
         <div className="summary-progress-wrap">
           <div className="summary-circle">
-            <svg viewBox="0 0 36 36">
-              <circle className="summary-circle-bg" cx="18" cy="18" r="15.915" />
-              <circle className="summary-circle-fill" cx="18" cy="18" r="15.915" strokeDasharray={`${sessionProgressPct}, 100`} />
+            <svg viewBox="0 0 40 40">
+              <circle className="summary-circle-bg" cx="20" cy="20" r="15.915" />
+              <circle className="summary-circle-fill" cx="20" cy="20" r="15.915" strokeDasharray={`${sessionProgressPct}, 100`} />
             </svg>
             <div className="summary-circle-text">{sessionProgressPct}%</div>
           </div>
@@ -408,8 +408,9 @@ export default function PlanPage({ exercises, prefs, savedPlan, setSavedPlan, on
                   onClick={() => setActiveDay(i)}
                 >
                   <span className="plan-tab-inner">
-                    <span className="plan-tab-day">
+                    <span className="plan-tab-day" style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
                       Day {day.dayNumber}
+                      {day.completed && <i className="ti ti-circle-check" style={{ color: 'var(--accent-success)', fontSize: '1.1rem' }} title="Completed" />}
                     </span>
                   </span>
                 </button>
@@ -422,7 +423,10 @@ export default function PlanPage({ exercises, prefs, savedPlan, setSavedPlan, on
             <div id={`day-panel-${activeDay}`} className="plan-day-content" role="tabpanel" aria-labelledby={`day-tab-${activeDay}`}>
               <div className="plan-day-header">
                 <div className="plan-day-header-text">
-                  <h2 className="plan-day-title">{currentDay.label}</h2>
+                  <h2 className="plan-day-title" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    {currentDay.label}
+                    {currentDay.completed && <i className="ti ti-circle-check" style={{ color: 'var(--accent-success)', fontSize: '1.4rem' }} title="Completed" />}
+                  </h2>
                 </div>
                 <div style={{ display: 'flex', gap: '16px', alignItems: 'center', fontSize: '0.85rem', fontWeight: '500' }}>
                   <span>{currentDay.exercises.length} exercises</span>

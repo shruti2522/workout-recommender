@@ -10,8 +10,8 @@ export default function ExerciseRow({ exercise, index, isCompleted, filteredPool
   
   const categoryClass = CATEGORY_COLORS[exercise.category] || 'badge-gray';
   const effort = exercise.durationSeconds
-    ? `${exercise.sets} sets × ${exercise.durationSeconds}s`
-    : exercise.sets ? `${exercise.sets} sets × ${exercise.reps} reps` : null;
+    ? `${exercise.sets} set${exercise.sets > 1 ? 's' : ''} × ${exercise.durationSeconds}s`
+    : exercise.sets ? `${exercise.sets} set${exercise.sets > 1 ? 's' : ''} × ${exercise.reps} reps` : null;
 
   const imageUrl = exercise.images && exercise.images[0]
     ? getExerciseImageUrl(exercise.images[0])
@@ -66,7 +66,7 @@ export default function ExerciseRow({ exercise, index, isCompleted, filteredPool
           
           <div className="ex-row-meta">
             {effort && <span>{effort}</span>}
-            {exercise.restSeconds && (
+            {exercise.restSeconds > 0 && (
               <>
                 <span className="meta-divider">|</span>
                 <span>Rest {exercise.restSeconds}s</span>

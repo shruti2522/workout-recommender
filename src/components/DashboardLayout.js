@@ -27,7 +27,7 @@ export default function DashboardLayout({
             <line x1="3" y1="18" x2="21" y2="18"></line>
           </svg>
         </button>
-        <a href="/" className="mobile-logo" onClick={(e) => { e.preventDefault(); onViewChange('hero'); }}>
+        <a className="mobile-logo" onClick={(e) => { e.preventDefault(); onViewChange('hero'); }}>
           <span className="sidebar-logo-icon">T</span>
           Trainr
         </a>
@@ -42,7 +42,6 @@ export default function DashboardLayout({
       <aside className={`layout-sidebar ${sidebarOpen ? 'open' : ''}`}>
         <div className="sidebar-header">
           <a
-            href="/"
             className="sidebar-logo"
             style={{ textDecoration: 'none', display: sidebarOpen ? 'flex' : 'none' }}
             onClick={(e) => { e.preventDefault(); onViewChange('hero'); if (isMobile) onCloseSidebar(); }}
@@ -85,15 +84,24 @@ export default function DashboardLayout({
           </div>
 
           <div className="sidebar-section-title">Track</div>
-          <div className="sidebar-link">
+          <div
+            className={`sidebar-link ${activeTab === 'progress' ? 'active' : ''}`}
+            onClick={() => { onViewChange('progress'); if (isMobile) onCloseSidebar(); }}
+          >
             <i className="ti ti-trending-up sidebar-icon" aria-hidden="true" />
             <span className="sidebar-link-text">Progress</span>
           </div>
-          <div className="sidebar-link">
+          <div
+            className={`sidebar-link ${activeTab === 'history' ? 'active' : ''}`}
+            onClick={() => { onViewChange('history'); if (isMobile) onCloseSidebar(); }}
+          >
             <i className="ti ti-history sidebar-icon" aria-hidden="true" />
             <span className="sidebar-link-text">History</span>
           </div>
-          <div className="sidebar-link">
+          <div
+            className={`sidebar-link ${activeTab === 'goal' ? 'active' : ''}`}
+            onClick={() => { onViewChange('goal'); if (isMobile) onCloseSidebar(); }}
+          >
             <i className="ti ti-target sidebar-icon" aria-hidden="true" />
             <span className="sidebar-link-text">Goal</span>
           </div>
