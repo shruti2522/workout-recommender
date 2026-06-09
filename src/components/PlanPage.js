@@ -9,7 +9,7 @@ import PickExerciseModal from './PickExerciseModal';
 
 import DashboardLayout from "./DashboardLayout";
 
-export default function PlanPage({ exercises, prefs, savedPlan, setSavedPlan, onReset, onStartSession, onViewChange }) {
+export default function PlanPage({ exercises, prefs, savedPlan, setSavedPlan, onReset, onStartSession, onViewChange, sidebarOpen, onToggleSidebar, isMobile, onOpenSidebar, onCloseSidebar }) {
   const [activeDay, setActiveDay] = useState(0);
   const [showAddPicker, setShowAddPicker] = useState(false);
   const [isLoading, setIsLoading] = useState(!savedPlan);
@@ -373,7 +373,7 @@ export default function PlanPage({ exercises, prefs, savedPlan, setSavedPlan, on
   );
 
   return (
-    <DashboardLayout activeTab="plan" onViewChange={onViewChange} summaryPanel={summaryPanel}>
+    <DashboardLayout activeTab="plan" onViewChange={onViewChange} summaryPanel={summaryPanel} sidebarOpen={sidebarOpen} onToggleSidebar={onToggleSidebar} isMobile={isMobile} onOpenSidebar={onOpenSidebar} onCloseSidebar={onCloseSidebar}>
       <div className="plan-page">
 
           {/* Banner */}

@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import './index.css';
 import './App.css';
 
@@ -50,6 +50,27 @@ function App() {
   const [sessionDay, setSessionDay] = useLocalStorage('fs_sessionDay', null);
   const [workoutElapsed, setWorkoutElapsed] = useLocalStorage('fs_elapsed', 0);
   const [savedPlan, setSavedPlan] = useLocalStorage('fs_plan', null);
+
+  const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+  const [isMobile, setIsMobile] = useState(false);
+  const prevIsMobile = useRef(null);
+
+  useEffect(() => {
+    const checkMobile = () => {
+      const mobile = window.innerWidth <= 1024;
+      if (prevIsMobile.current === null) {
+        setIsMobile(mobile);
+        setIsSidebarOpen(!mobile);
+      } else if (prevIsMobile.current !== mobile) {
+        setIsMobile(mobile);
+        setIsSidebarOpen(!mobile);
+      }
+      prevIsMobile.current = mobile;
+    };
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
 
   
   useEffect(() => {
@@ -161,10 +182,25 @@ function App() {
             setSavedPlan={setSavedPlan}
             onReset={handleReset}
             onStartSession={handleStartSession}
-              onViewChange={setView}
+            onViewChange={setView}
+            sidebarOpen={isSidebarOpen}
+            onToggleSidebar={() => setIsSidebarOpen(v => !v)}
+            isMobile={isMobile}
+            onOpenSidebar={() => setIsSidebarOpen(true)}
+            onCloseSidebar={() => setIsSidebarOpen(false)}
           />
         ) : view === 'library' ? (
-          <LibraryPage exercises={exercises} onViewChange={setView} savedPlan={savedPlan} setSavedPlan={setSavedPlan} />
+          <LibraryPage
+            exercises={exercises}
+            onViewChange={setView}
+            savedPlan={savedPlan}
+            setSavedPlan={setSavedPlan}
+            sidebarOpen={isSidebarOpen}
+            onToggleSidebar={() => setIsSidebarOpen(v => !v)}
+            isMobile={isMobile}
+            onOpenSidebar={() => setIsSidebarOpen(true)}
+            onCloseSidebar={() => setIsSidebarOpen(false)}
+          />
         ) : view === 'session' && sessionDay ? (
           <WorkoutSession
             day={sessionDay}

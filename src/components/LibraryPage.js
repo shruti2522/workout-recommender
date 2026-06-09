@@ -11,7 +11,7 @@ const TARGET_AREA_MUSCLES = {
   full_body: []
 };
 
-export default function LibraryPage({ exercises, onViewChange, savedPlan, setSavedPlan }) {
+export default function LibraryPage({ exercises, onViewChange, savedPlan, setSavedPlan, sidebarOpen, onToggleSidebar, isMobile, onOpenSidebar, onCloseSidebar }) {
   const [toastMsg, setToastMsg] = useState(null);
 
   const handleShowToast = (msg) => {
@@ -60,7 +60,7 @@ export default function LibraryPage({ exercises, onViewChange, savedPlan, setSav
   }, [exercises, categoryFilter, areaFilter, levelFilter, equipmentFilter, search]);
 
   return (
-    <DashboardLayout activeTab="library" onViewChange={onViewChange}>
+    <DashboardLayout activeTab="library" onViewChange={onViewChange} sidebarOpen={sidebarOpen} onToggleSidebar={onToggleSidebar} isMobile={isMobile} onOpenSidebar={onOpenSidebar} onCloseSidebar={onCloseSidebar}>
       <div className="plan-page animate-fade-in" style={{ maxWidth: 'none', margin: '0', padding: '24px 12px', background: 'var(--bg-base)', minHeight: '100%' }}>
         <div className="plan-day-header">
           <div className="plan-day-header-text">
@@ -322,7 +322,7 @@ function ExerciseCard({ exercise, savedPlan, setSavedPlan, onAdded }) {
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginTop: '12px' }}>
             {exercise.level && (
               <div>
-                <span className="badge badge-gray" style={{ fontSize: '0.75rem', fontWeight: 600 }}>Level: {capitalize(exercise.level)}</span>
+                <span className="badge badge-gray" style={{ fontSize: '0.75rem', fontWeight: 600 }}>{capitalize(exercise.level)}</span>
               </div>
             )}
             <AddToPlanButton style={{ padding: '0px' }} exercise={exercise} savedPlan={savedPlan} setSavedPlan={setSavedPlan} onAdded={onAdded} />

@@ -1627,6 +1627,11 @@ h1, h2, h3, h4 {
 
 .sidebar-icon {
   flex-shrink: 0;
+  font-size: 20px;
+  line-height: 1;
+  width: 20px;
+  text-align: center;
+  display: inline-block;
 }
 
 /* Sidebar Styling */
