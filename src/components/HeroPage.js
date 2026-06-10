@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 
 const HERO_IMAGES = [
   'Barbell_Squat/0.jpg',
@@ -38,7 +38,7 @@ function pickImages() {
 }
 
 export default function HeroPage({ onStart }) {
-  const [images, setImages] = useState(() => pickImages());
+  const [images] = useState(() => pickImages());
   const [errored, setErrored] = useState({});
 
   const handleImgError = (i) => setErrored(prev => ({ ...prev, [i]: true }));

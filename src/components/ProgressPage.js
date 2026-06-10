@@ -3,10 +3,10 @@ import DashboardLayout from './DashboardLayout';
 
 function WeekHeatmap({ history }) {
   // Build the last 12 weeks (84 days) grid
-  const today = new Date();
-  today.setHours(0, 0, 0, 0);
-
   const days = useMemo(() => {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
     const dateSet = new Set(history.map(h => h.date));
     const result = [];
     for (let i = 83; i >= 0; i--) {
@@ -16,7 +16,7 @@ function WeekHeatmap({ history }) {
       result.push({ key, active: dateSet.has(key), date: d });
     }
     return result;
-  }, [history, today]);
+  }, [history]);
 
   const weeks = useMemo(() => {
     const cols = [];
@@ -72,7 +72,7 @@ export default function ProgressPage({
   onOpenSidebar,
   onCloseSidebar,
 }) {
-  const completedDays = savedPlan?.filter(d => d.completed) ?? [];
+  const completedDays = useMemo(() => savedPlan?.filter(d => d.completed) ?? [], [savedPlan]);
   const totalDays = savedPlan?.length ?? 0;
   const completedCount = completedDays.length;
   const completionPct = totalDays > 0 ? Math.round((completedCount / totalDays) * 100) : 0;

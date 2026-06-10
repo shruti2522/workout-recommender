@@ -27,10 +27,10 @@ export default function DashboardLayout({
             <line x1="3" y1="18" x2="21" y2="18"></line>
           </svg>
         </button>
-        <a className="mobile-logo" onClick={(e) => { e.preventDefault(); onViewChange('hero'); }}>
+        <button className="mobile-logo" style={{ background: 'transparent', border: 'none', padding: 0, cursor: 'pointer', fontFamily: 'inherit' }} onClick={() => onViewChange('hero')}>
           <span className="sidebar-logo-icon">T</span>
           Trainr
-        </a>
+        </button>
       </div>
 
       {/* Backdrop for mobile */}
@@ -41,14 +41,14 @@ export default function DashboardLayout({
       {/* Left Sidebar */}
       <aside className={`layout-sidebar ${sidebarOpen ? 'open' : ''}`}>
         <div className="sidebar-header">
-          <a
+          <button
             className="sidebar-logo"
-            style={{ textDecoration: 'none', display: sidebarOpen ? 'flex' : 'none' }}
-            onClick={(e) => { e.preventDefault(); onViewChange('hero'); if (isMobile) onCloseSidebar(); }}
+            style={{ textDecoration: 'none', display: sidebarOpen ? 'flex' : 'none', background: 'transparent', border: 'none', padding: 0, cursor: 'pointer', fontFamily: 'inherit' }}
+            onClick={() => { onViewChange('hero'); if (isMobile) onCloseSidebar(); }}
           >
             <span className="sidebar-logo-icon">T</span>
             <span className="sidebar-logo-text">Trainr</span>
-          </a>
+          </button>
           {isMobile ? (
             <button className="sidebar-close-btn" onClick={onCloseSidebar} aria-label="Close menu">
               <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
