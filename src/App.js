@@ -178,10 +178,15 @@ function App() {
       {}
       {!isDashboardView && view !== 'session' && (
         <nav className="site-nav" aria-label="Site navigation">
-          <a className="site-logo" id="site-logo-link">
+          <button 
+            className="site-logo" 
+            id="site-logo-link"
+            style={{ background: 'transparent', border: 'none', padding: 0, cursor: 'pointer', fontFamily: 'inherit', display: 'flex', alignItems: 'center', fontSize: '1.25rem', fontWeight: 600, color: 'var(--text-primary)' }}
+            onClick={() => setView('hero')}
+          >
             <span className="site-logo-icon">T</span>
             Trainr
-          </a>
+          </button>
           {view !== 'hero' && view !== 'complete' && (
             <button
               id="nav-home-btn"
