@@ -59,16 +59,25 @@ function buildPrompt(prefs, filteredExercises) {
   }));
 
   const sessionLabel = SESSION_DURATION_LABELS[sessionDuration] || '45–60 minutes (standard session)';
-  const weeklyLabel  = WEEKLY_TIME_LABELS[weeklyTime]  || '4–6 hours / week';
+  const weeklyLabel  = WEEKLY_TIME_LABELS[weeklyTime]  || '4-6 hours / week';
 
   const EXERCISE_VOLUMES = {
     '20_30':   '4-5',
-    '30_45':   '6-7',
-    '45_60':   '7-9',
-    '60_90':   '9-11',
-    '90_plus': '11-14',
+    '30_45':   '6-8',
+    '45_60':   '9-11',
+    '60_90':   '13-16',
+    '90_plus': '18-22',
   };
-  const volumeTarget = EXERCISE_VOLUMES[sessionDuration] || '7-9';
+  const volumeTarget = EXERCISE_VOLUMES[sessionDuration] || '9-11';
+
+  const SETS_GUIDANCE = {
+    '20_30':   '2–3 sets per exercise to keep sessions short.',
+    '30_45':   '3 sets per exercise.',
+    '45_60':   '3–4 sets per exercise.',
+    '60_90':   '4–5 sets per strength exercise. Use 4 sets as the default.',
+    '90_plus': '5 sets per strength exercise. Include additional isolation work.',
+  };
+  const setsGuidance = SETS_GUIDANCE[sessionDuration] || '3–4 sets per exercise.';
 
   return `You are an expert personal trainer and physical therapist. Create a highly customized ${dayCount}-day workout plan for this user.
 
@@ -89,46 +98,110 @@ ${JSON.stringify(exerciseList, null, 2)}
 
 INSTRUCTIONS:
 1. Create exactly ${dayCount} training days.
-2. VOLUME REQUIREMENT: You MUST assign exactly ${volumeTarget} total exercises per day. Do not assign fewer, or the session will be too short for the user's selected time commitment.
-3. 3-PHASE STRUCTURE: Every single day MUST be structured in this exact chronological order:
-   - Phase 1 (Warm-up): 1-2 dynamic stretching, mobility, or light cardio exercises.
-   - Phase 2 (Main): The bulk of the exercises (${goal === 'increase_flexibility' ? 'deep stretching' : 'strength/cardio'}). Compound movements first, isolation last.
-   - Phase 3 (Cool-down): 1-2 static stretching exercises to aid recovery.
+2. VOLUME REQUIREMENT: You MUST assign exactly ${volumeTarget} total exercises per day. Do not assign fewer, or the session will be too short for the user's selected time commitment of ${sessionLabel}.
+3. 3-PHASE STRUCTURE: Every single day MUST be structured in this exact chronological order. Each exercise MUST have its "phase" field set to EXACTLY one of these three lowercase strings (no other values are valid):
+   - "warmup"   — Phase 1: 1-2 dynamic stretching, mobility, or light cardio exercises.
+   - "main"     — Phase 2: The bulk of the exercises (${goal === 'increase_flexibility' ? 'deep stretching' : 'strength/cardio'}). Compound movements first, isolation last.
+   - "cooldown" — Phase 3: 1-2 static stretching exercises to aid recovery.
 4. Completely tailor the main exercises to the user's primary goal and target areas. DO NOT rely on standard Push/Pull/Legs splits unless it perfectly fits the goal.
-5. Assign realistic sets and reps (or duration in seconds):
-   - For strength/hypertrophy: use reps (e.g., 8-12)
-   - For cardio/stretching/planks (Warm-ups & Cool-downs): use durationSeconds (e.g., 45s or 60s)
-   - Include appropriate restSeconds between sets.
+5. Assign sets and reps calibrated to the user's session duration (${sessionLabel}): ${setsGuidance}
+   - For strength/hypertrophy: use reps (e.g., 8–12). Apply the set count guidance above.
+   - For cardio/stretching/planks (Warm-ups & Cool-downs): use durationSeconds (e.g., 45s or 60s), 1–2 sets.
+   - Include appropriate restSeconds between sets (60–90s for strength, 30s for stretching).
 6. Write a concise, motivating coaching note for each exercise (1 sentence, focus on form or key benefit).
 7. Only use exercises from the provided list (match by id). Do NOT invent new exercises.
 
 RESPOND WITH VALID JSON ONLY. No markdown, no explanation.`;
 }
 
-function mergePlanWithExercises(generatedPlan, filteredExercises) {
-  const exerciseMap = new Map(filteredExercises.map((ex) => [ex.id, ex]));
+function estimateExerciseMinutes(ex) {
+  const sets = ex.sets || 3;
+  const reps = ex.reps || 10;
+  const durationSec = ex.durationSeconds || null;
+  const restSec = ex.restSeconds || 60;
+  const activeTimeSec = durationSec ? sets * durationSec : sets * (reps * 4);
+  return (activeTimeSec + sets * restSec) / 60;
+}
+
+const SESSION_MAX_MINUTES = {
+  '20_30':   30,
+  '30_45':   45,
+  '45_60':   60,
+  '60_90':   90,
+  '90_plus': 120,
+};
+
+function enforceDurationBudget(plan, sessionDuration) {
+  const maxMinutes = SESSION_MAX_MINUTES[sessionDuration];
+  if (!maxMinutes) return plan;
+
+  return plan.map((day) => {
+    const warmUp   = day.exercises.filter((ex) => ex.phase === 'warmup'   || ex.phase === 'warm_up'   || ex.phase === 'Phase 1');
+    const main     = day.exercises.filter((ex) => ex.phase === 'main'     || ex.phase === 'Phase 2'   || (!ex.phase && ex.category !== 'stretching'));
+    const coolDown = day.exercises.filter((ex) => ex.phase === 'cooldown' || ex.phase === 'cool_down' || ex.phase === 'Phase 3');
+
+    const uncategorised = day.exercises.filter(
+      (ex) => !warmUp.includes(ex) && !main.includes(ex) && !coolDown.includes(ex)
+    );
+
+    const fixedMinutes =
+      [...warmUp, ...coolDown, ...uncategorised].reduce((s, ex) => s + estimateExerciseMinutes(ex), 0);
+
+    const budget = maxMinutes - fixedMinutes;
+    const trimmedMain = [];
+    let used = 0;
+    for (const ex of main) {
+      const cost = estimateExerciseMinutes(ex);
+      if (used + cost <= budget + 2) {
+        trimmedMain.push(ex);
+        used += cost;
+      }
+    }
+
+    return {
+      ...day,
+      exercises: [...warmUp, ...trimmedMain, ...coolDown, ...uncategorised],
+    };
+  });
+}
+
+function mergePlanWithExercises(generatedPlan, filteredExercises, allExercises) {
+  const filteredMap = new Map(filteredExercises.map((ex) => [ex.id, ex]));
+  const allMap      = new Map((allExercises || []).map((ex) => [ex.id, ex]));
+
+  const nameIndex = new Map(
+    filteredExercises.map((ex) => [ex.name?.toLowerCase().trim(), ex])
+  );
+
+  function resolveExercise(genEx) {
+    let fullEx = filteredMap.get(genEx.id);
+    if (!fullEx) fullEx = allMap.get(genEx.id);
+    if (!fullEx && genEx.name) fullEx = nameIndex.get(genEx.name?.toLowerCase().trim());
+    return fullEx || null;
+  }
 
   return generatedPlan.days.map((day) => {
     const exercises = day.exercises
       .map((genEx) => {
-        const fullEx = exerciseMap.get(genEx.id);
-        if (!fullEx) return null; 
+        const fullEx = resolveExercise(genEx);
+        if (!fullEx) return null;
         return {
           ...fullEx,
-          sets: genEx.sets,
-          reps: genEx.reps,
-          durationSeconds: genEx.durationSeconds,
-          restSeconds: genEx.restSeconds,
-          note: genEx.note,
+          sets:            genEx.sets            ?? fullEx.sets,
+          reps:            genEx.reps            ?? fullEx.reps,
+          durationSeconds: genEx.durationSeconds ?? fullEx.durationSeconds,
+          restSeconds:     genEx.restSeconds     ?? fullEx.restSeconds,
+          note:            genEx.note,
+          phase:           genEx.phase,
         };
       })
       .filter(Boolean);
 
     return {
-      key: day.label.toLowerCase().replace(/[^a-z0-9]+/g, '_') + '_' + day.dayNumber,
+      key:       day.label.toLowerCase().replace(/[^a-z0-9]+/g, '_') + '_' + day.dayNumber,
       dayNumber: day.dayNumber,
-      label: day.label,
-      focus: day.focus,
+      label:     day.label,
+      focus:     day.focus,
       completed: false,
       exercises,
     };
@@ -161,7 +234,7 @@ function extractJSON(raw) {
 
 const MAX_RETRIES = 3;
 
-export async function generatePlan(prefs, filteredExercises, signal) {
+export async function generatePlan(prefs, filteredExercises, signal, allExercises) {
   if (!GEMINI_API_KEY || GEMINI_API_KEY === 'PASTE_YOUR_GEMINI_API_KEY_HERE') {
     throw new Error('API key is missing or invalid. Please add your Gemini API key to .env.local and restart the server.');
   }
@@ -201,7 +274,7 @@ export async function generatePlan(prefs, filteredExercises, signal) {
                           type: "OBJECT",
                           properties: {
                             id: { type: "STRING" },
-                            phase: { type: "STRING" },
+                            phase: { type: "STRING", enum: ["warmup", "main", "cooldown"] },
                             sets: { type: "INTEGER", nullable: true },
                             reps: { type: "INTEGER", nullable: true },
                             durationSeconds: { type: "INTEGER", nullable: true },
@@ -255,14 +328,16 @@ export async function generatePlan(prefs, filteredExercises, signal) {
         throw lastError;
       }
 
-      const plan = mergePlanWithExercises(generatedPlan, filteredExercises);
+      const rawPlan = mergePlanWithExercises(generatedPlan, filteredExercises, allExercises);
 
-      if (plan.length === 0 || plan.every((day) => day.exercises.length === 0)) {
+      if (rawPlan.length === 0 || rawPlan.every((day) => day.exercises.length === 0)) {
         console.warn(`Gemini attempt ${attempt}: no exercises mapped, retrying…`);
         lastError = new Error('The server failed to map any exercises. Please try again.');
         if (attempt < MAX_RETRIES) { await sleep(600 * attempt); continue; }
         throw lastError;
       }
+
+      const plan = enforceDurationBudget(rawPlan, prefs.sessionDuration);
 
       return plan;
 

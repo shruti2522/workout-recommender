@@ -121,7 +121,12 @@ export default function PlanPage({
     async function fetchPlan() {
       setIsLoading(true); setPlanError(null);
       try {
-        const planResult = await generatePlan({ ...prefs, level, score }, filtered, controller.signal);
+        const planResult = await generatePlan(
+          { ...prefs, level, score },
+          filtered,
+          controller.signal,
+          exercises,
+        );
         setSavedPlan(planResult); setIsLoading(false);
       } catch (err) {
         if (controller.signal.aborted) return;
@@ -131,7 +136,16 @@ export default function PlanPage({
     if (filtered.length > 0) fetchPlan();
     else setIsLoading(false);
     return () => controller.abort();
-  }, [filtered, prefs, level, score, savedPlan, setSavedPlan]);
+  }, [filtered, prefs, level, score, savedPlan, setSavedPlan, exercises]);
+
+  useEffect(() => {
+    if (!savedPlan || savedPlan.length === 0) return;
+    const firstExercise = savedPlan[0]?.exercises?.[0];
+    const isStale = firstExercise && !firstExercise.phase;
+    if (isStale) {
+      setSavedPlan(null);
+    }
+  }, [savedPlan, setSavedPlan]);
 
   
   useEffect(() => {
@@ -176,16 +190,45 @@ export default function PlanPage({
 
   const workedOutToday = history.some(h => h.date === todayStr);
 
+  const PHASE_WARMUP   = (phase) => phase === 'warmup'   || phase === 'warm_up'   || phase === 'Phase 1';
+  const PHASE_MAIN     = (phase) => phase === 'main'     || phase === 'Phase 2';
+  const PHASE_COOLDOWN = (phase) => phase === 'cooldown' || phase === 'cool_down' || phase === 'Phase 3';
+
   const sessionExercises = (() => {
     if (!currentDay) return [];
-    if (sessionMode === 'full') return currentDay.exercises;
-    if (sessionMode === 'quick') return currentDay.exercises.filter(ex => ex?.category === 'strength' || ex?.category === 'plyometrics').slice(0, 3);
-    if (sessionMode === 'recovery') return currentDay.exercises.filter(ex => ex?.category === 'stretching');
-    return currentDay.exercises;
+    const all = currentDay.exercises;
+
+    if (sessionMode === 'full') return all;
+
+    if (sessionMode === 'quick') {
+      const mainPhase = all.filter((ex) => ex?.phase && PHASE_MAIN(ex.phase));
+      const fallback  = all.filter((ex) => !PHASE_WARMUP(ex?.phase) && !PHASE_COOLDOWN(ex?.phase) && ex?.category !== 'stretching');
+      const pool = mainPhase.length > 0 ? mainPhase : fallback.length > 0 ? fallback : all;
+      const count = prefs.sessionDuration === '20_30' ? 3 : prefs.sessionDuration === '30_45' ? 4 : 5;
+      return pool.slice(0, count);
+    }
+
+    if (sessionMode === 'recovery') {
+      const structured = all.filter((ex) => ex?.phase && (PHASE_WARMUP(ex.phase) || PHASE_COOLDOWN(ex.phase)));
+      const fallback   = all.filter((ex) => ex?.category === 'stretching');
+      return structured.length > 0 ? structured : fallback;
+    }
+
+    return all;
   })();
 
+  function exDurationMinutes(ex) {
+    if (!ex) return 0;
+    const sets    = ex.sets || 1;
+    const restSec = ex.restSeconds || 60;
+    if (ex.durationSeconds) {
+      return (sets * ex.durationSeconds + sets * restSec) / 60;
+    }
+    return (sets * ((ex.reps || 10) * 4) + sets * restSec) / 60;
+  }
+
   const estMinutes = sessionExercises.length > 0
-    ? Math.round(sessionExercises.reduce((sum, ex) => sum + ((ex?.sets || 0) * ((ex?.reps || 10) * 4 + (ex?.restSeconds || 60))), 0) / 60)
+    ? Math.round(sessionExercises.reduce((sum, ex) => sum + exDurationMinutes(ex), 0))
     : 0;
   const totalSets = sessionExercises.reduce((sum, ex) => sum + (ex?.sets || 0), 0);
   const totalReps = sessionExercises.reduce((sum, ex) => sum + ((ex?.sets || 0) * (ex?.reps || 0)), 0);
@@ -294,29 +337,51 @@ export default function PlanPage({
           Mode
         </p>
         <div style={{ display: 'flex', flexDirection: 'column', gap: '0' }}>
-          {[
-            { key: 'full',     label: 'Full session', desc: `${currentDay?.exercises?.length || 0} ex · ~${Math.round(currentDay?.exercises?.reduce((s, ex) => s + ((ex?.sets || 0) * ((ex?.reps || 10) * 4 + (ex?.restSeconds || 60))), 0) / 60) || 0} min`, badge: 'Recommended' },
-            { key: 'quick',    label: 'Quick',        desc: '3 exercises · ~12 min' },
-            { key: 'recovery', label: 'Recovery',     desc: 'Stretch only · ~10 min' },
-          ].map((mode) => {
-            const isActive = sessionMode === mode.key;
-            return (
-              <button
-                key={mode.key}
-                onClick={() => setSessionMode(mode.key)}
-                className={`plan-mode-row ${isActive ? 'active' : ''}`}
-              >
-                <div className="plan-mode-radio"><div className="plan-mode-radio-dot"></div></div>
-                <div className="plan-mode-info">
-                  <div className="plan-mode-name">
-                    {mode.label}
-                    {mode.badge && <span className="plan-mode-badge">{mode.badge}</span>}
+          {(() => {
+            const allEx = currentDay?.exercises || [];
+
+            const quickMain = allEx.filter((ex) => ex?.phase && PHASE_MAIN(ex.phase));
+            const quickFallback = allEx.filter((ex) => !PHASE_WARMUP(ex?.phase) && !PHASE_COOLDOWN(ex?.phase) && ex?.category !== 'stretching');
+            const quickPool = quickMain.length > 0 ? quickMain : quickFallback.length > 0 ? quickFallback : allEx;
+            const quickCount = prefs.sessionDuration === '20_30' ? 3 : prefs.sessionDuration === '30_45' ? 4 : 5;
+            const quickExs = quickPool.slice(0, quickCount);
+            const quickMins = Math.round(quickExs.reduce((s, ex) => s + exDurationMinutes(ex), 0));
+
+            const recovExs = (() => {
+              const structured = allEx.filter((ex) => ex?.phase && (PHASE_WARMUP(ex.phase) || PHASE_COOLDOWN(ex.phase)));
+              const fb = allEx.filter((ex) => ex?.category === 'stretching');
+              return structured.length > 0 ? structured : fb;
+            })();
+            const recovMins = Math.round(recovExs.reduce((s, ex) => s + exDurationMinutes(ex), 0));
+
+            const fullMins = Math.round(allEx.reduce((s, ex) => s + exDurationMinutes(ex), 0));
+
+            const modes = [
+              { key: 'full',     label: 'Full session', desc: `${allEx.length} ex · ~${fullMins} min`,                      badge: 'Recommended' },
+              { key: 'quick',    label: 'Quick',        desc: `${quickExs.length} ex · ~${quickMins || 12} min`,             badge: null },
+              { key: 'recovery', label: 'Recovery',     desc: `${recovExs.length} ex · ~${recovMins || 10} min (mobility)`, badge: null },
+            ];
+
+            return modes.map((mode) => {
+              const isActive = sessionMode === mode.key;
+              return (
+                <button
+                  key={mode.key}
+                  onClick={() => setSessionMode(mode.key)}
+                  className={`plan-mode-row ${isActive ? 'active' : ''}`}
+                >
+                  <div className="plan-mode-radio"><div className="plan-mode-radio-dot"></div></div>
+                  <div className="plan-mode-info">
+                    <div className="plan-mode-name">
+                      {mode.label}
+                      {mode.badge && <span className="plan-mode-badge">{mode.badge}</span>}
+                    </div>
+                    <div className="plan-mode-detail">{mode.desc}</div>
                   </div>
-                  <div className="plan-mode-detail">{mode.desc}</div>
-                </div>
-              </button>
-            );
-          })}
+                </button>
+              );
+            });
+          })()}
         </div>
       </div>
 
@@ -478,7 +543,12 @@ export default function PlanPage({
           <div className="plan-ex-list-header">
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
               <span className="plan-ex-count">
-                {currentDay.exercises?.length} Exercises
+                {sessionExercises.length} Exercises
+                {sessionMode !== 'full' && (
+                  <span style={{ fontSize: '0.65rem', color: WHITE_40, fontWeight: 400, marginLeft: '6px' }}>
+                    ({sessionMode} mode)
+                  </span>
+                )}
               </span>
             </div>
             <div className="plan-ex-actions-header">

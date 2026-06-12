@@ -65,7 +65,7 @@ export default function CommitmentPage({
           <div className="commitment-left-col">
             <div className="commitment-header">
               <div className="commitment-eyebrow">Week {weekNumber} · Starting out</div>
-              <h1 className="commitment-title">Your commitment,<br />laid out.</h1>
+              <h1 className="commitment-title">Your customized<br />plan</h1>
               <p className="commitment-sub">This is what the next seven days look like. Read it over before you lock it in.</p>
             </div>
             <div className="commitment-goal">
