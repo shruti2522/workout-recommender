@@ -1,0 +1,28 @@
+.workout-loader {
+  width: 140px;
+  height: 64px;
+  display: block;
+  overflow: hidden;
+  -webkit-mask-image: linear-gradient(to right, transparent 0%, black 12%, black 88%, transparent 100%);
+  mask-image: linear-gradient(to right, transparent 0%, black 12%, black 88%, transparent 100%);
+}
+
+.ekg-track {
+  transform-box: view-box;
+  animation: ekg-scroll 1.4s linear infinite;
+}
+
+.ekg-line {
+  filter: drop-shadow(0 0 3px rgba(74, 222, 128, 0.55));
+}
+
+@keyframes ekg-scroll {
+  from { transform: translate(0, 0); }
+  to { transform: translate(-60px, 0); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ekg-track {
+    animation: none;
+  }
+}

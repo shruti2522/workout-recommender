@@ -1,0 +1,855 @@
+/* ── PLAN PAGE STYLES ─────────────────────────────────────────── */
+
+@import url('https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700;800&family=Inter:wght@400;500;600&display=swap');
+
+:root {
+  --plan-bg: #0f0f0d;
+  --plan-bg-panel: #181816;
+  --plan-bg-card: #1c1c1a;
+  --plan-bg-raised: #212120;
+  --plan-border: rgba(255,255,255,0.07);
+  --plan-border-med: rgba(255,255,255,0.12);
+  --plan-green: #4ade80;
+  --plan-green-dim: rgba(74,222,128,0.1);
+  --plan-green-faint: rgba(74,222,128,0.05);
+  --plan-text: #f0ede8;
+  --plan-text-mid: #9a9690;
+  --plan-text-dim: #5c5a56;
+  --plan-font-display: 'Barlow Condensed', sans-serif;
+  --plan-font-body: 'Inter', sans-serif;
+}
+
+/* ── PLAN PAGE CARD STYLING ─────────────────────────────────────── */
+
+.plan-card {
+  background: var(--plan-bg-card);
+  border: 1px solid var(--plan-border-med);
+  border-radius: 10px;
+  padding: 18px 20px;
+}
+
+.plan-card-title {
+  font-family: var(--plan-font-display);
+  font-size: 1.3rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  color: var(--plan-text);
+  margin: 0 0 3px 0;
+}
+
+.plan-card-detail {
+  font-size: 0.75rem;
+  color: var(--plan-text-dim);
+  margin: 0 0 14px 0;
+}
+
+.plan-card-stats {
+  display: flex;
+  align-items: center;
+  gap: 0;
+}
+
+.plan-stat {
+  padding-right: 20px;
+  margin-right: 20px;
+  border-right: 1px solid var(--plan-border);
+}
+
+.plan-stat:last-of-type {
+  border-right: none;
+}
+
+.plan-stat-val {
+  font-family: var(--plan-font-display);
+  font-size: 1.6rem;
+  font-weight: 800;
+  color: var(--plan-text);
+  line-height: 1;
+  margin: 0;
+}
+
+.plan-stat-lbl {
+  font-size: 0.62rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--plan-text-dim);
+  margin-top: 2px;
+}
+
+/* ── BUTTONS ─────────────────────────────────────────────────────── */
+
+.plan-btn-primary {
+  padding: 10px 22px;
+  border: none;
+  border-radius: 7px;
+  background: var(--plan-green);
+  color: #0f0f0d;
+  font-family: var(--plan-font-display);
+  font-size: 1rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  cursor: pointer;
+  transition: opacity 0.15s;
+  white-space: nowrap;
+  margin-left: auto;
+}
+
+.plan-btn-primary:hover {
+  opacity: 0.85;
+}
+
+.plan-btn-secondary {
+  padding: 5px 12px;
+  border: 1px solid var(--plan-border-med);
+  border-radius: 5px;
+  background: transparent;
+  color: var(--plan-text-mid);
+  font-size: 0.75rem;
+  font-weight: 500;
+  cursor: pointer;
+  font-family: var(--plan-font-body);
+  transition: color 0.15s, border-color 0.15s;
+}
+
+.plan-btn-secondary:hover {
+  color: var(--plan-text);
+  border-color: rgba(255,255,255,0.2);
+}
+
+.plan-btn-icon {
+  width: 26px;
+  height: 26px;
+  border: 1px solid var(--plan-border-med);
+  border-radius: 5px;
+  background: transparent;
+  color: var(--plan-text-mid);
+  font-size: 1.1rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: color 0.15s, border-color 0.15s;
+}
+
+.plan-btn-icon:hover {
+  color: var(--plan-text);
+  border-color: rgba(255,255,255,0.2);
+}
+
+.plan-btn-small {
+  width: 24px;
+  height: 24px;
+  border: 1px solid var(--plan-border);
+  border-radius: 4px;
+  background: transparent;
+  color: var(--plan-text-dim);
+  font-size: 0.7rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: color 0.15s, border-color 0.15s;
+}
+
+.plan-btn-small:hover {
+  color: var(--plan-text-mid);
+  border-color: var(--plan-border-med);
+}
+
+/* ── EXERCISE ROW ─────────────────────────────────────────────────── */
+
+.plan-ex-row {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  background: var(--plan-bg-card);
+  border: 1px solid var(--plan-border);
+  border-radius: 8px;
+  padding: 10px 14px 10px 10px;
+  transition: border-color 0.15s;
+  margin-bottom: 8px;
+}
+
+.plan-ex-row:hover {
+  border-color: var(--plan-border-med);
+}
+
+.plan-ex-num {
+  font-family: var(--plan-font-display);
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--plan-text-dim);
+  width: 18px;
+  text-align: center;
+  flex-shrink: 0;
+}
+
+.plan-ex-thumb {
+  width: 72px;
+  height: 52px;
+  border-radius: 5px;
+  overflow: hidden;
+  flex-shrink: 0;
+  background: var(--plan-bg-raised);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.plan-ex-thumb img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.plan-ex-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.plan-ex-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 2px;
+}
+
+.plan-ex-name {
+  font-size: 0.88rem;
+  font-weight: 600;
+  color: var(--plan-text);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.plan-ex-tag {
+  font-size: 0.62rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--plan-text-dim);
+  padding: 2px 6px;
+  border: 1px solid var(--plan-border);
+  border-radius: 3px;
+  flex-shrink: 0;
+}
+
+.plan-ex-meta {
+  font-size: 0.75rem;
+  color: var(--plan-text-mid);
+}
+
+.plan-ex-meta-sep {
+  color: var(--plan-text-dim);
+  padding: 0 3px;
+}
+
+.plan-ex-kcal {
+  font-size: 0.72rem;
+  color: var(--plan-green);
+  font-weight: 500;
+}
+
+.plan-ex-note {
+  font-size: 0.72rem;
+  color: var(--plan-text-dim);
+  margin-top: 2px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.plan-ex-actions {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  flex-shrink: 0;
+}
+
+.plan-ex-actions button {
+  width: 24px;
+  height: 24px;
+  border: 1px solid var(--plan-border);
+  border-radius: 4px;
+  background: transparent;
+  color: var(--plan-text-dim);
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: color 0.15s, border-color 0.15s;
+}
+
+.plan-ex-actions button:hover {
+  color: var(--plan-text-mid);
+  border-color: var(--plan-border-med);
+}
+
+/* ── FONTS OVERRIDE ─────────────────────────────────────────────────── */
+
+.plan-font-display {
+  font-family: var(--plan-font-display);
+}
+
+.plan-font-body {
+  font-family: var(--plan-font-body);
+}
+
+/* ── PROGRESS RING ──────────────────────────────────────────────────── */
+
+.plan-progress-ring {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 14px 16px;
+  border-radius: 12px;
+  background: var(--plan-bg-card);
+  border: 1px solid var(--plan-border);
+  margin-bottom: 16px;
+}
+
+.plan-ring-wrap {
+  flex-shrink: 0;
+  position: relative;
+  width: 80px;
+  height: 80px;
+}
+
+.plan-ring-percentage {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--plan-font-display);
+  font-size: 1rem;
+  font-weight: 800;
+  color: var(--plan-text);
+  line-height: 1;
+}
+
+.plan-ring-label {
+  margin: 0 0 2px 0;
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: rgba(255,255,255,0.4);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.plan-ring-session {
+  margin: 0 0 6px 0;
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--plan-text);
+}
+
+.plan-ring-detail {
+  font-size: 0.72rem;
+  color: rgba(255,255,255,0.4);
+}
+
+.plan-ring-badge {
+  font-size: 0.72rem;
+  font-weight: 700;
+  background: var(--plan-green-dim);
+  color: var(--plan-green);
+  padding: 2px 8px;
+  border-radius: 20px;
+  border: 1px solid rgba(74,222,128,0.2);
+  display: inline-block;
+  margin-right: 8px;
+}
+
+/* ── QUEST STYLING ──────────────────────────────────────────────────── */
+
+.plan-quest-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 7px 0;
+  border-bottom: 1px solid var(--plan-border);
+}
+
+.plan-quest-row:last-child {
+  border-bottom: none;
+}
+
+.plan-quest-name {
+  flex: 1;
+  font-size: 0.8rem;
+  color: var(--plan-text-mid);
+  line-height: 1.3;
+}
+
+.plan-quest-name.done {
+  text-decoration: line-through;
+  color: var(--plan-text-dim);
+}
+
+.plan-quest-xp {
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: var(--plan-green);
+  flex-shrink: 0;
+}
+
+/* ── EXERCISE LIST HEADER ──────────────────────────────────────────── */
+
+.plan-ex-list-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+
+.plan-ex-count {
+  font-family: var(--plan-font-display);
+  font-size: 1rem;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  color: var(--plan-text);
+}
+
+.plan-ex-actions-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* ── MUSCLES TARGETED ───────────────────────────────────────────────── */
+
+.plan-muscle-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 5px 0;
+}
+
+.plan-muscle-name {
+  font-size: 0.75rem;
+  color: var(--plan-text-mid);
+  width: 80px;
+  flex-shrink: 0;
+}
+
+.plan-muscle-bar-track {
+  flex: 1;
+  height: 2px;
+  background: var(--plan-border-med);
+  border-radius: 1px;
+  overflow: hidden;
+}
+
+.plan-muscle-bar-fill {
+  height: 100%;
+  background: var(--plan-green);
+  border-radius: 1px;
+}
+
+.plan-muscle-pct {
+  font-size: 0.7rem;
+  color: var(--plan-text-dim);
+  width: 28px;
+  text-align: right;
+  flex-shrink: 0;
+}
+
+/* ── LOADING SCREEN ─────────────────────────────────────────────────── */
+
+.plan-loading-screen {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  background: var(--plan-bg);
+  padding: 40px 20px;
+}
+
+.plan-loading-spinner {
+  width: 48px;
+  height: 48px;
+  border: 3px solid var(--plan-border-med);
+  border-top-color: var(--plan-green);
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin-bottom: 16px;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.plan-loading-text {
+  font-size: 0.95rem;
+  color: var(--plan-text-mid);
+  font-family: var(--plan-font-body);
+}
+
+/* ── MODE SELECTION ─────────────────────────────────────────────────── */
+
+.plan-mode-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 14px;
+  border-radius: 8px;
+  cursor: pointer;
+  margin-bottom: 6px;
+  background: var(--plan-bg-card);
+  transition: all 0.2s ease;
+  border: 1px solid transparent;
+}
+
+.plan-mode-row:hover {
+  background: var(--plan-bg-raised);
+}
+
+.plan-mode-row:last-child {
+  margin-bottom: 0;
+}
+
+.plan-mode-row.active {
+  background: var(--plan-green-dim);
+  border: 1px solid var(--plan-green);
+}
+
+.plan-mode-row.active .plan-mode-name {
+  color: var(--plan-text);
+  font-weight: 700;
+}
+
+.plan-mode-radio {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  border: 2px solid var(--plan-border-med);
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+}
+
+.plan-mode-row.active .plan-mode-radio {
+  border-color: var(--plan-green);
+  background: transparent;
+}
+
+.plan-mode-radio-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--plan-green);
+  display: none;
+}
+
+.plan-mode-row.active .plan-mode-radio-dot {
+  display: block;
+}
+
+.plan-mode-info {
+  flex: 1;
+}
+
+.plan-mode-name {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--plan-text-mid);
+  margin-bottom: 2px;
+}
+
+.plan-mode-detail {
+  font-size: 0.75rem;
+  color: var(--plan-text-dim);
+  margin-top: 1px;
+}
+
+.plan-mode-badge {
+  font-size: 0.58rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--plan-bg);
+  background: var(--plan-green);
+  padding: 3px 6px;
+  border-radius: 3px;
+  margin-left: auto;
+  flex-shrink: 0;
+}
+
+/* ── MAIN PLAN PAGE LAYOUT ────────────────────────────────────────── */
+
+.plan-page {
+  background: var(--plan-bg);
+  color: var(--plan-text);
+  font-family: var(--plan-font-body);
+}
+
+/* ── PAGE HEADER ──────────────────────────────────────────────────── */
+
+.plan-page-header {
+  margin-bottom: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.plan-page-title-group {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.plan-page-title {
+  font-family: var(--plan-font-display);
+  font-size: 1.4rem;
+  font-weight: 800;
+  color: var(--plan-text);
+  margin: 0;
+  line-height: 1.2;
+  letter-spacing: 0.01em;
+}
+
+.plan-page-meta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  font-size: 0.8rem;
+}
+
+.plan-page-meta span:nth-child(odd) {
+  font-weight: 700;
+  color: var(--plan-green);
+}
+
+.plan-page-meta span:nth-child(even) {
+  color: var(--plan-text-mid);
+}
+
+/* ── DAY TABS ─────────────────────────────────────────────────────── */
+
+.plan-day-tabs {
+  margin-bottom: 12px;
+  display: flex;
+  gap: 0;
+  border-bottom: 1px solid var(--plan-border);
+  overflow-x: auto;
+}
+
+.plan-day-tab {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 10px 16px;
+  background: transparent;
+  border: none;
+  border-bottom: 2px solid transparent;
+  margin-bottom: -1px;
+  cursor: pointer;
+  transition: all 0.15s;
+  color: var(--plan-text-mid);
+  font-size: 0.88rem;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  white-space: nowrap;
+}
+
+.plan-day-tab:hover {
+  color: var(--plan-text);
+}
+
+.plan-day-tab.active {
+  color: var(--plan-green);
+  border-bottom-color: var(--plan-green);
+  font-weight: 700;
+}
+
+.plan-day-tab-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--plan-green);
+  flex-shrink: 0;
+}
+
+/* ── DAY SUMMARY BAR ──────────────────────────────────────────────── */
+
+.plan-day-summary {
+  background: #0f0f0d;
+  border: 1px solid rgba(255,255,255,0.07);
+  border-radius: 14px;
+  padding: 14px 20px;
+  margin-bottom: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.plan-day-summary-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex: 1;
+  min-width: 0;
+}
+
+.plan-day-summary-info h3 {
+  font-family: var(--plan-font-display);
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: #fff;
+  margin: 0 0 2px 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.plan-day-summary-meta {
+  font-size: 0.73rem;
+  color: rgba(255,255,255,0.4);
+  letter-spacing: 0.01em;
+  margin: 0;
+}
+
+.plan-day-summary-badge {
+  font-size: 0.62rem;
+  font-weight: 700;
+  background: rgba(74,222,128,0.1);
+  color: var(--plan-green);
+  padding: 2px 8px;
+  border-radius: 20px;
+  border: 1px solid rgba(74,222,128,0.2);
+  letter-spacing: 0.04em;
+}
+
+.plan-day-summary-right {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  flex-shrink: 0;
+}
+
+.plan-day-summary-stats {
+  display: flex;
+  gap: 20px;
+}
+
+.plan-day-summary-stat {
+  text-align: center;
+  padding-right: 20px;
+  border-right: 1px solid rgba(255,255,255,0.07);
+}
+
+.plan-day-summary-stat:last-child {
+  border-right: none;
+  padding-right: 0;
+}
+
+.plan-day-summary-stat-val {
+  font-family: var(--plan-font-display);
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: #fff;
+  line-height: 1;
+  margin: 0;
+}
+
+.plan-day-summary-stat-lbl {
+  font-size: 0.62rem;
+  font-weight: 600;
+  color: rgba(255,255,255,0.4);
+  letter-spacing: 0.07em;
+  margin-top: 3px;
+  text-transform: uppercase;
+}
+
+.plan-day-summary-button {
+  padding: 9px 20px;
+  border-radius: 9px;
+  border: none;
+  background: var(--plan-green);
+  color: #0f0f0d;
+  font-family: var(--plan-font-display);
+  font-size: 0.82rem;
+  font-weight: 700;
+  letter-spacing: 0.01em;
+  cursor: pointer;
+  transition: opacity 0.15s;
+  white-space: nowrap;
+  padding-left: 20px;
+  border-left: 1px solid rgba(255,255,255,0.07);
+  margin-left: 20px;
+}
+
+.plan-day-summary-button:hover {
+  opacity: 0.85;
+}
+
+/* ── EXERCISE LIST ────────────────────────────────────────────────── */
+
+.ex-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.ex-list-empty {
+  padding: 32px 0;
+  text-align: center;
+  color: var(--plan-text-mid);
+}
+
+/* ── RESPONSIVE ───────────────────────────────────────────────────── */
+
+@media (max-width: 768px) {
+  .plan-page-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .plan-day-summary {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .plan-day-summary-right {
+    width: 100%;
+    flex-direction: column;
+  }
+
+  .plan-day-summary-stats {
+    width: 100%;
+    justify-content: space-around;
+  }
+
+  .plan-day-summary-button {
+    width: 100%;
+    margin-left: 0;
+    padding-left: 12px;
+    border-left: none;
+    border-top: 1px solid rgba(255,255,255,0.07);
+    margin-top: 12px;
+    padding-top: 12px;
+  }
+
+  .plan-day-tabs {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .plan-page-title {
+    font-size: 1.2rem;
+  }
+}

@@ -81,7 +81,6 @@ function RestTimer({ seconds, onDone }) {
 export default function WorkoutSession({ day, onBack, onComplete, onUpdateProgress }) {
   const exercises = day.exercises;
 
-  
   const steps = exercises.flatMap((ex, ei) =>
     Array.from({ length: ex.sets || 1 }, (_, si) => ({ ei, si, total: ex.sets || 1 }))
   );
@@ -93,7 +92,6 @@ export default function WorkoutSession({ day, onBack, onComplete, onUpdateProgre
   const [imgError, setImgError] = useState(false);
   const startRef = useRef(Date.now());
 
-  
   useEffect(() => {
     const interval = setInterval(() => {
       setElapsed(Math.floor((Date.now() - startRef.current) / 1000));
@@ -145,7 +143,6 @@ export default function WorkoutSession({ day, onBack, onComplete, onUpdateProgre
     }
   }
 
-  
   function handleSetTimerDone() {
     finishSet();
   }

@@ -1,91 +1,103 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import IntakeChat from './IntakeChat/IntakeChat';
+import '../App.css';
 
-const HERO_IMAGES = [
-  'Barbell_Squat/0.jpg',
-  'Dumbbell_Bench_Press/0.jpg',
-  'Pullups/0.jpg',
-  'Romanian_Deadlift/0.jpg',
-  'Dumbbell_Shoulder_Press/0.jpg',
-  'Pushups/0.jpg',
-  'Barbell_Deadlift/0.jpg',
-  'Dumbbell_Lunges/0.jpg',
-  'Alternating_Kettlebell_Press/0.jpg',
-  'Arnold_Dumbbell_Press/0.jpg',
-  'Cable_Crossover/0.jpg',
-  'Seated_Cable_Rows/0.jpg',
-  'Leg_Press/0.jpg',
-  'Standing_Calf_Raises/0.jpg',
-  'Plank/0.jpg',
-  'Wide-Grip_Lat_Pulldown/0.jpg',
-  'Incline_Dumbbell_Press/0.jpg',
-  'Barbell_Full_Squat/0.jpg',
-  'Dips_-_Triceps_Version/0.jpg',
-  'Crunches/0.jpg',
-  'One-Arm_Kettlebell_Swings/0.jpg',
-  'Lying_T-Bar_Row/0.jpg',
-  'Alternate_Hammer_Curl/0.jpg',
-];
+export default function HeroPage({ onComplete }) {
+  const [bgImage, setBgImage] = useState('');
 
-const BASE = 'https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/';
+  useEffect(() => {
+    
+    const fetchImage = async () => {
+      try {
+        
+        const searchTerms = ['fitness', 'workout', 'gym', 'exercise', 'training', 'athlete'];
+        const randomTerm = searchTerms[Math.floor(Math.random() * searchTerms.length)];
+        const randomPage = Math.floor(Math.random() * 5) + 1; 
+        
+        const response = await fetch(
+          `https://www.pexels.com/api/v2/search?query=${randomTerm}&per_page=1&page=${randomPage}`,
+          {
+            headers: {
+              'Authorization': 'dummy' 
+            }
+          }
+        );
+        
+        if (response.ok) {
+          const data = await response.json();
+          if (data.photos && data.photos.length > 0) {
+            
+            const imageUrl = data.photos[0].src.large2x || data.photos[0].src.large;
+            setBgImage(imageUrl);
+            return;
+          }
+        }
+      } catch (error) {
+        console.log('Failed to fetch from Pexels, using fallback');
+      }
 
-function buildUrl(path) {
-  return BASE + encodeURIComponent(path).replace(/%2F/g, '/');
-}
+      
+      const fallbackImages = [
+        'https://images.pexels.com/photos/3807517/pexels-photo-3807517.jpeg?auto=compress&cs=tinysrgb&w=800',
+        'https://images.pexels.com/photos/4327019/pexels-photo-4327019.jpeg?auto=compress&cs=tinysrgb&w=800',
+        'https://images.pexels.com/photos/416978/pexels-photo-416978.jpeg?auto=compress&cs=tinysrgb&w=800',
+        'https://images.pexels.com/photos/3196887/pexels-photo-3196887.jpeg?auto=compress&cs=tinysrgb&w=800',
+        'https://images.pexels.com/photos/3862606/pexels-photo-3862606.jpeg?auto=compress&cs=tinysrgb&w=800',
+        'https://images.pexels.com/photos/4720256/pexels-photo-4720256.jpeg?auto=compress&cs=tinysrgb&w=800',
+        'https://images.pexels.com/photos/2284165/pexels-photo-2284165.jpeg?auto=compress&cs=tinysrgb&w=800',
+        'https://images.pexels.com/photos/375889/pexels-photo-375889.jpeg?auto=compress&cs=tinysrgb&w=800',
+      ];
+      
+      const randomImage = fallbackImages[Math.floor(Math.random() * fallbackImages.length)];
+      setBgImage(randomImage);
+    };
 
-function pickImages() {
-  const shuffled = [...HERO_IMAGES].sort(() => Math.random() - 0.5);
-  return shuffled.slice(0, 4);
-}
-
-export default function HeroPage({ onStart }) {
-  const [images] = useState(() => pickImages());
-  const [errored, setErrored] = useState({});
-
-  const handleImgError = (i) => setErrored(prev => ({ ...prev, [i]: true }));
+    fetchImage();
+  }, []);
 
   return (
     <div className="hero2-root">
-      <div className="hero2-copy">
-
-        <h1 className="hero2-heading">
-          Build a workout<br />
-          <em>made for you.</em>
-        </h1>
-
-        <p className="hero2-body">
-          Tell us your goals and experience, and we'll build the perfect scientifically backed weekly plan for you.
-        </p>
-
-        <div className="hero2-actions">
-          <button
-            id="get-started-btn"
-            className="hero2-btn-primary"
-            onClick={onStart}
-          >
-            Build my plan
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="9 18 15 12 9 6" /></svg>
-          </button>
+      <div 
+        className="hero2-copy" 
+        style={{ 
+          backgroundImage: bgImage ? `url('${bgImage}')` : 'none',
+          backgroundSize: 'cover',
+          backgroundPosition: 'center',
+          backgroundAttachment: 'fixed'
+        }}
+      >
+        <div className="hero2-copy-overlay">
+          <div className="hero-logo">
+            <span className="hero-logo-icon">T</span>
+            <span className="hero-logo-text">Trainr</span>
+          </div>
+          <h1 className="hero2-heading">
+            A workout built<br />
+            around <em>you.</em><br />
+            In seconds.
+          </h1>
+          <hr className="hero2-divider" />
+          <p className="hero2-body">
+            Answer a few quick questions. We'll match you with a plan from 873 exercises.
+          </p>
+          <ul className="hero2-checklist">
+            <li>
+              <span className="hero2-check">✓</span>
+              873 exercises, body-only to full gym
+            </li>
+            <li>
+              <span className="hero2-check">✓</span>
+              Adapts as you improve week by week
+            </li>
+            <li>
+              <span className="hero2-check">✓</span>
+              Earn points and level up your profile
+            </li>
+          </ul>
         </div>
       </div>
-
-      <div className="hero2-photos">
-        <div className="hero2-photos-grid">
-          {images.map((src, i) => (
-            <div key={src + i} className="hero2-photo-cell">
-              {!errored[i] ? (
-                <img
-                  src={buildUrl(src)}
-                  alt="exercise"
-                  className="hero2-photo-img"
-                  onError={() => handleImgError(i)}
-                  loading="eager"
-                />
-              ) : (
-                <div className="hero2-photo-fallback" />
-              )}
-            </div>
-          ))}
-        </div>
+      <div className="hero2-chat-container">
+        <IntakeChat onComplete={onComplete} />
       </div>
     </div>
   );

@@ -1,5 +1,6 @@
 import React from 'react';
 import DashboardLayout from './DashboardLayout';
+import { History, Clock, Repeat, TrendingUp, Play } from 'lucide-react';
 
 function formatDuration(seconds) {
   if (!seconds) return '—';
@@ -84,20 +85,21 @@ export default function HistoryPage({
           <>
             <div className="history-stats-row">
               {[
-                { label: 'Total Sessions', value: sorted.length, icon: 'ti-history' },
-                { label: 'Total Time', value: formatDuration(totalTime), icon: 'ti-clock' },
-                { label: 'Total Sets', value: totalSets, icon: 'ti-repeat' },
-                { label: 'Avg Session', value: `${avgDuration}m`, icon: 'ti-trending-up' },
-              ].map(s => (
-                <div key={s.label} className="history-summary-card">
-                  <i className={`ti ${s.icon} history-summary-icon`} />
-                  <div className="history-summary-val">{s.value}</div>
-                  <div className="history-summary-label">{s.label}</div>
-                </div>
-              ))}
+                { label: 'Total Sessions', value: sorted.length, icon: History },
+                { label: 'Total Time', value: formatDuration(totalTime), icon: Clock },
+                { label: 'Total Sets', value: totalSets, icon: Repeat },
+                { label: 'Avg Session', value: `${avgDuration}m`, icon: TrendingUp },
+              ].map(s => {
+                const IconComponent = s.icon;
+                return (
+                  <div key={s.label} className="history-summary-card">
+                    <IconComponent className="history-summary-icon" size={24} />
+                    <div className="history-summary-val">{s.value}</div>
+                    <div className="history-summary-label">{s.label}</div>
+                  </div>
+                );
+              })}
             </div>
-
-			{/*session list*/}
 
             <div className="history-list">
               {sorted.map((entry, i) => (
@@ -108,14 +110,14 @@ export default function HistoryPage({
         ) : (
           <div className="history-empty">
             <div className="history-empty-icon">
-              <i className="ti ti-history" />
+              <History size={36} strokeWidth={1.5} />
             </div>
             <h2 className="history-empty-title">No sessions yet</h2>
             <p className="history-empty-sub">
               Complete your first workout and it'll appear here automatically.
             </p>
             <button className="btn btn-primary" onClick={() => onViewChange('results')}>
-              <i className="ti ti-play" /> Go to My Plan
+              <Play size={18} fill="currentColor" /> Go to My Plan
             </button>
           </div>
         )}

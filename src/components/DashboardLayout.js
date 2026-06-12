@@ -1,4 +1,8 @@
 import React from 'react';
+import XPBar from './XPBar';
+import { CalendarCheck, Dumbbell, TrendingUp, History, Target } from 'lucide-react';
+
+
 
 export default function DashboardLayout({
   children,
@@ -10,6 +14,7 @@ export default function DashboardLayout({
   isMobile,
   onOpenSidebar,
   onCloseSidebar,
+  xp = 0,
 }) {
   return (
     <div className={`layout-3col animate-fade-in ${!sidebarOpen && !isMobile ? 'desktop-collapsed' : ''}`}>
@@ -72,14 +77,14 @@ export default function DashboardLayout({
             className={`sidebar-link ${activeTab === 'plan' ? 'active' : ''}`}
             onClick={() => { onViewChange('results'); if (isMobile) onCloseSidebar(); }}
           >
-            <i className="ti ti-calendar-check sidebar-icon" aria-hidden="true" />
+            <CalendarCheck size={20} className="sidebar-icon" />
             <span className="sidebar-link-text">My Plan</span>
           </div>
           <div
             className={`sidebar-link ${activeTab === 'library' ? 'active' : ''}`}
             onClick={() => { onViewChange('library'); if (isMobile) onCloseSidebar(); }}
           >
-            <i className="ti ti-barbell sidebar-icon" aria-hidden="true" />
+            <Dumbbell size={20} className="sidebar-icon" />
             <span className="sidebar-link-text">Exercise Library</span>
           </div>
 
@@ -88,32 +93,35 @@ export default function DashboardLayout({
             className={`sidebar-link ${activeTab === 'progress' ? 'active' : ''}`}
             onClick={() => { onViewChange('progress'); if (isMobile) onCloseSidebar(); }}
           >
-            <i className="ti ti-trending-up sidebar-icon" aria-hidden="true" />
+            <TrendingUp size={20} className="sidebar-icon" />
             <span className="sidebar-link-text">Progress</span>
           </div>
           <div
             className={`sidebar-link ${activeTab === 'history' ? 'active' : ''}`}
             onClick={() => { onViewChange('history'); if (isMobile) onCloseSidebar(); }}
           >
-            <i className="ti ti-history sidebar-icon" aria-hidden="true" />
+            <History size={20} className="sidebar-icon" />
             <span className="sidebar-link-text">History</span>
           </div>
           <div
             className={`sidebar-link ${activeTab === 'goal' ? 'active' : ''}`}
             onClick={() => { onViewChange('goal'); if (isMobile) onCloseSidebar(); }}
           >
-            <i className="ti ti-target sidebar-icon" aria-hidden="true" />
+            <Target size={20} className="sidebar-icon" />
             <span className="sidebar-link-text">Goal</span>
           </div>
         </div>
 
         <div className="sidebar-spacer" />
 
-        <div className={`sidebar-profile ${sidebarOpen ? '' : 'collapsed'}`}>
-          <div className="profile-avatar">S</div>
-          <div className="profile-info">
-            <div className="profile-name">Shruti Sharma</div>
+        <div className={`sidebar-profile ${sidebarOpen ? '' : 'collapsed'}`} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '12px' }}>
+            <div className="profile-avatar">S</div>
+            <div className="profile-info">
+              <div className="profile-name">Shruti Sharma</div>
+            </div>
           </div>
+          <XPBar xp={xp} collapsed={!sidebarOpen && !isMobile} />
         </div>
       </aside>
 

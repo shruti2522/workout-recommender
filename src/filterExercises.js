@@ -1,5 +1,3 @@
-
-
 export const FREQUENCY_OPTIONS = [
   { key: '2', label: '2 sessions/week', desc: 'Low commitment, likely beginner', points: 1 },
   { key: '3', label: '3 sessions/week', desc: 'Standard beginner–intermediate range', points: 2 },
@@ -17,19 +15,18 @@ export const DURATION_OPTIONS = [
 export function inferLevel(frequencyKey, durationKey) {
   const freqOpt = FREQUENCY_OPTIONS.find(o => o.key === frequencyKey);
   const durOpt = DURATION_OPTIONS.find(o => o.key === durationKey);
-  
+
   const freqPoints = freqOpt ? freqOpt.points : 1;
   const durPoints = durOpt ? durOpt.points : 1;
-  
+
   const sum = freqPoints + durPoints; 
-  
-  
+
   const score = Math.round((sum / 8) * 10);
-  
+
   let level = 'beginner';
   if (score >= 4 && score <= 7) level = 'intermediate';
   if (score >= 8) level = 'expert';
-  
+
   return { level, score };
 }
 
@@ -95,4 +92,3 @@ export function filterExercises(allExercises, { level, equipmentLabels, injuries
     return true;
   });
 }
-

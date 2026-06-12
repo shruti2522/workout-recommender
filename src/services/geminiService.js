@@ -41,9 +41,9 @@ function buildPrompt(prefs, filteredExercises) {
     let score = 0;
     if (goalCats.includes(ex.category)) score += 2;
     if (targetMuscles.size === 0 || (ex.primaryMuscles || []).some((m) => targetMuscles.has(m))) score += 1;
-    
+
     if (ex.category === 'stretching') score += 1.5; 
-    
+
     return { ex, score };
   });
 
@@ -277,4 +277,103 @@ export async function generatePlan(prefs, filteredExercises, signal) {
   }
 
   throw lastError;
+}
+
+export async function extractPreferencesFromText(userText) {
+  if (!GEMINI_API_KEY || GEMINI_API_KEY === 'PASTE_YOUR_GEMINI_API_KEY_HERE') {
+    throw new Error('API key is missing or invalid.');
+  }
+
+  const prompt = `You are a fitness assistant. Deduce the user's fitness profile from their message.
+Message: "${userText}"
+
+Extract the following preferences based on the message. If something is not explicitly mentioned, use reasonable defaults (e.g., frequency: "3", goal: "general_fitness", equipment: ["No equipment (bodyweight)"], targetAreas: ["full_body"]).
+- frequency: number of days per week they work out (e.g. "2", "3", "4", "5", "6")
+- goal: exactly one of ["build_muscle", "lose_weight", "improve_endurance", "increase_flexibility", "general_fitness"]
+- equipment: array of strings. Use standard options like "No equipment (bodyweight)", "Dumbbells", "Barbell", "Kettlebells", "Resistance bands", "Cable machine", "Gym machines".
+- targetAreas: array of strings. Options: "upper_body", "lower_body", "core", "full_body".
+- duration: their workout experience level. Exactly one of ["under_6m", "6m_2y", "2y_plus"]. Default to "6m_2y" if unsure.
+- injuries: array of strings (e.g., ["knees", "lower back"]). Empty if none mentioned.
+`;
+
+  const response = await fetch(`${GEMINI_API_URL}?key=${GEMINI_API_KEY}`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      contents: [{ parts: [{ text: prompt }] }],
+      generationConfig: {
+        temperature: 0.1,
+        responseMimeType: 'application/json',
+        responseSchema: {
+          type: "OBJECT",
+          properties: {
+            frequency: { type: "STRING" },
+            goal: { type: "STRING" },
+            equipment: { type: "ARRAY", items: { type: "STRING" } },
+            targetAreas: { type: "ARRAY", items: { type: "STRING" } },
+            duration: { type: "STRING" },
+            injuries: { type: "ARRAY", items: { type: "STRING" } }
+          },
+          required: ["frequency", "goal", "equipment", "targetAreas", "duration", "injuries"]
+        }
+      }
+    })
+  });
+
+  if (!response.ok) throw new Error('Failed to extract preferences');
+
+  const data = await response.json();
+  const rawText = data?.candidates?.[0]?.content?.parts?.[0]?.text;
+
+  return extractJSON(rawText);
+}
+
+export async function generateFollowUp(history) {
+  if (!GEMINI_API_KEY || GEMINI_API_KEY === 'PASTE_YOUR_GEMINI_API_KEY_HERE') {
+    throw new Error('API key is missing or invalid.');
+  }
+
+  const prompt = `You are an expert personal trainer chatting with a new client.
+The client just told you their primary fitness goal: "${history}"
+
+Write exactly ONE follow-up question that:
+1. Enthusiastically acknowledges their specific goal.
+2. Asks for the remaining information you need to build their plan: how long they have been working out or their past fitness experience, how many days a week they can train, what equipment they have access to, and if they have any injuries.
+Keep the question very brief, conversational, and natural. Do NOT ask more than one block of questions. Do not directly ask "are you a beginner". Ask indirectly about their history.
+
+Also, provide 3 to 4 short, realistic example answers (suggestions) the user could tap to reply quickly.
+
+Respond with ONLY valid JSON in this format:
+{
+  "question": "Great! To build muscle, consistency is key. How long have you been lifting, how many days a week can you train, and do you have access to a gym or just home equipment?",
+  "suggestions": ["Just starting, 3 days, home dumbbells", "Lifting for a year, 4 days, full gym", "Years of experience, 5 days, bodyweight only"]
+}
+`;
+
+  const response = await fetch(`${GEMINI_API_URL}?key=${GEMINI_API_KEY}`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      contents: [{ parts: [{ text: prompt }] }],
+      generationConfig: {
+        temperature: 0.7,
+        responseMimeType: 'application/json',
+        responseSchema: {
+          type: "OBJECT",
+          properties: {
+            question: { type: "STRING" },
+            suggestions: { type: "ARRAY", items: { type: "STRING" } }
+          },
+          required: ["question", "suggestions"]
+        }
+      }
+    })
+  });
+
+  if (!response.ok) throw new Error('Failed to generate follow-up');
+
+  const data = await response.json();
+  const rawText = data?.candidates?.[0]?.content?.parts?.[0]?.text;
+
+  return extractJSON(rawText);
 }

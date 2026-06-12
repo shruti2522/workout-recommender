@@ -1,7 +1,7 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect, useRef } from 'react';
 import DashboardLayout from './DashboardLayout';
 import { formatCategoryLabel, CATEGORY_COLORS, getExerciseImageUrl } from '../utils/helpers';
-import { TARGET_AREA_OPTIONS } from './Wizard/WizardSteps';
+import { TARGET_AREA_OPTIONS } from '../utils/constants';
 import { INJURY_MUSCLES } from '../filterExercises';
 
 const TARGET_AREA_MUSCLES = {
@@ -69,23 +69,22 @@ export default function LibraryPage({ exercises, onViewChange, savedPlan, setSav
           </div>
         </div>
 
-        <div style={{ display: 'flex', gap: '16px', marginBottom: showFilters ? '16px' : '24px', flexWrap: 'nowrap', alignItems: 'center' }}>
-          <div style={{ flex: 1, position: 'relative', minWidth: 0 }}>
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ position: 'absolute', left: '14px', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)' }}><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+        <div style={{ display: 'flex', gap: '16px', marginBottom: showFilters ? '16px' : '24px', flexWrap: 'wrap', alignItems: 'center', width: '100%' }}>
+          <div style={{ flex: 1, position: 'relative', minWidth: '200px', maxWidth: '100%' }}>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ position: 'absolute', left: '14px', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)', pointerEvents: 'none' }}><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
             <input 
               type="text" 
               className="form-input" 
               placeholder="Search exercises by name..." 
               value={search}
               onChange={e => setSearch(e.target.value)}
-              style={{ paddingLeft: '40px' }}
             />
           </div>
           
           <button 
             className="btn btn-secondary" 
             onClick={() => setShowFilters(!showFilters)}
-            style={{ display: 'flex', alignItems: 'center', gap: '8px', background: showFilters ? 'var(--bg-surface)' : 'transparent', borderColor: showFilters ? 'var(--accent-primary)' : 'var(--border-subtle)', color: showFilters ? 'var(--accent-primary)' : 'var(--text-primary)' }}
+            style={{ display: 'flex', alignItems: 'center', gap: '8px', background: showFilters ? 'var(--bg-surface)' : 'transparent', borderColor: showFilters ? 'var(--accent-primary)' : 'var(--border-subtle)', color: showFilters ? 'var(--accent-primary)' : 'var(--text-primary)', flexShrink: 0, whiteSpace: 'nowrap' }}
           >
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"></polygon></svg>
             Filters
@@ -132,14 +131,14 @@ export default function LibraryPage({ exercises, onViewChange, savedPlan, setSav
                     <button 
                       onClick={() => setCategoryFilter('all')} 
                       className="btn"
-                      style={{ padding: '6px 14px', borderRadius: '24px', border: `1px solid ${categoryFilter === 'all' ? 'var(--accent-primary)' : 'var(--border-subtle)'}`, background: categoryFilter === 'all' ? 'rgba(42, 157, 143, 0.1)' : 'transparent', color: categoryFilter === 'all' ? 'var(--accent-primary)' : 'var(--text-secondary)', fontSize: '0.85rem', fontWeight: 500 }}
+                      style={{ padding: '6px 14px', borderRadius: '24px', border: `1px solid ${categoryFilter === 'all' ? 'var(--accent-primary)' : 'var(--border-subtle)'}`, background: categoryFilter === 'all' ? 'rgba(255, 255, 255, 0.1)' : 'transparent', color: categoryFilter === 'all' ? 'var(--accent-primary)' : 'var(--text-secondary)', fontSize: '0.85rem', fontWeight: 500 }}
                     >All</button>
                     {categories.slice(1).map(c => (
                       <button 
                         key={c}
                         onClick={() => setCategoryFilter(c)} 
                         className="btn"
-                        style={{ padding: '6px 14px', borderRadius: '24px', border: `1px solid ${categoryFilter === c ? 'var(--accent-primary)' : 'var(--border-subtle)'}`, background: categoryFilter === c ? 'rgba(42, 157, 143, 0.1)' : 'transparent', color: categoryFilter === c ? 'var(--accent-primary)' : 'var(--text-secondary)', fontSize: '0.85rem', fontWeight: 500 }}
+                        style={{ padding: '6px 14px', borderRadius: '24px', border: `1px solid ${categoryFilter === c ? 'var(--accent-primary)' : 'var(--border-subtle)'}`, background: categoryFilter === c ? 'rgba(255, 255, 255, 0.1)' : 'transparent', color: categoryFilter === c ? 'var(--accent-primary)' : 'var(--text-secondary)', fontSize: '0.85rem', fontWeight: 500 }}
                       >{formatCategoryLabel(c)}</button>
                     ))}
                   </div>
@@ -151,14 +150,14 @@ export default function LibraryPage({ exercises, onViewChange, savedPlan, setSav
                     <button 
                       onClick={() => setAreaFilter('all')} 
                       className="btn"
-                      style={{ padding: '6px 14px', borderRadius: '24px', border: `1px solid ${areaFilter === 'all' ? 'var(--accent-primary)' : 'var(--border-subtle)'}`, background: areaFilter === 'all' ? 'rgba(42, 157, 143, 0.1)' : 'transparent', color: areaFilter === 'all' ? 'var(--accent-primary)' : 'var(--text-secondary)', fontSize: '0.85rem', fontWeight: 500 }}
+                      style={{ padding: '6px 14px', borderRadius: '24px', border: `1px solid ${areaFilter === 'all' ? 'var(--accent-primary)' : 'var(--border-subtle)'}`, background: areaFilter === 'all' ? 'rgba(255, 255, 255, 0.1)' : 'transparent', color: areaFilter === 'all' ? 'var(--accent-primary)' : 'var(--text-secondary)', fontSize: '0.85rem', fontWeight: 500 }}
                     >All</button>
                     {TARGET_AREA_OPTIONS.map(o => (
                       <button 
                         key={o.key}
                         onClick={() => setAreaFilter(o.key)} 
                         className="btn"
-                        style={{ padding: '6px 14px', borderRadius: '24px', border: `1px solid ${areaFilter === o.key ? 'var(--accent-primary)' : 'var(--border-subtle)'}`, background: areaFilter === o.key ? 'rgba(42, 157, 143, 0.1)' : 'transparent', color: areaFilter === o.key ? 'var(--accent-primary)' : 'var(--text-secondary)', fontSize: '0.85rem', fontWeight: 500 }}
+                        style={{ padding: '6px 14px', borderRadius: '24px', border: `1px solid ${areaFilter === o.key ? 'var(--accent-primary)' : 'var(--border-subtle)'}`, background: areaFilter === o.key ? 'rgba(255, 255, 255, 0.1)' : 'transparent', color: areaFilter === o.key ? 'var(--accent-primary)' : 'var(--text-secondary)', fontSize: '0.85rem', fontWeight: 500 }}
                       >{o.label}</button>
                     ))}
                   </div>
@@ -170,14 +169,14 @@ export default function LibraryPage({ exercises, onViewChange, savedPlan, setSav
                     <button 
                       onClick={() => setLevelFilter('all')} 
                       className="btn"
-                      style={{ padding: '6px 14px', borderRadius: '24px', border: `1px solid ${levelFilter === 'all' ? 'var(--accent-primary)' : 'var(--border-subtle)'}`, background: levelFilter === 'all' ? 'rgba(42, 157, 143, 0.1)' : 'transparent', color: levelFilter === 'all' ? 'var(--accent-primary)' : 'var(--text-secondary)', fontSize: '0.85rem', fontWeight: 500 }}
+                      style={{ padding: '6px 14px', borderRadius: '24px', border: `1px solid ${levelFilter === 'all' ? 'var(--accent-primary)' : 'var(--border-subtle)'}`, background: levelFilter === 'all' ? 'rgba(255, 255, 255, 0.1)' : 'transparent', color: levelFilter === 'all' ? 'var(--accent-primary)' : 'var(--text-secondary)', fontSize: '0.85rem', fontWeight: 500 }}
                     >All</button>
                     {levels.slice(1).map(l => (
                       <button 
                         key={l}
                         onClick={() => setLevelFilter(l)} 
                         className="btn"
-                        style={{ padding: '6px 14px', borderRadius: '24px', border: `1px solid ${levelFilter === l ? 'var(--accent-primary)' : 'var(--border-subtle)'}`, background: levelFilter === l ? 'rgba(42, 157, 143, 0.1)' : 'transparent', color: levelFilter === l ? 'var(--accent-primary)' : 'var(--text-secondary)', fontSize: '0.85rem', fontWeight: 500 }}
+                        style={{ padding: '6px 14px', borderRadius: '24px', border: `1px solid ${levelFilter === l ? 'var(--accent-primary)' : 'var(--border-subtle)'}`, background: levelFilter === l ? 'rgba(255, 255, 255, 0.1)' : 'transparent', color: levelFilter === l ? 'var(--accent-primary)' : 'var(--text-secondary)', fontSize: '0.85rem', fontWeight: 500 }}
                       >{capitalize(l)}</button>
                     ))}
                   </div>
@@ -189,14 +188,14 @@ export default function LibraryPage({ exercises, onViewChange, savedPlan, setSav
                     <button 
                       onClick={() => setEquipmentFilter('all')} 
                       className="btn"
-                      style={{ padding: '6px 14px', borderRadius: '24px', border: `1px solid ${equipmentFilter === 'all' ? 'var(--accent-primary)' : 'var(--border-subtle)'}`, background: equipmentFilter === 'all' ? 'rgba(42, 157, 143, 0.1)' : 'transparent', color: equipmentFilter === 'all' ? 'var(--accent-primary)' : 'var(--text-secondary)', fontSize: '0.85rem', fontWeight: 500 }}
+                      style={{ padding: '6px 14px', borderRadius: '24px', border: `1px solid ${equipmentFilter === 'all' ? 'var(--accent-primary)' : 'var(--border-subtle)'}`, background: equipmentFilter === 'all' ? 'rgba(255, 255, 255, 0.1)' : 'transparent', color: equipmentFilter === 'all' ? 'var(--accent-primary)' : 'var(--text-secondary)', fontSize: '0.85rem', fontWeight: 500 }}
                     >All</button>
                     {equipmentList.slice(1).map(eq => (
                       <button 
                         key={eq}
                         onClick={() => setEquipmentFilter(eq)} 
                         className="btn"
-                        style={{ padding: '6px 14px', borderRadius: '24px', border: `1px solid ${equipmentFilter === eq ? 'var(--accent-primary)' : 'var(--border-subtle)'}`, background: equipmentFilter === eq ? 'rgba(42, 157, 143, 0.1)' : 'transparent', color: equipmentFilter === eq ? 'var(--accent-primary)' : 'var(--text-secondary)', fontSize: '0.85rem', fontWeight: 500 }}
+                        style={{ padding: '6px 14px', borderRadius: '24px', border: `1px solid ${equipmentFilter === eq ? 'var(--accent-primary)' : 'var(--border-subtle)'}`, background: equipmentFilter === eq ? 'rgba(255, 255, 255, 0.1)' : 'transparent', color: equipmentFilter === eq ? 'var(--accent-primary)' : 'var(--text-secondary)', fontSize: '0.85rem', fontWeight: 500 }}
                       >{capitalize(eq.replace(/_/g, ' '))}</button>
                     ))}
                   </div>
@@ -261,7 +260,7 @@ export default function LibraryPage({ exercises, onViewChange, savedPlan, setSav
           gap: '12px',
           animation: 'slideUpFade 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards'
         }}>
-          <div style={{ width: '24px', height: '24px', borderRadius: '50%', background: '#e0f2f0', color: 'var(--accent-primary)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+          <div style={{ width: '24px', height: '24px', borderRadius: '50%', background: 'rgba(255, 255, 255, 0.15)', color: 'var(--accent-primary)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
           </div>
           <span style={{ fontWeight: 600, color: 'var(--text-primary)', fontSize: '0.95rem' }}>{toastMsg}</span>
@@ -294,9 +293,9 @@ function ExerciseCard({ exercise, savedPlan, setSavedPlan, onAdded }) {
         onClick={() => setShowInstructions(true)}
         style={{ display: 'flex', flexDirection: 'column', height: '100%' }}
       >
-        <div className="exercise-card-image-wrap" style={{ aspectRatio: '4/3', backgroundColor: '#f4f5f7' }}>
+        <div className="exercise-card-image-wrap" style={{ aspectRatio: '4/3', backgroundColor: '#1a1a1a' }}>
           {exercise.images?.[0] ? (
-            <img src={getExerciseImageUrl(exercise.images[0])} alt={exercise.name} className="exercise-card-image" loading="lazy" style={{ mixBlendMode: 'multiply' }} />
+            <img src={getExerciseImageUrl(exercise.images[0])} alt={exercise.name} className="exercise-card-image" loading="lazy" />
           ) : (
             <div className="exercise-card-image-fallback">No Image</div>
           )}
@@ -304,7 +303,7 @@ function ExerciseCard({ exercise, savedPlan, setSavedPlan, onAdded }) {
         <div className="exercise-card-body" style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '8px', marginBottom: '8px' }}>
             <h3 className="exercise-card-title" style={{ margin: 0, fontSize: '1.1rem' }}>{exercise.name}</h3>
-            <span className={`badge ${categoryClass}`} style={{ fontSize: '0.7rem', padding: '2px 8px', background: '#e0f2f0', color: 'var(--accent-primary)', border: 'none', whiteSpace: 'nowrap' }}>
+            <span className={`badge ${categoryClass}`} style={{ fontSize: '0.7rem', padding: '2px 8px', background: 'rgba(255, 255, 255, 0.1)', color: 'var(--accent-primary)', border: 'none', whiteSpace: 'nowrap' }}>
               {formatCategoryLabel(exercise.category)}
             </span>
           </div>
@@ -340,7 +339,7 @@ function ExerciseCard({ exercise, savedPlan, setSavedPlan, onAdded }) {
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '32px' }}>
               <div>
                 <div style={{ display: 'flex', gap: '8px', marginBottom: '8px' }}>
-                  <span className={`badge ${categoryClass}`} style={{ background: '#e0f2f0', color: 'var(--accent-primary)', border: 'none' }}>
+                  <span className={`badge ${categoryClass}`} style={{ background: 'rgba(255, 255, 255, 0.1)', color: 'var(--accent-primary)', border: 'none' }}>
                     {formatCategoryLabel(exercise.category)}
                   </span>
                   <span className="badge badge-gray">{capitalize(exercise.level)}</span>
@@ -363,8 +362,8 @@ function ExerciseCard({ exercise, savedPlan, setSavedPlan, onAdded }) {
                           <div style={{ 
                             width: '28px', height: '28px', 
                             borderRadius: '50%', 
-                            background: 'var(--accent-primary)', 
-                            color: '#fff', 
+                            background: 'var(--bg-elevated)', 
+                            color: 'var(--accent-primary)', 
                             display: 'flex', alignItems: 'center', justifyContent: 'center', 
                             fontSize: '0.9rem', fontWeight: 'bold', flexShrink: 0,
                             marginTop: '2px'
@@ -383,14 +382,14 @@ function ExerciseCard({ exercise, savedPlan, setSavedPlan, onAdded }) {
                 </div>
 
                 {avoidFor.length > 0 && (
-                  <div style={{ background: '#fdf0ed', border: '1px solid #fad3cc', borderRadius: 'var(--radius-md)', padding: '20px', display: 'flex', gap: '16px', alignItems: 'flex-start' }}>
-                    <div style={{ color: '#e74c3c', marginTop: '2px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                  <div style={{ background: '#2a2a2a', border: '1px solid #444444', borderRadius: 'var(--radius-md)', padding: '20px', display: 'flex', gap: '16px', alignItems: 'flex-start' }}>
+                    <div style={{ color: '#ff6b6b', marginTop: '2px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                       <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
                     </div>
                     <div>
-                      <h4 style={{ margin: '0 0 4px 0', color: '#c0392b', fontSize: '1.05rem' }}>Injury Warning</h4>
-                      <p style={{ margin: 0, color: '#d35400', fontSize: '0.95rem', lineHeight: '1.5' }}>
-                        Avoid this exercise if you have injuries in your <strong style={{ color: '#c0392b', textDecoration: 'underline' }}>{avoidFor.join(', ')}</strong>.
+                      <h4 style={{ margin: '0 0 4px 0', color: '#ff6b6b', fontSize: '1.05rem' }}>Injury Warning</h4>
+                      <p style={{ margin: 0, color: '#ff9999', fontSize: '0.95rem', lineHeight: '1.5' }}>
+                        Avoid this exercise if you have injuries in your <strong style={{ color: '#ff6b6b', textDecoration: 'underline' }}>{avoidFor.join(', ')}</strong>.
                       </p>
                     </div>
                   </div>
@@ -447,7 +446,7 @@ function ExerciseCard({ exercise, savedPlan, setSavedPlan, onAdded }) {
                         <span style={{ fontSize: '0.95rem', color: 'var(--text-secondary)' }}>{capitalize(m)}</span>
                         <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
                           <div style={{ width: '100px', height: '4px', background: 'var(--bg-elevated)', borderRadius: '2px' }}>
-                            <div style={{ width: '40%', height: '100%', background: '#a5d6d1', borderRadius: '2px' }}></div>
+                            <div style={{ width: '40%', height: '100%', background: '#888888', borderRadius: '2px' }}></div>
                           </div>
                           <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)', width: '45px', textAlign: 'right' }}>Secondary</span>
                         </div>
@@ -474,6 +473,20 @@ function capitalize(str) {
 
 function AddToPlanButton({ exercise, savedPlan, setSavedPlan, onAdded }) {
   const [showDropdown, setShowDropdown] = useState(false);
+  const dropdownRef = useRef(null);
+
+  useEffect(() => {
+    function handleClickOutside(event) {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        setShowDropdown(false);
+      }
+    }
+
+    if (showDropdown) {
+      document.addEventListener('mousedown', handleClickOutside);
+      return () => document.removeEventListener('mousedown', handleClickOutside);
+    }
+  }, [showDropdown]);
 
   const handleAdd = (e, dayIdx) => {
     e.stopPropagation();
@@ -501,7 +514,7 @@ function AddToPlanButton({ exercise, savedPlan, setSavedPlan, onAdded }) {
   if (!savedPlan) return null;
 
   return (
-    <div style={{ position: 'relative' }} onClick={e => e.stopPropagation()}>
+    <div ref={dropdownRef} style={{ position: 'relative' }} onClick={e => e.stopPropagation()}>
       <button 
         className="btn btn-sm btn-add-plan" 
         onClick={(e) => { e.stopPropagation(); setShowDropdown(!showDropdown); }}
@@ -520,7 +533,7 @@ function AddToPlanButton({ exercise, savedPlan, setSavedPlan, onAdded }) {
             <button 
               key={idx} 
               onClick={(e) => handleAdd(e, idx)}
-              style={{ display: 'block', width: '100%', padding: '10px 12px', textAlign: 'left', background: 'transparent', border: 'none', borderBottom: idx < savedPlan.length - 1 ? '1px solid var(--border-subtle)' : 'none', cursor: 'pointer' }}
+              style={{ display: 'block', width: '100%', padding: '10px 12px', textAlign: 'left', background: 'transparent', border: 'none', borderBottom: idx < savedPlan.length - 1 ? '1px solid var(--border-subtle)' : 'none', cursor: 'pointer', transition: 'background var(--transition-fast)' }}
               onMouseOver={e => e.currentTarget.style.background = 'var(--bg-elevated)'}
               onMouseOut={e => e.currentTarget.style.background = 'transparent'}
             >

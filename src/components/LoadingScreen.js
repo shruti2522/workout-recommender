@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import WorkoutLoader from './WorkoutLoader';
 
 export default function LoadingScreen() {
   const messages = [
@@ -16,7 +17,7 @@ export default function LoadingScreen() {
 
   return (
     <div className="loading-screen animate-fade-in">
-      <div className="loading-spinner" aria-label="Generating plan" />
+      <WorkoutLoader />
       <p className="loading-title">Building your custom plan</p>
       <p className="loading-msg">{messages[msgIndex]}</p>
     </div>

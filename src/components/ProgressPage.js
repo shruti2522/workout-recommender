@@ -1,12 +1,98 @@
 import React, { useMemo } from 'react';
 import DashboardLayout from './DashboardLayout';
+import { Flame, CheckCircle, Repeat, Clock, CalendarOff, Dumbbell, Circle, CheckCircle2, Zap as ZapIcon, Leaf, Sword, Crown, Trophy } from 'lucide-react';
+import { LEVELS, calculateTotalXP, getLevelProgress } from '../utils/gamification';
+
+const ICON_MAP = {
+  'seedling': Leaf,
+  'zap': ZapIcon,
+  'flame': Flame,
+  'sword': Sword,
+  'trophy': Trophy,
+};
+
+function LevelProgression({ xp = 0 }) {
+  const progressData = getLevelProgress(xp || 0);
+  const currentLevel = progressData?.level || LEVELS[0];
+
+  if (!currentLevel) return null;
+
+  const nextLevel = LEVELS[currentLevel.index + 1];
+
+  return (
+    <div style={{ marginBottom: '24px' }}>
+      <div style={{
+        fontSize: '0.7rem', fontWeight: '600', textTransform: 'uppercase',
+        letterSpacing: '0.06em', color: 'var(--text-muted)', marginBottom: '14px'
+      }}>
+        Level
+      </div>
+
+      {/* Step row */}
+      <div style={{ display: 'flex', alignItems: 'center' }}>
+        {LEVELS.map((level, idx) => {
+          const isPast = currentLevel.index > level.index;
+          const isCurrent = currentLevel.index === level.index;
+          const IconComponent = ICON_MAP[level.icon] || Leaf;
+
+          return (
+            <React.Fragment key={level.index}>
+              <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', flexShrink: 0 }}>
+                <div style={{
+                  width: '32px', height: '32px', borderRadius: '50%',
+                  border: isCurrent
+                    ? '2px solid #22c55e'
+                    : isPast
+                    ? '1.5px solid #22c55e'
+                    : '1.5px solid var(--border-subtle)',
+                  background: isPast ? '#22c55e18' : isCurrent ? 'var(--bg-surface)' : 'var(--bg-elevated)',
+                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  position: 'relative', zIndex: 1,
+                }}>
+                  <IconComponent
+                    size={13}
+                    color={isCurrent ? '#22c55e' : isPast ? '#22c55e' : 'var(--text-muted)'}
+                    strokeWidth={2.5}
+                  />
+                </div>
+                <span style={{
+                  fontSize: '0.68rem', marginTop: '6px', whiteSpace: 'nowrap',
+                  color: isCurrent ? 'var(--text-primary)' : 'var(--text-muted)',
+                  fontWeight: isCurrent ? '500' : '400',
+                }}>
+                  {level.name}
+                </span>
+                <span style={{
+                  fontSize: '0.58rem', marginTop: '2px', whiteSpace: 'nowrap',
+                  color: 'var(--text-muted)',
+                  fontWeight: '400',
+                }}>
+                  {level.maxXP === Infinity ? `${level.minXP}+` : `${level.minXP}-${level.maxXP}`}
+                </span>
+              </div>
+
+              {idx < LEVELS.length - 1 && (
+                <div style={{
+                  flex: 1,
+                  height: '1.5px',
+                  background: isPast ? '#22c55e' : 'var(--border-subtle)',
+                  marginBottom: '16px',
+                }} />
+              )}
+            </React.Fragment>
+          );
+        })}
+      </div>
+
+
+    </div>
+  );
+}
 
 function WeekHeatmap({ history }) {
-  // Build the last 12 weeks (84 days) grid
   const days = useMemo(() => {
     const today = new Date();
     today.setHours(0, 0, 0, 0);
-
     const dateSet = new Set(history.map(h => h.date));
     const result = [];
     for (let i = 83; i >= 0; i--) {
@@ -65,6 +151,8 @@ function MuscleBar({ muscle, percentage }) {
 export default function ProgressPage({
   savedPlan,
   history,
+  xp = 0,
+  completedQuests = [],
   onViewChange,
   sidebarOpen,
   onToggleSidebar,
@@ -87,7 +175,6 @@ export default function ProgressPage({
     return { sets, reps, mins };
   }, [history]);
 
-  // Aggregate muscles across completed plan days
   const muscleCoverage = useMemo(() => {
     const counts = {};
     completedDays.forEach(day => {
@@ -140,8 +227,11 @@ export default function ProgressPage({
           <p className="inner-page-subtitle">Track your consistency and strength over time.</p>
         </div>
 
+        {/* Level Progression */}
+        <LevelProgression xp={xp} />
+
         <div className="prog-top-row">
-          {/* completin ring */}
+          {/* Completion ring */}
           <div className="prog-ring-card">
             <div className="prog-ring-wrap">
               <svg width="120" height="120" viewBox="0 0 128 128">
@@ -171,20 +261,23 @@ export default function ProgressPage({
             </div>
           </div>
 
-          {/* stats */}
+          {/* Stats */}
           <div className="prog-stats-grid">
             {[
-              { label: 'Day Streak', value: streak, unit: streak === 1 ? 'day' : 'days', icon: 'ti-flame', accent: streak > 0 },
-              { label: 'Sessions Done', value: history?.length ?? 0, unit: 'total', icon: 'ti-circle-check', accent: false },
-              { label: 'Total Sets', value: totalStats.sets, unit: 'sets', icon: 'ti-repeat', accent: false },
-              { label: 'Time Trained', value: totalStats.mins, unit: 'min', icon: 'ti-clock', accent: false },
-            ].map(s => (
-              <div key={s.label} className={`prog-stat-card ${s.accent ? 'prog-stat-accent' : ''}`}>
-                <i className={`ti ${s.icon} prog-stat-icon`} />
-                <div className="prog-stat-val">{s.value}<span className="prog-stat-unit"> {s.unit}</span></div>
-                <div className="prog-stat-label">{s.label}</div>
-              </div>
-            ))}
+              { label: 'Day Streak', value: streak, unit: streak === 1 ? 'day' : 'days', icon: Flame, accent: streak > 0 },
+              { label: 'Sessions Done', value: history?.length ?? 0, unit: 'total', icon: CheckCircle, accent: false },
+              { label: 'Total Sets', value: totalStats.sets, unit: 'sets', icon: Repeat, accent: false },
+              { label: 'Time Trained', value: totalStats.mins, unit: 'min', icon: Clock, accent: false },
+            ].map(s => {
+              const IconComponent = s.icon;
+              return (
+                <div key={s.label} className={`prog-stat-card ${s.accent ? 'prog-stat-accent' : ''}`}>
+                  <IconComponent className="prog-stat-icon" size={24} />
+                  <div className="prog-stat-val">{s.value}<span className="prog-stat-unit"> {s.unit}</span></div>
+                  <div className="prog-stat-label">{s.label}</div>
+                </div>
+              );
+            })}
           </div>
         </div>
 
@@ -201,7 +294,7 @@ export default function ProgressPage({
             <WeekHeatmap history={history} />
           ) : (
             <div className="prog-empty">
-              <i className="ti ti-calendar-off prog-empty-icon" />
+              <CalendarOff className="prog-empty-icon" size={32} />
               <p>No sessions recorded yet. Complete your first workout to start tracking!</p>
             </div>
           )}
@@ -219,7 +312,7 @@ export default function ProgressPage({
             </div>
           ) : (
             <div className="prog-empty">
-              <i className="ti ti-barbell prog-empty-icon" />
+              <Dumbbell className="prog-empty-icon" size={32} />
               <p>Complete sessions to see muscle coverage.</p>
             </div>
           )}
@@ -234,7 +327,7 @@ export default function ProgressPage({
             <div className="prog-days-grid">
               {savedPlan.map((day, i) => (
                 <div key={day.key ?? i} className={`prog-day-pill ${day.completed ? 'prog-day-done' : ''}`}>
-                  <i className={`ti ${day.completed ? 'ti-circle-check' : 'ti-circle'}`} />
+                  {day.completed ? <CheckCircle2 size={16} /> : <Circle size={16} />}
                   <span>{day.label ?? `Day ${i + 1}`}</span>
                 </div>
               ))}

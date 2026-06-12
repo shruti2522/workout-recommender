@@ -1,0 +1,390 @@
+/* ── COMMITMENT PAGE STYLES ─────────────────────────────────────── */
+
+
+
+:root {
+  --commitment-bg: #0f0f0d;
+  --commitment-bg-panel: #181816;
+  --commitment-bg-raised: #212120;
+  --commitment-border: rgba(255,255,255,0.07);
+  --commitment-border-med: rgba(255,255,255,0.12);
+  --commitment-green: #4ade80;
+  --commitment-green-dim: rgba(74,222,128,0.12);
+  --commitment-green-faint: rgba(74,222,128,0.06);
+  --commitment-text: #f0ede8;
+  --commitment-text-mid: #9a9690;
+  --commitment-text-dim: #5c5a56;
+  --commitment-font-display: 'Barlow Condensed', sans-serif;
+  --commitment-font-body: 'Inter', sans-serif;
+}
+
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
+/* ── LAYOUT ─────────────────────────────── */
+
+.commitment-shell {
+  display: block;
+  width: 100%;
+  min-height: 100vh;
+  background: var(--commitment-bg);
+}
+
+/* ── SIDEBAR ────────────────────────────── */
+
+.commitment-sidebar {
+  display: none;
+}
+
+.commitment-sidebar-logo {
+  font-family: var(--commitment-font-display);
+  font-size: 1.5rem;
+  font-weight: 800;
+  letter-spacing: 0.02em;
+  color: var(--commitment-text);
+  padding: 0 20px 28px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.commitment-logo-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--commitment-green);
+  flex-shrink: 0;
+}
+
+.commitment-nav-section {
+  padding: 0 12px;
+  margin-bottom: 24px;
+}
+
+.commitment-nav-label {
+  font-size: 0.65rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--commitment-text-dim);
+  padding: 0 8px 8px;
+}
+
+.commitment-nav-item {
+  display: block;
+  padding: 8px 12px;
+  border-radius: 6px;
+  font-size: 0.88rem;
+  font-weight: 500;
+  color: var(--commitment-text-mid);
+  cursor: pointer;
+  transition: color 0.15s, background 0.15s;
+  text-decoration: none;
+}
+
+.commitment-nav-item:hover {
+  color: var(--commitment-text);
+  background: rgba(255,255,255,0.04);
+}
+
+.commitment-nav-item.active {
+  color: var(--commitment-text);
+  background: rgba(255,255,255,0.06);
+}
+
+.commitment-sidebar-spacer {
+  flex: 1;
+}
+
+.commitment-sidebar-user {
+  padding: 16px 20px 0;
+  border-top: 1px solid var(--commitment-border);
+}
+
+.commitment-user-name {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--commitment-text);
+  margin-bottom: 2px;
+}
+
+.commitment-user-meta {
+  font-size: 0.75rem;
+  color: var(--commitment-text-dim);
+}
+
+/* ── MAIN ───────────────────────────────── */
+
+.commitment-main {
+  width: 100%;
+  min-height: 100vh;
+  overflow-y: auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 24px;
+  background: var(--commitment-bg);
+}
+
+/* ── COMMIT WRAP ────────────────────────── */
+
+.commitment-wrap {
+  width: 100%;
+  max-width: 520px;
+  display: flex;
+  flex-direction: column;
+  gap: 36px;
+}
+
+/* Header */
+.commitment-eyebrow {
+  font-size: 0.72rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--commitment-green);
+  margin-bottom: 10px;
+}
+
+.commitment-title {
+  font-family: var(--commitment-font-display);
+  font-size: 2.8rem;
+  font-weight: 800;
+  line-height: 1.05;
+  letter-spacing: 0.01em;
+  color: var(--commitment-text);
+  margin: 0;
+}
+
+.commitment-sub {
+  margin-top: 10px;
+  font-size: 0.9rem;
+  color: var(--commitment-text-mid);
+  line-height: 1.6;
+  max-width: 380px;
+  margin-bottom: 0;
+}
+
+/* Goal */
+.commitment-goal {
+  padding-bottom: 28px;
+  border-bottom: 1px solid var(--commitment-border);
+}
+
+.commitment-field-label {
+  font-size: 0.68rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--commitment-text-dim);
+  margin-bottom: 8px;
+}
+
+.commitment-goal-name {
+  font-family: var(--commitment-font-display);
+  font-size: 2rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  color: var(--commitment-text);
+  margin: 0;
+}
+
+/* Stats band — the signature element */
+.commitment-stats-band {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 0;
+  border: 1px solid var(--commitment-border-med);
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.commitment-stat-cell {
+  padding: 22px 18px;
+  position: relative;
+}
+
+.commitment-stat-cell + .commitment-stat-cell {
+  border-left: 1px solid var(--commitment-border);
+}
+
+.commitment-stat-num {
+  font-family: var(--commitment-font-display);
+  font-size: 3.2rem;
+  font-weight: 800;
+  line-height: 1;
+  color: var(--commitment-green);
+  letter-spacing: -0.01em;
+}
+
+.commitment-stat-unit {
+  font-family: var(--commitment-font-display);
+  font-size: 1.2rem;
+  font-weight: 600;
+  color: var(--commitment-green);
+  opacity: 0.7;
+  margin-left: 2px;
+}
+
+.commitment-stat-desc {
+  font-size: 0.72rem;
+  color: var(--commitment-text-mid);
+  margin-top: 6px;
+  line-height: 1.4;
+}
+
+/* What's included */
+.commitment-includes {
+  padding-top: 0;
+}
+
+.commitment-includes-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.commitment-includes-item {
+  padding: 10px 0;
+  font-size: 0.88rem;
+  color: var(--commitment-text-mid);
+  border-bottom: 1px solid var(--commitment-border);
+  line-height: 1.5;
+}
+
+.commitment-includes-item:last-child {
+  border-bottom: none;
+}
+
+.commitment-includes-item strong {
+  color: var(--commitment-text);
+  font-weight: 600;
+}
+
+/* Note */
+.commitment-note {
+  font-size: 0.8rem;
+  color: var(--commitment-text-dim);
+  line-height: 1.55;
+  padding-left: 14px;
+  border-left: 2px solid var(--commitment-border-med);
+  margin: 0;
+}
+
+/* Buttons */
+.commitment-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.commitment-btn-primary {
+  width: 100%;
+  padding: 15px 24px;
+  border: none;
+  border-radius: 8px;
+  background: var(--commitment-green);
+  color: #0f0f0d;
+  font-family: var(--commitment-font-display);
+  font-size: 1.15rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  cursor: pointer;
+  transition: opacity 0.15s, transform 0.1s;
+}
+
+.commitment-btn-primary:hover {
+  opacity: 0.9;
+}
+
+.commitment-btn-primary:active {
+  transform: scale(0.99);
+}
+
+.commitment-btn-ghost {
+  width: 100%;
+  padding: 12px 24px;
+  border: 1px solid var(--commitment-border-med);
+  border-radius: 8px;
+  background: transparent;
+  color: var(--commitment-text-mid);
+  font-family: var(--commitment-font-body);
+  font-size: 0.9rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: color 0.15s, border-color 0.15s;
+}
+
+.commitment-btn-ghost:hover {
+  color: var(--commitment-text);
+  border-color: rgba(255,255,255,0.2);
+}
+
+/* ── MOBILE ──────────────────────────────── */
+
+.commitment-mobile-bar {
+  display: none;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 20px;
+  background: var(--commitment-bg-panel);
+  border-bottom: 1px solid var(--commitment-border);
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+.commitment-mobile-logo-text {
+  font-family: var(--commitment-font-display);
+  font-size: 1.3rem;
+  font-weight: 800;
+  color: var(--commitment-text);
+  display: flex;
+  align-items: center;
+  gap: 7px;
+}
+
+.commitment-hamburger {
+  background: none;
+  border: none;
+  color: var(--commitment-text-mid);
+  cursor: pointer;
+  padding: 4px;
+  line-height: 0;
+}
+
+@media (max-width: 768px) {
+  .commitment-shell {
+    flex-direction: column;
+    height: auto;
+    min-height: 100vh;
+    overflow: visible;
+  }
+
+  .commitment-sidebar {
+    display: none;
+  }
+
+  .commitment-mobile-bar {
+    display: flex;
+  }
+
+  .commitment-main {
+    align-items: flex-start;
+    padding: 32px 20px 48px;
+    overflow: visible;
+  }
+
+  .commitment-title {
+    font-size: 2.2rem;
+  }
+
+  .commitment-stat-num {
+    font-size: 2.4rem;
+  }
+
+  .commitment-stat-cell {
+    padding: 18px 14px;
+  }
+}
