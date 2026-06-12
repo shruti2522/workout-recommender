@@ -1,92 +1,95 @@
 import React, { useMemo } from 'react';
 import DashboardLayout from '../Layout/DashboardLayout';
-import { Flame, CheckCircle, Repeat, Clock, CalendarOff, Dumbbell, Circle, CheckCircle2, Zap as ZapIcon, Leaf, Sword, Trophy } from 'lucide-react';
-import { LEVELS, getLevelProgress } from '../../utils/xp';
+import WeeklyHabitRing from './WeeklyHabitRing';
+import {
+  Flame, Clock, CalendarOff, Dumbbell, Zap as ZapIcon,
+  Leaf, Sword, Trophy, TrendingUp, CheckCircle,
+} from 'lucide-react';
+import { LEVELS, getLevelProgress, calculateStreak } from '../../utils/xp';
 
-const ICON_MAP = {
-  'seedling': Leaf,
-  'zap': ZapIcon,
-  'flame': Flame,
-  'sword': Sword,
-  'trophy': Trophy,
+const LEVEL_ICON_MAP = {
+  seedling: Leaf,
+  zap: ZapIcon,
+  flame: Flame,
+  sword: Sword,
+  trophy: Trophy,
 };
 
-function LevelProgression({ xp = 0 }) {
-  const progressData = getLevelProgress(xp || 0);
-  const currentLevel = progressData?.level || LEVELS[0];
+/* ── Week consistency timeline ─────────────────────────────────────── */
+function WeekConsistencyBar({ history, daysPerWeek, startDate }) {
+  const weeks = useMemo(() => {
+    if (!history || history.length === 0) return [];
 
-  if (!currentLevel) return null;
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    // Use same anchor as WeeklyHabitRing: the user's onboarding day-of-week
+    let anchorDOW = 0;
+    if (startDate) {
+      const d = new Date(startDate);
+      if (!isNaN(d)) anchorDOW = d.getDay();
+    }
+
+    const NUM_WEEKS = 10;
+    const results = [];
+
+    for (let w = NUM_WEEKS - 1; w >= 0; w--) {
+      // Find the start of this rolling window
+      const todayDOW = today.getDay();
+      const daysBack = (todayDOW - anchorDOW + 7) % 7 + w * 7;
+      const weekStart = new Date(today);
+      weekStart.setDate(today.getDate() - daysBack);
+      const weekEnd = new Date(weekStart);
+      weekEnd.setDate(weekStart.getDate() + 6);
+
+      const startStr = weekStart.toISOString().slice(0, 10);
+      const endStr = weekEnd.toISOString().slice(0, 10);
+
+      const sessions = history.filter(h => h.date >= startStr && h.date <= endStr).length;
+      const isCurrent = w === 0;
+      results.push({ startStr, sessions, isCurrent });
+    }
+    return results;
+  }, [history, startDate]);
+
+  if (weeks.length === 0) return null;
 
   return (
-    <div style={{ marginBottom: '24px' }}>
-      <div style={{
-        fontSize: '0.7rem', fontWeight: '600', textTransform: 'uppercase',
-        letterSpacing: '0.06em', color: 'var(--text-muted)', marginBottom: '14px'
-      }}>
-        Level
+    <div className="week-consistency-timeline">
+      <div className="wct-header">
+        <span className="wct-title">Weekly Consistency</span>
+        <span className="wct-sub">Last 10 weeks</span>
       </div>
-
-      {/* Step row */}
-      <div style={{ display: 'flex', alignItems: 'center' }}>
-        {LEVELS.map((level, idx) => {
-          const isPast = currentLevel.index > level.index;
-          const isCurrent = currentLevel.index === level.index;
-          const IconComponent = ICON_MAP[level.icon] || Leaf;
-
+      <div className="wct-bars">
+        {weeks.map((week, i) => {
+          const pct = Math.min(100, Math.round((week.sessions / Math.max(1, daysPerWeek)) * 100));
+          const isConsistent = week.sessions >= daysPerWeek;
+          const hasAny = week.sessions > 0;
           return (
-            <React.Fragment key={level.index}>
-              <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', flexShrink: 0 }}>
-                <div style={{
-                  width: '32px', height: '32px', borderRadius: '50%',
-                  border: isCurrent
-                    ? '2px solid #22c55e'
-                    : isPast
-                    ? '1.5px solid #22c55e'
-                    : '1.5px solid var(--border-subtle)',
-                  background: isPast ? '#22c55e18' : isCurrent ? 'var(--bg-surface)' : 'var(--bg-elevated)',
-                  display: 'flex', alignItems: 'center', justifyContent: 'center',
-                  position: 'relative', zIndex: 1,
-                }}>
-                  <IconComponent
-                    size={13}
-                    color={isCurrent ? '#22c55e' : isPast ? '#22c55e' : 'var(--text-muted)'}
-                    strokeWidth={2.5}
-                  />
-                </div>
-                <span style={{
-                  fontSize: '0.68rem', marginTop: '6px', whiteSpace: 'nowrap',
-                  color: isCurrent ? 'var(--text-primary)' : 'var(--text-muted)',
-                  fontWeight: isCurrent ? '500' : '400',
-                }}>
-                  {level.name}
-                </span>
-                <span style={{
-                  fontSize: '0.58rem', marginTop: '2px', whiteSpace: 'nowrap',
-                  color: 'var(--text-muted)',
-                  fontWeight: '400',
-                }}>
-                  {level.maxXP === Infinity ? `${level.minXP}+` : `${level.minXP}-${level.maxXP}`}
-                </span>
+            <div key={i} className="wct-bar-col" title={`${week.startStr}: ${week.sessions} session${week.sessions !== 1 ? 's' : ''}`}>
+              <div className="wct-bar-track">
+                <div
+                  className={`wct-bar-fill ${isConsistent ? 'full' : hasAny ? 'partial' : 'empty'}`}
+                  style={{ height: `${Math.max(4, pct)}%` }}
+                />
               </div>
-
-              {idx < LEVELS.length - 1 && (
-                <div style={{
-                  flex: 1,
-                  height: '1.5px',
-                  background: isPast ? '#22c55e' : 'var(--border-subtle)',
-                  marginBottom: '16px',
-                }} />
-              )}
-            </React.Fragment>
+              <span className={`wct-bar-label ${week.isCurrent ? 'current' : ''}`}>
+                {week.isCurrent ? 'now' : ''}
+              </span>
+            </div>
           );
         })}
       </div>
-
-
+      <div className="wct-legend">
+        <span className="wct-legend-item full">■ Goal met</span>
+        <span className="wct-legend-item partial">■ Partial</span>
+        <span className="wct-legend-item empty">■ Missed</span>
+      </div>
     </div>
   );
 }
 
+/* ── Heatmap ───────────────────────────────────────────────────────── */
 function WeekHeatmap({ history }) {
   const days = useMemo(() => {
     const today = new Date();
@@ -104,18 +107,14 @@ function WeekHeatmap({ history }) {
 
   const weeks = useMemo(() => {
     const cols = [];
-    for (let i = 0; i < days.length; i += 7) {
-      cols.push(days.slice(i, i + 7));
-    }
+    for (let i = 0; i < days.length; i += 7) cols.push(days.slice(i, i + 7));
     return cols;
   }, [days]);
-
-  const dayLabels = ['S', 'M', 'T', 'W', 'T', 'F', 'S'];
 
   return (
     <div className="heatmap-wrap">
       <div className="heatmap-day-labels">
-        {dayLabels.map((l, i) => <span key={i}>{l}</span>)}
+        {['S', 'M', 'T', 'W', 'T', 'F', 'S'].map((l, i) => <span key={i}>{l}</span>)}
       </div>
       <div className="heatmap-grid">
         {weeks.map((week, wi) => (
@@ -134,6 +133,7 @@ function WeekHeatmap({ history }) {
   );
 }
 
+/* ── Muscle bar ────────────────────────────────────────────────────── */
 function MuscleBar({ muscle, percentage }) {
   return (
     <div className="prog-muscle-row">
@@ -146,11 +146,54 @@ function MuscleBar({ muscle, percentage }) {
   );
 }
 
+/* ── XP Level bar ──────────────────────────────────────────────────── */
+function XPLevelBar({ xp }) {
+  const { level, pct, current, needed } = getLevelProgress(xp || 0);
+  const nextLevel = LEVELS[level.index + 1];
+  const LevelIcon = LEVEL_ICON_MAP[level.icon] || Leaf;
+
+  return (
+    <div className="xp-level-bar-card">
+      <div className="xp-level-bar-header">
+        <div className="xp-level-info">
+          <div className="xp-level-badge" style={{ background: `${level.color}22`, border: `1px solid ${level.color}44` }}>
+            <LevelIcon size={14} color={level.color} />
+            <span style={{ color: level.color, fontWeight: '700', fontSize: '0.8rem' }}>Lv.{level.index + 1} {level.name}</span>
+          </div>
+          <span className="xp-total">{xp} XP</span>
+        </div>
+        {nextLevel && (
+          <span className="xp-next-label">
+            {needed - current} XP to {nextLevel.name}
+          </span>
+        )}
+      </div>
+      <div className="xp-bar-track">
+        <div
+          className="xp-bar-fill"
+          style={{
+            width: `${pct}%`,
+            background: `linear-gradient(90deg, ${level.color}88, ${level.color})`,
+            boxShadow: `0 0 10px ${level.color}44`,
+          }}
+        />
+      </div>
+      <div className="xp-bar-labels">
+        <span>{level.minXP}</span>
+        <span style={{ fontSize: '0.7rem', color: 'rgba(255,255,255,0.35)' }}>{pct}% through level</span>
+        <span>{level.maxXP === Infinity ? `${level.minXP}+` : level.maxXP}</span>
+      </div>
+    </div>
+  );
+}
+
+/* ── Main component ────────────────────────────────────────────────── */
 export default function ProgressPage({
   savedPlan,
   history,
   xp = 0,
   completedQuests = [],
+  habitContract,
   onViewChange,
   sidebarOpen,
   onToggleSidebar,
@@ -158,10 +201,8 @@ export default function ProgressPage({
   onOpenSidebar,
   onCloseSidebar,
 }) {
-  const completedDays = useMemo(() => savedPlan?.filter(d => d.completed) ?? [], [savedPlan]);
-  const totalDays = savedPlan?.length ?? 0;
-  const completedCount = completedDays.length;
-  const completionPct = totalDays > 0 ? Math.round((completedCount / totalDays) * 100) : 0;
+  const streak = useMemo(() => calculateStreak(history || []), [history]);
+  const daysPerWeek = habitContract?.daysPerWeek ?? 3;
 
   const totalStats = useMemo(() => {
     let sets = 0, reps = 0, mins = 0;
@@ -172,6 +213,8 @@ export default function ProgressPage({
     });
     return { sets, reps, mins };
   }, [history]);
+
+  const completedDays = useMemo(() => savedPlan?.filter(d => d.completed) ?? [], [savedPlan]);
 
   const muscleCoverage = useMemo(() => {
     const counts = {};
@@ -190,24 +233,28 @@ export default function ProgressPage({
       .map(([muscle, count]) => ({ muscle, percentage: Math.round((count / total) * 100) }));
   }, [completedDays]);
 
-  const streak = useMemo(() => {
+  const consistentWeeks = useMemo(() => {
     if (!history || history.length === 0) return 0;
-    const sorted = [...history].sort((a, b) => new Date(b.date) - new Date(a.date));
-    let count = 0;
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-    for (let i = 0; i < sorted.length; i++) {
-      const d = new Date(sorted[i].date);
-      d.setHours(0, 0, 0, 0);
-      const diff = Math.round((today - d) / 86400000);
-      if (diff === i) count++;
-      else break;
-    }
-    return count;
-  }, [history]);
+    const weekMap = {};
+    history.forEach(h => {
+      const date = new Date(h.date);
+      const weekStart = new Date(date);
+      weekStart.setDate(date.getDate() - date.getDay());
+      const weekKey = weekStart.toISOString().slice(0, 10);
+      weekMap[weekKey] = (weekMap[weekKey] || 0) + 1;
+    });
+    return Object.values(weekMap).filter(count => count >= daysPerWeek).length;
+  }, [history, daysPerWeek]);
 
-  const ringCircumference = 2 * Math.PI * 54;
-  const ringOffset = ringCircumference - (ringCircumference * completionPct) / 100;
+  // Momentum message
+  const momentumMsg = useMemo(() => {
+    if (streak === 0 && (history?.length ?? 0) === 0) return null;
+    if (streak >= 14) return { icon: null, text: `${streak}-day streak — you're on fire! Don't stop now.`, accent: '#f97316' };
+    if (streak >= 7)  return { icon: null, text: `${streak}-day streak — incredible consistency!`, accent: '#f59e0b' };
+    if (streak >= 3)  return { icon: null, text: `${streak}-day streak — you're building momentum!`, accent: '#4ade80' };
+    if (streak >= 1)  return { icon: null, text: `${streak}-day streak — keep showing up!`, accent: '#4ade80' };
+    return { icon: null, text: "Ready to start a new streak?", accent: '#9ca3af' };
+  }, [streak, history]);
 
   return (
     <DashboardLayout
@@ -222,56 +269,44 @@ export default function ProgressPage({
       <div className="inner-page animate-fade-in">
         <div className="inner-page-header">
           <h1 className="inner-page-title">Progress</h1>
-          <p className="inner-page-subtitle">Track your consistency and strength over time.</p>
+          <p className="inner-page-subtitle">Your habit, week by week.</p>
         </div>
 
-        {/* Level Progression */}
-        <LevelProgression xp={xp} />
+        {/* ── Momentum message ── */}
+        {momentumMsg && (
+          <div className="prog-momentum-msg" style={{ borderLeftColor: momentumMsg.accent }}>
+            <span style={{ fontSize: '1.2rem' }}>{momentumMsg.icon}</span>
+            <span style={{ color: momentumMsg.accent, fontWeight: '600', fontSize: '0.9rem' }}>{momentumMsg.text}</span>
+          </div>
+        )}
 
-        <div className="prog-top-row">
-          {/* Completion ring */}
-          <div className="prog-ring-card">
-            <div className="prog-ring-wrap">
-              <svg width="120" height="120" viewBox="0 0 128 128">
-                <circle cx="64" cy="64" r="54" fill="none" stroke="var(--bg-base)" strokeWidth="10" />
-                <circle
-                  cx="64" cy="64" r="54"
-                  fill="none"
-                  stroke="var(--accent-primary)"
-                  strokeWidth="10"
-                  strokeLinecap="round"
-                  strokeDasharray={ringCircumference}
-                  strokeDashoffset={ringOffset}
-                  style={{ transform: 'rotate(-90deg)', transformOrigin: '64px 64px', transition: 'stroke-dashoffset 1s ease' }}
-                />
-              </svg>
-              <div className="prog-ring-inner">
-                <span className="prog-ring-pct">{completionPct}%</span>
-                <span className="prog-ring-sub">complete</span>
-              </div>
-            </div>
-            <div className="prog-ring-meta">
-              <div className="prog-ring-title">Plan Progress</div>
-              <div className="prog-ring-detail">{completedCount} of {totalDays} days done</div>
-              {completedCount === totalDays && totalDays > 0 && (
-                <div className="prog-ring-badge">🎉 Plan Complete!</div>
-              )}
-            </div>
+        {/* ── Hero: Weekly habit ring + stats ── */}
+        <div className="prog-hero-row">
+          <div className="prog-habit-hero">
+            <div className="prog-habit-hero-label">This Week's Habit</div>
+            <WeeklyHabitRing
+              history={history || []}
+              daysPerWeek={daysPerWeek}
+              startDate={habitContract?.confirmedAt}
+              size="lg"
+              showLabel
+            />
           </div>
 
-          {/* Stats */}
           <div className="prog-stats-grid">
             {[
               { label: 'Day Streak', value: streak, unit: streak === 1 ? 'day' : 'days', icon: Flame, accent: streak > 0 },
               { label: 'Sessions Done', value: history?.length ?? 0, unit: 'total', icon: CheckCircle, accent: false },
-              { label: 'Total Sets', value: totalStats.sets, unit: 'sets', icon: Repeat, accent: false },
+              { label: 'Consistent Weeks', value: consistentWeeks, unit: 'weeks', icon: TrendingUp, accent: false },
               { label: 'Time Trained', value: totalStats.mins, unit: 'min', icon: Clock, accent: false },
             ].map(s => {
               const IconComponent = s.icon;
               return (
                 <div key={s.label} className={`prog-stat-card ${s.accent ? 'prog-stat-accent' : ''}`}>
-                  <IconComponent className="prog-stat-icon" size={24} />
-                  <div className="prog-stat-val">{s.value}<span className="prog-stat-unit"> {s.unit}</span></div>
+                  <IconComponent className="prog-stat-icon" size={22} />
+                  <div className="prog-stat-val">
+                    {s.value}<span className="prog-stat-unit"> {s.unit}</span>
+                  </div>
                   <div className="prog-stat-label">{s.label}</div>
                 </div>
               );
@@ -279,7 +314,17 @@ export default function ProgressPage({
           </div>
         </div>
 
-        {/* Heatmap */}
+        {/* ── Week consistency timeline ── */}
+        {history && history.length > 0 && (
+          <div className="prog-section-card">
+            <WeekConsistencyBar history={history} daysPerWeek={daysPerWeek} startDate={habitContract?.confirmedAt} />
+          </div>
+        )}
+
+        {/* ── XP Level bar ── */}
+        <XPLevelBar xp={xp} />
+
+        {/* ── Heatmap ── */}
         <div className="prog-section-card">
           <div className="prog-section-header">
             <span className="prog-section-title">Activity — Last 12 Weeks</span>
@@ -298,11 +343,11 @@ export default function ProgressPage({
           )}
         </div>
 
-        {/* Muscle Coverage */}
+        {/* ── Muscle Coverage ── */}
         <div className="prog-section-card">
           <div className="prog-section-header">
             <span className="prog-section-title">Muscles Trained</span>
-            <span className="prog-section-sub">Across {completedCount} completed session{completedCount !== 1 ? 's' : ''}</span>
+            <span className="prog-section-sub">Across {completedDays.length} completed session{completedDays.length !== 1 ? 's' : ''}</span>
           </div>
           {muscleCoverage.length > 0 ? (
             <div className="prog-muscles">
@@ -315,23 +360,6 @@ export default function ProgressPage({
             </div>
           )}
         </div>
-
-        {/* Per-day breakdown */}
-        {totalDays > 0 && (
-          <div className="prog-section-card">
-            <div className="prog-section-header">
-              <span className="prog-section-title">Plan Breakdown</span>
-            </div>
-            <div className="prog-days-grid">
-              {savedPlan.map((day, i) => (
-                <div key={day.key ?? i} className={`prog-day-pill ${day.completed ? 'prog-day-done' : ''}`}>
-                  {day.completed ? <CheckCircle2 size={16} /> : <Circle size={16} />}
-                  <span>{day.label ?? `Day ${i + 1}`}</span>
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
       </div>
     </DashboardLayout>
   );

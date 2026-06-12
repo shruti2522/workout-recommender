@@ -128,6 +128,30 @@
   gap: 36px;
 }
 
+.commitment-wrap.commitment-split-layout {
+  max-width: 1000px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 60px;
+  align-items: center;
+}
+
+.commitment-left-col {
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
+}
+
+.commitment-right-col {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  background: var(--commitment-bg-panel);
+  padding: 32px 32px;
+  border-radius: 16px;
+  border: 1px solid var(--commitment-border);
+}
+
 .commitment-eyebrow {
   font-size: 0.72rem;
   font-weight: 600;
@@ -370,5 +394,17 @@
 
   .commitment-stat-cell {
     padding: 18px 14px;
+  }
+
+  .commitment-wrap.commitment-split-layout {
+    grid-template-columns: 1fr;
+    gap: 40px;
+  }
+
+  .commitment-right-col {
+    padding: 0;
+    background: transparent;
+    border: none;
+    gap: 32px;
   }
 }

@@ -1,104 +1,98 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { extractPreferencesFromText, generateFollowUp } from '../../../services/geminiService';
+import React, { useState, useEffect, useRef, useMemo } from 'react';
 import './Chat.css';
 
-const INITIAL_QUESTION = "Hey! What's your main fitness goal right now?";
-const INITIAL_SUGGESTIONS = [
-  "Lose weight & tone up",
-  "Build muscle",
-  "Improve endurance",
-  "General health & fitness"
+const TOTAL_STEPS = 6;
+
+const STEPS = [
+  {
+    key: 'goal',
+    question: "Hey! What's your main fitness goal right now?",
+    chips: [
+      { label: "Lose weight & tone up", value: "lose_weight" },
+      { label: "Build muscle", value: "build_muscle" },
+      { label: "Improve endurance", value: "improve_endurance" },
+      { label: "Increase flexibility", value: "increase_flexibility" },
+      { label: "General fitness", value: "general_fitness" }
+    ],
+    fallback: "general_fitness"
+  },
+  {
+    key: 'targetAreas',
+    question: "Awesome! Are there any specific areas you want to focus on?",
+    chips: [
+      { label: "Upper body", value: ["upper_body"] },
+      { label: "Lower body", value: ["lower_body"] },
+      { label: "Core", value: ["core"] },
+      { label: "Full body (balanced)", value: ["full_body"] }
+    ],
+    fallback: ["full_body"]
+  },
+  {
+    key: 'duration',
+    question: "Got it. How long have you been consistently working out?",
+    chips: [
+      { label: "Just starting out", value: "under_6m" },
+      { label: "A few months", value: "under_6m" },
+      { label: "A year or two", value: "6m_2y" },
+      { label: "Several years", value: "2y_plus" }
+    ],
+    fallback: "6m_2y"
+  },
+  {
+    key: 'frequency',
+    question: "Great. How many days a week can you realistically commit to training?",
+    chips: [
+      { label: "2 days", value: "2" },
+      { label: "3 days", value: "3" },
+      { label: "4 days", value: "4" },
+      { label: "5 days", value: "5" },
+      { label: "6 days", value: "6" }
+    ],
+    fallback: "3"
+  },
+  {
+    key: 'sessionDuration',
+    question: "And how much time do you have for each session?",
+    chips: [
+      { label: "20–30 min", value: "20_30" },
+      { label: "30–45 min", value: "30_45" },
+      { label: "45–60 min", value: "45_60" },
+      { label: "1+ hours", value: "60_90" }
+    ],
+    fallback: "45_60"
+  },
+  {
+    key: 'equipment',
+    question: "Last question! What equipment do you have access to?",
+    chips: [
+      { label: "No equipment (bodyweight)", value: ["No equipment (bodyweight)"] },
+      { label: "Dumbbells", value: ["Dumbbells"] },
+      { label: "Full gym", value: ["Gym machines", "Dumbbells", "Barbell", "Cables"] },
+      { label: "Resistance bands", value: ["Resistance bands"] }
+    ],
+    fallback: ["No equipment (bodyweight)"]
+  }
 ];
-
-const TOTAL_STEPS = 3;
-
-function validateGoal(text) {
-  if (text.trim().length < 2) {
-    return "Just a word or two is fine — what are you hoping to achieve? 💪";
-  }
-  return null;
-}
-
-const FREQUENCY_PATTERNS = [
-  /\b(\d+)\s*(?:x|times?|days?|sessions?)\b/i,
-  /\b(once|twice|three|four|five|six|seven|daily|every\s+day)\b/i,
-  /\b(mon|tue|wed|thu|fri|sat|sun)\b/i,
-  /\bweekly\b/i,
-];
-
-const EQUIPMENT_PATTERNS = [
-  /\b(gym|dumbbell|dumbbells|barbell|kettlebell|machine|cable|rack|bench|weights?)\b/i,
-  /\b(bodyweight|body\s*weight|calisthenics|no\s*equip|home)\b/i,
-  /\b(band|bands|resistance|pull.?up|bar|trx)\b/i,
-  /\b(full|minimal|basic|limited|no)\s*(gym|equip|equipment|gear|weights?)\b/i,
-];
-
-function hasFrequency(text) {
-  return FREQUENCY_PATTERNS.some(re => re.test(text));
-}
-
-function hasEquipment(text) {
-  return EQUIPMENT_PATTERNS.some(re => re.test(text));
-}
-
-function validateSchedule(text) {
-  const freq = hasFrequency(text);
-  const equip = hasEquipment(text);
-
-  if (!freq && !equip) {
-    return {
-      missing: 'both',
-      prompt: "Almost there — could you also tell me how many days a week you can train, and what equipment you have access to?",
-      chips: ["3 days, dumbbells", "4 days, full gym", "5 days, bodyweight only"],
-    };
-  }
-  if (!freq) {
-    return {
-      missing: 'frequency',
-      prompt: "Got the equipment part — how many days a week are you able to train?",
-      chips: ["2–3 days", "4 days", "5–6 days", "Every day"],
-    };
-  }
-  if (!equip) {
-    return {
-      missing: 'equipment',
-      prompt: "And what equipment do you have access to?",
-      chips: ["No equipment (bodyweight)", "Dumbbells at home", "Full gym", "Resistance bands"],
-    };
-  }
-  return null; // all good
-}
-
-const SESSION_DURATION_PATTERNS = [
-  /\b(15|20|25|30|45|60|90)\s*(–|-|to)?\s*(30|45|60)?\s*(min|minute|minutes)?\b/i,
-  /\b(1\+?\s*hour|hour|hours?)\b/i,
-  /\b(quick|short|15_30|30_45|45_60|long|extended)\b/i,
-];
-
-function validateSessionDuration(text) {
-  const hasDuration = SESSION_DURATION_PATTERNS.some(re => re.test(text));
-  if (!hasDuration) {
-    return "How long would you like each session to be? (e.g., 30 minutes, 45 minutes, or 1 hour)";
-  }
-  return null;
-}
-
 
 export default function Chat({ onComplete }) {
-  const [step, setStep]                         = useState(0);
-  const [messages, setMessages]                 = useState([]);
-  const [inputText, setInputText]               = useState('');
-  const [isTyping, setIsTyping]                 = useState(false);
-  const [isParsing, setIsParsing]               = useState(false);
-  const [knownFacts, setKnownFacts]             = useState([]);
-  const [conversationHistory, setConversationHistory] = useState('');
-
-  const [scheduleAccum, setScheduleAccum]       = useState('');
+  const [step, setStep] = useState(0);
+  const [messages, setMessages] = useState([]);
+  const [inputText, setInputText] = useState('');
+  const [isTyping, setIsTyping] = useState(false);
+  
+  const [prefs, setPrefs] = useState({
+    goal: 'general_fitness',
+    targetAreas: ['full_body'],
+    duration: '6m_2y',
+    frequency: '3',
+    sessionDuration: '45_60',
+    equipment: ['No equipment (bodyweight)'],
+    injuries: [], // defaulting empty since we're keeping it concise
+    weeklyTime: '2_4h'
+  });
 
   const chatEndRef = useRef(null);
-
-  const scrollToBottom = () =>
-    chatEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  const scrollToBottom = () => chatEndRef.current?.scrollIntoView({ behavior: 'smooth' });
 
   useEffect(() => { scrollToBottom(); }, [messages, isTyping]);
 
@@ -108,12 +102,11 @@ export default function Chat({ onComplete }) {
       setIsTyping(false);
       setMessages([{
         sender: 'bot',
-        text: INITIAL_QUESTION,
-        options: INITIAL_SUGGESTIONS,
+        text: STEPS[0].question,
+        options: STEPS[0].chips.map(c => c.label),
       }]);
     }, 800);
   }, []);
-
 
   const appendBotMessage = (text, options = null) => {
     setMessages(prev => [...prev, { sender: 'bot', text, options }]);
@@ -127,203 +120,98 @@ export default function Chat({ onComplete }) {
     });
   };
 
-  const handleSuggestionClick = (suggestion) => {
-    if (isParsing || isTyping) return;
-    submitResponse(suggestion);
+  const handleSuggestionClick = (label) => {
+    if (isTyping) return;
+    processAnswer(label);
   };
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    if (!inputText.trim() || isParsing || isTyping) return;
-    submitResponse(inputText.trim());
+    if (!inputText.trim() || isTyping) return;
+    processAnswer(inputText.trim());
     setInputText('');
   };
 
+  const processAnswer = (answerText) => {
+    appendUserMessage(answerText);
+    
+    // Find if it matches a chip, else use fallback mapping for robustness
+    const currentStepConfig = STEPS[step];
+    const matchedChip = currentStepConfig.chips.find(
+      c => c.label.toLowerCase() === answerText.toLowerCase()
+    );
+    
+    const extractedValue = matchedChip ? matchedChip.value : currentStepConfig.fallback;
+    
+    const updatedPrefs = { ...prefs, [currentStepConfig.key]: extractedValue };
+    setPrefs(updatedPrefs);
 
-  const submitResponse = async (userText) => {
-    appendUserMessage(userText);
-
-    const newHistory = conversationHistory
-      ? `${conversationHistory}\n${userText}`
-      : userText;
-    setConversationHistory(newHistory);
-
-    if (step === 0) {
-      const goalError = validateGoal(userText);
-      if (goalError) {
-        setIsTyping(true);
-        setTimeout(() => {
-          setIsTyping(false);
-          appendBotMessage(goalError, INITIAL_SUGGESTIONS);
-        }, 600);
-        return;
-      }
-
-      setStep(1);
-      setKnownFacts([userText]);
+    if (step < TOTAL_STEPS - 1) {
+      const nextStep = step + 1;
+      setStep(nextStep);
       setIsTyping(true);
-      setIsParsing(true);
-
-      try {
-        const followUp = await generateFollowUp(newHistory);
+      setTimeout(() => {
         setIsTyping(false);
-        setIsParsing(false);
         appendBotMessage(
-          followUp.question || "Got it! How many days a week can you train, and what equipment do you have access to?",
-          followUp.suggestions || ["3 days, dumbbells", "4 days, full gym", "5 days, bodyweight only"]
+          STEPS[nextStep].question,
+          STEPS[nextStep].chips.map(c => c.label)
         );
-      } catch (err) {
-        console.error(err);
-        setIsTyping(false);
-        setIsParsing(false);
-        appendBotMessage(
-          "Got it! How many days a week can you train, and what equipment do you have access to?",
-          ["3 days, dumbbells", "4 days, full gym", "5 days, bodyweight only"]
-        );
-      }
-      return;
-    }
-
-    if (step === 1) {
-      const accumulated = scheduleAccum
-        ? `${scheduleAccum} ${userText}`
-        : userText;
-
-      setScheduleAccum(accumulated);
+      }, 600);
+    } else {
+      // Completed!
+      setStep(TOTAL_STEPS);
       setIsTyping(true);
-      setIsParsing(true);
-
-      try {
-        const testHistory = `User goal: ${knownFacts[0]}\nUser schedule/equipment info: ${accumulated}`;
-        const extracted = await extractPreferencesFromText(testHistory);
-        
-        const hasFreq = extracted?.frequency && extracted.frequency !== '0';
-        const hasEquip = extracted?.equipment && extracted.equipment.length > 0;
-
-        setIsTyping(false);
-        setIsParsing(false);
-
-        if (hasFreq && hasEquip) {
-          setStep(2);
-          setKnownFacts(prev => [...prev, accumulated]);
-          setTimeout(() => {
-            appendBotMessage(
-              "How long would you like each session to be?",
-              ["15–30 minutes", "30–45 minutes", "45–60 minutes", "1+ hours"]
-            );
-          }, 300);
-          return;
-        }
-
-        const scheduleError = validateSchedule(accumulated);
-        if (scheduleError) {
-          setTimeout(() => {
-            appendBotMessage(scheduleError.prompt, scheduleError.chips);
-          }, 300);
-          return;
-        }
-
-        setStep(2);
-        setKnownFacts(prev => [...prev, accumulated]);
-        setTimeout(() => {
-          appendBotMessage(
-            "How long would you like each session to be?",
-            ["15–30 minutes", "30–45 minutes", "45–60 minutes", "1+ hours"]
-          );
-        }, 300);
-
-      } catch (err) {
-        console.error(err);
-        setIsTyping(false);
-        setIsParsing(false);
-
-        // Fall back to regex validation on Gemini error
-        const scheduleError = validateSchedule(accumulated);
-        if (scheduleError) {
-          appendBotMessage(scheduleError.prompt, scheduleError.chips);
-          return;
-        }
-
-        setStep(2);
-        setKnownFacts(prev => [...prev, accumulated]);
-        setTimeout(() => {
-          appendBotMessage(
-            "How long would you like each session to be?",
-            ["15–30 minutes", "30–45 minutes", "45–60 minutes", "1+ hours"]
-          );
-        }, 300);
-      }
-      return;
-    }
-
-    if (step === 2) {
-      const durationError = validateSessionDuration(userText);
-      if (durationError) {
-        setIsTyping(true);
-        setTimeout(() => {
-          setIsTyping(false);
-          appendBotMessage(durationError, ["15–30 minutes", "30–45 minutes", "45–60 minutes", "1+ hours"]);
-        }, 600);
-        return;
-      }
-
-      setStep(3);
-      setKnownFacts(prev => [...prev, userText]);
-      setIsParsing(true);
-      setIsTyping(true);
-
-      const fullHistory = `${conversationHistory}`;
-
-      try {
-        const extracted = await extractPreferencesFromText(fullHistory);
+      setTimeout(() => {
         setIsTyping(false);
         appendBotMessage("Perfect. Building your custom plan...");
-
         setTimeout(() => {
-          onComplete({
-            frequency:       extracted?.frequency       || '3',
-            goal:            extracted?.goal            || 'general_fitness',
-            equipment:       extracted?.equipment?.length   ? extracted.equipment   : ['No equipment (bodyweight)'],
-            targetAreas:     extracted?.targetAreas?.length ? extracted.targetAreas : ['full_body'],
-            injuries:        extracted?.injuries        || [],
-            duration:        extracted?.duration        || '6m_2y',
-            sessionDuration: extracted?.sessionDuration || '45_60',
-            weeklyTime:      '2_4h',
-          });
+          onComplete(updatedPrefs);
         }, 1000);
-
-      } catch (err) {
-        console.error(err);
-        setIsTyping(false);
-        setIsParsing(false);
-        appendBotMessage("Oops, had trouble with that. Could you try rephrasing?");
-        setStep(2); // let them retry
-      }
-      return;
+      }, 600);
     }
   };
 
-  /* ─── UI ─── */
+  // Recap logic: occasionally summarize to make it feel natural
+  const recapText = useMemo(() => {
+    if (step === 3 && !isTyping) {
+      return "Awesome, we've got your foundation. Let's talk schedule.";
+    }
+    return null;
+  }, [step, isTyping]);
 
-  const progressPct   = step === 0 ? 10 : step === 1 ? 50 : step === 2 ? 75 : 95;
-  const progressLabel =
-    step === 0 ? `Step 1 of ${TOTAL_STEPS}` :
-    step === 1 ? `Step 2 of ${TOTAL_STEPS}` :
-    step === 2 ? `Step 3 of ${TOTAL_STEPS}` :
-    'Almost done…';
+  const knownFacts = Object.entries(prefs).filter(([k, v]) => {
+    // Only show interesting known facts
+    if (k === 'injuries' || k === 'weeklyTime') return false;
+    const stepConfig = STEPS.find(s => s.key === k);
+    if (!stepConfig) return false;
+    
+    // Check if it's the fallback or a default we haven't asked about yet
+    const currentStepIndex = STEPS.findIndex(s => s.key === k);
+    if (currentStepIndex >= step) return false;
+    
+    return true;
+  }).map(([k, v]) => {
+    const stepConfig = STEPS.find(s => s.key === k);
+    const chip = stepConfig.chips.find(c => JSON.stringify(c.value) === JSON.stringify(v));
+    return chip ? chip.label : String(v);
+  });
 
   return (
     <div className="chat-container">
-
-      {/* Progress */}
       <div className="chat-progress">
-        <span className="chat-progress-label">{progressLabel}</span>
-        <div className="chat-progress-track">
-          <div className="chat-progress-fill" style={{ width: `${progressPct}%` }} />
+        <div className="chat-progress-dots">
+          {STEPS.map((_, i) => (
+            <div
+              key={i}
+              className={`chat-progress-dot ${step > i ? 'done' : step === i ? 'active' : ''}`}
+            />
+          ))}
         </div>
+        <span className="chat-progress-label" style={{ fontSize: '0.72rem', color: 'rgba(255,255,255,0.3)' }}>
+          {step < TOTAL_STEPS ? `${step + 1} of ${TOTAL_STEPS}` : 'Building plan…'}
+        </span>
       </div>
 
-      {/* Messages */}
       <div className="chat-messages">
         {messages.map((msg, idx) => (
           <React.Fragment key={idx}>
@@ -331,6 +219,13 @@ export default function Chat({ onComplete }) {
               {msg.sender === 'bot' && <div className="chat-avatar">T</div>}
               <div className={`chat-bubble ${msg.sender}`}>{msg.text}</div>
             </div>
+
+            {msg.sender === 'bot' && idx === messages.length - 1 && recapText && (
+              <div className="chat-recap-bubble">
+                <div className="chat-avatar" style={{ opacity: 0.6 }}>T</div>
+                <div className="chat-bubble bot chat-bubble-recap">{recapText}</div>
+              </div>
+            )}
 
             {msg.options && idx === messages.length - 1 && !isTyping && (
               <div className="chat-options">
@@ -360,7 +255,6 @@ export default function Chat({ onComplete }) {
         <div ref={chatEndRef} />
       </div>
 
-      {/* Input */}
       <form onSubmit={handleSubmit} className="chat-input-form">
         <input
           type="text"
@@ -368,16 +262,15 @@ export default function Chat({ onComplete }) {
           placeholder="Type your answer..."
           value={inputText}
           onChange={(e) => setInputText(e.target.value)}
-          disabled={isParsing || isTyping || messages.length === 0}
+          disabled={isTyping || messages.length === 0 || step >= TOTAL_STEPS}
           autoFocus
         />
         <button
           type="submit"
           className="chat-send-btn"
-          disabled={!inputText.trim() || isParsing || isTyping}
+          disabled={!inputText.trim() || isTyping || step >= TOTAL_STEPS}
         >
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"
-               strokeLinecap="round" strokeLinejoin="round">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
             <line x1="22" y1="2" x2="11" y2="13" />
             <polygon points="22 2 15 22 11 13 2 9 22 2" />
           </svg>
@@ -392,7 +285,6 @@ export default function Chat({ onComplete }) {
           ))}
         </div>
       )}
-
     </div>
   );
 }

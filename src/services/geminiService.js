@@ -294,7 +294,7 @@ Extract the following preferences based on the message. If something is not expl
 - targetAreas: array of strings. Options: "upper_body", "lower_body", "core", "full_body".
 - duration: their workout experience level. Exactly one of ["under_6m", "6m_2y", "2y_plus"]. Default to "6m_2y" if unsure.
 - injuries: array of strings (e.g., ["knees", "lower back"]). Empty if none mentioned.
-- sessionDuration: their desired session length. Extract from context. Use one of ["20_30", "30_45", "45_60", "60_90", "90_plus"]. Try to match: "15-30 min" -> "20_30", "30-45 min" -> "30_45", "45-60 min" -> "45_60", "1+ hour" -> "60_90". Default to "45_60" if unclear.
+- sessionDuration: their desired session length. Extract from context. Use one of ["20_30", "30_45", "45_60", "60_90", "90_plus"]. Mapping guide: "15-30 min" or "under 30" -> "20_30", "30-45 min" -> "30_45", "45 min" or "45-60 min" -> "45_60", "1 hour" or "60 min" or "an hour" -> "60_90", "1 hour+" or "more than an hour" or "1.5 hours" or "90 minutes" or "90+" -> "90_plus". Default to "45_60" if unclear.
 `;
 
   const response = await fetch(`${GEMINI_API_URL}?key=${GEMINI_API_KEY}`, {

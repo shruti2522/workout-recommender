@@ -134,11 +134,17 @@ function App() {
     const durationRange = preferences.sessionDuration || '45_60';
     const sessionLength = parseInt(durationRange.split('_')[0]) || 45;
     
+    const today = new Date();
+    const day = today.getDay();
+    // Starter period if user signs up Wednesday through Sunday
+    const isStarterPeriod = day === 0 || day >= 3;
+    const initialCommitment = isStarterPeriod ? 1 : daysPerWeek;
+
     setHabitContract({
       daysPerWeek,
       sessionLength,
-      resetDay: 'sunday',
-      confirmedAt: new Date().toISOString(),
+      resetDay: 'monday',
+      confirmedAt: today.toISOString(),
     });
     setMomentum({
       totalSessions: 0,
@@ -151,8 +157,8 @@ function App() {
     
     setCurrentWeek({
       weekNumber: 1,
-      startDate: new Date().toISOString().slice(0, 10),
-      commitment: daysPerWeek,
+      startDate: today.toISOString().slice(0, 10),
+      commitment: initialCommitment,
       sessions: [],
       completed: 0,
       generatedFrom: 'onboarding',
@@ -302,6 +308,7 @@ function App() {
             history={history}
             xp={totalXP}
             completedQuests={completedQuests}
+            habitContract={habitContract}
             onViewChange={setView}
             {...sidebarProps}
           />
@@ -338,6 +345,10 @@ function App() {
             dayLabel={sessionDay?.label || ''}
             onBackToPlan={handleBackToPlan}
             onHome={() => setView('hero')}
+            onViewChange={setView}
+            history={history}
+            savedPlan={savedPlan}
+            xp={totalXP}
           />
         ) : null}
       </main>

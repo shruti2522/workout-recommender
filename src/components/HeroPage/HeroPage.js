@@ -33,7 +33,7 @@ export default function HeroPage({ onComplete }) {
           }
         }
       } catch (error) {
-        console.log('Failed to fetch from Pexels, using fallback');
+        console.log('Failed to fetch, using fallback');
       }
 
       

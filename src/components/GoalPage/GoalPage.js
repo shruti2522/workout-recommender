@@ -1,29 +1,26 @@
-import React, { useMemo, useState } from 'react';
+import React, { useMemo } from 'react';
 import DashboardLayout from '../Layout/DashboardLayout';
+import WeeklyHabitRing from '../ProgressPage/WeeklyHabitRing';
 import { getLevelProgress, ALL_BADGES, RARITY_STYLES } from '../../utils/xp';
-import { Flame, Activity, Calendar, Dumbbell, Target, Shield, Thermometer, Star, Sunrise, Zap, Crown, RefreshCw, CheckCircle, Flame as FlameIcon, User, Crosshair, Wrench, ShieldAlert, RefreshCcw } from 'lucide-react';
+import {
+  Flame, Activity, Calendar, Dumbbell, Target, Shield,
+  Thermometer, Star, Sunrise, Zap, Crown, RefreshCw,
+  User, Crosshair, Wrench, ShieldAlert,
+  RefreshCcw, Lock, TrendingUp,
+} from 'lucide-react';
 
 const ICON_MAP = {
-  'flame': Flame,
-  'activity': Activity,
-  'calendar': Calendar,
-  'dumbbell': Dumbbell,
-  'target': Target,
-  'shield': Shield,
-  'thermometer': Thermometer,
-  'star': Star,
-  'sunrise': Sunrise,
-  'zap': Zap,
-  'crown': Crown,
-  'refresh-cw': RefreshCw,
+  flame: Flame, activity: Activity, calendar: Calendar, dumbbell: Dumbbell,
+  target: Target, shield: Shield, thermometer: Thermometer, star: Star,
+  sunrise: Sunrise, zap: Zap, crown: Crown, 'refresh-cw': RefreshCw,
 };
 
 const GOAL_META = {
-  build_muscle:         { label: 'Build Muscle',        icon: Dumbbell, color: '#7c3aed' },
-  lose_weight:          { label: 'Lose Weight',          icon: Flame, color: '#dc2626' },
-  improve_endurance:    { label: 'Improve Endurance',    icon: Activity, color: '#0284c7' },
-  increase_flexibility: { label: 'Increase Flexibility', icon: Target, color: '#059669' },
-  general_fitness:      { label: 'General Fitness',      icon: Zap, color: '#d97706' },
+  build_muscle:         { label: 'Build Muscle',        icon: Dumbbell, color: '#7c3aed', bg: 'rgba(124,58,237,0.12)' },
+  lose_weight:          { label: 'Lose Weight',          icon: Flame,    color: '#ef4444', bg: 'rgba(239,68,68,0.12)'  },
+  improve_endurance:    { label: 'Improve Endurance',    icon: Activity, color: '#0ea5e9', bg: 'rgba(14,165,233,0.12)' },
+  increase_flexibility: { label: 'Increase Flexibility', icon: Target,   color: '#10b981', bg: 'rgba(16,185,129,0.12)' },
+  general_fitness:      { label: 'General Fitness',      icon: Zap,      color: '#f59e0b', bg: 'rgba(245,158,11,0.12)' },
 };
 
 const AREA_META = {
@@ -34,126 +31,227 @@ const AREA_META = {
 };
 
 const FREQ_LABELS = {
-  never:     'New to training',
-  rarely:    '1–2× / week',
-  sometimes: '2–3× / week',
-  often:     '4–5× / week',
-  daily:     '6–7× / week',
+  never: 'New to training', rarely: '1–2× / week',
+  sometimes: '2–3× / week', often: '4–5× / week', daily: '6–7× / week',
 };
 
 const DURATION_LABELS = {
-  under_3: 'Under 3 months',
-  '3_12':  '3–12 months',
-  '1_3':   '1–3 years',
-  over_3:  '3+ years',
+  under_3: 'Under 3 months', '3_12': '3–12 months',
+  '1_3': '1–3 years', over_3: '3+ years',
 };
 
-
-function getHabitMilestones(goalKey, currentStreak, totalSessions, consistentWeeks) {
-  const shortTermMap = {
-    build_muscle:         ['First workout complete', 'Hit a 5-day streak', '10 strength sessions', 'First consistent week'],
-    lose_weight:          ['First cardio session', 'Hit a 7-day streak', 'Complete 1 consistent week', 'Hit 15 sessions all-time'],
-    improve_endurance:    ['First endurance session', 'Hit a 7-day streak', 'Complete 1 consistent week', '10 endurance sessions'],
-    increase_flexibility: ['First stretching session', 'Hit a 3-day streak', 'Complete 1 consistent week', '5 flexibility sessions'],
-    general_fitness:      ['First workout complete', 'Hit a 5-day streak', 'Complete 1 consistent week', '10 total sessions'],
-  };
-  const longTermMap = {
-    build_muscle:         ['3 consistent weeks', '30-day streak', '50 strength sessions', 'Advanced fitness level'],
-    lose_weight:          ['3 consistent weeks', '30-day streak', '50 cardio sessions', 'Reached fitness goal'],
-    improve_endurance:    ['3 consistent weeks', '30-day streak', '40 endurance sessions', 'Doubled capacity'],
-    increase_flexibility: ['3 consistent weeks', '30-day streak', '30 flexibility sessions', 'Full mobility'],
-    general_fitness:      ['3 consistent weeks', '30-day streak', '50 total sessions', 'Advanced program'],
-  };
-
-  const shortGoals = (shortTermMap[goalKey] || shortTermMap.general_fitness).map((text, i) => {
-    let done = false;
-    if (i === 0) done = totalSessions >= 1;
-    else if (i === 1) done = currentStreak >= 5;
-    else if (i === 2) {
-      if (goalKey === 'lose_weight' || goalKey === 'improve_endurance') done = totalSessions >= 15;
-      else done = totalSessions >= 10;
-    }
-    else if (i === 3) done = consistentWeeks >= 1;
-    
-    return { text, done, milestone: `Milestone ${i + 1}` };
-  });
-
-  const longGoals = (longTermMap[goalKey] || longTermMap.general_fitness).map((text, i) => {
-    let done = false;
-    if (i === 0) done = consistentWeeks >= 3;
-    else if (i === 1) done = currentStreak >= 30;
-    else if (i === 2) {
-      if (goalKey === 'lose_weight') done = totalSessions >= 50;
-      else if (goalKey === 'improve_endurance') done = totalSessions >= 40;
-      else if (goalKey === 'increase_flexibility') done = totalSessions >= 30;
-      else done = totalSessions >= 50;
-    }
-    else if (i === 3) done = true;
-    
-    return { text, done, milestone: `Milestone ${i + 1}` };
-  });
-
-  return { shortGoals, longGoals };
+/* ── Milestone journey (visual path) ──────────────────────────────── */
+function MilestoneJourney({ milestones, title }) {
+  return (
+    <div className="milestone-list" style={{ marginBottom: '24px' }}>
+      <div style={{ fontSize: '0.75rem', fontWeight: '700', textTransform: 'uppercase', letterSpacing: '0.05em', color: 'var(--text-muted)', marginBottom: '12px' }}>{title}</div>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+        {milestones.map((m, i) => (
+          <div key={i} style={{ display: 'flex', alignItems: 'flex-start', gap: '12px', opacity: m.done ? 0.6 : 1 }}>
+            <div style={{ 
+              width: '18px', height: '18px', borderRadius: '50%', flexShrink: 0, marginTop: '2px',
+              border: m.done ? 'none' : '1.5px solid var(--border-subtle)',
+              background: m.done ? 'var(--text-muted)' : 'transparent',
+              display: 'flex', alignItems: 'center', justifyContent: 'center'
+            }}>
+              {m.done && (
+                <svg width="10" height="10" viewBox="0 0 12 12" fill="none">
+                  <polyline points="2,6 5,9 10,3" stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                </svg>
+              )}
+            </div>
+            <div style={{ flex: 1 }}>
+              <div style={{ fontSize: '0.9rem', color: m.done ? 'var(--text-muted)' : 'var(--text-primary)', textDecoration: m.done ? 'line-through' : 'none' }}>
+                {m.text}
+              </div>
+              {m.active && !m.done && (
+                <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginTop: '2px' }}>Working on this right now</div>
+              )}
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
 }
 
-export default function GoalPage({ 
-  prefs, 
-  savedPlan, 
+/* ── Next badge spotlight ──────────────────────────────────────────── */
+function NextBadgeSpotlight({ unlockedBadgeIds, history, streak, completedQuestLog, xp }) {
+  const nextBadge = useMemo(() => {
+    const locked = ALL_BADGES.filter(b => !unlockedBadgeIds.includes(b.id));
+    if (locked.length === 0) return null;
+
+    // Score each locked badge by "how close"
+    const scored = locked.map(badge => {
+      let closeness = 0;
+      try {
+        const h = history || [];
+        if (badge.id === 'first_spark')      closeness = Math.min(1, h.length / 1);
+        else if (badge.id === 'three_streak') closeness = Math.min(1, streak / 3);
+        else if (badge.id === 'week_warrior') closeness = Math.min(1, streak / 7);
+        else if (badge.id === 'ten_sessions') closeness = Math.min(1, h.length / 10);
+        else if (badge.id === 'twenty_five_sessions') closeness = Math.min(1, h.length / 25);
+        else if (badge.id === 'inferno')      closeness = Math.min(1, streak / 14);
+        else if (badge.id === 'iron_will')    closeness = Math.min(1, streak / 30);
+        else if (badge.id === 'centurion')    closeness = Math.min(1, h.length / 50);
+        else if (badge.id === 'early_bird')   closeness = Math.min(1, h.filter(x => x.completedAt && new Date(x.completedAt).getHours() < 12).length / 5);
+        else if (badge.id === 'quest_master') closeness = Math.min(1, (completedQuestLog?.length || 0) / 10);
+        else if (badge.id === 'legend_status') closeness = Math.min(1, xp / 1400);
+        else if (badge.id === 'comeback_kid') closeness = 0.1;
+        else closeness = 0;
+      } catch { closeness = 0; }
+      return { badge, closeness };
+    }).filter(x => x.closeness > 0);
+
+    if (scored.length === 0) return locked[0] ? { badge: locked[0], closeness: 0 } : null;
+    scored.sort((a, b) => b.closeness - a.closeness);
+    return scored[0];
+  }, [unlockedBadgeIds, history, streak, completedQuestLog, xp]);
+
+  if (!nextBadge) return (
+    <div className="next-badge-spotlight">
+      <span style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>All badges unlocked!</span>
+    </div>
+  );
+
+  const { badge, closeness } = nextBadge;
+  const style = RARITY_STYLES[badge.rarity];
+  const BadgeIcon = ICON_MAP[badge.icon] || Star;
+  const pct = Math.round(closeness * 100);
+
+  return (
+    <div className="next-badge-spotlight" style={{ borderColor: style.border }}>
+      <div className="next-badge-header">
+        <div style={{ fontSize: '0.65rem', textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--text-muted)', fontWeight: '700' }}>
+          Next achievement
+        </div>
+        <span style={{ fontSize: '0.65rem', color: style.color, fontWeight: '700', background: style.bg, padding: '2px 8px', borderRadius: '10px' }}>
+          {badge.rarity}
+        </span>
+      </div>
+      <div className="next-badge-body">
+        <div className="next-badge-icon-wrap" style={{ background: style.bg, border: `1px solid ${style.border}` }}>
+          <BadgeIcon size={22} color={style.color} />
+        </div>
+        <div style={{ flex: 1, minWidth: 0 }}>
+          <div style={{ fontWeight: '700', fontSize: '0.9rem', color: 'var(--text-primary)', marginBottom: '2px' }}>
+            {badge.name}
+          </div>
+          <div style={{ fontSize: '0.78rem', color: 'var(--text-muted)', lineHeight: 1.4 }}>{badge.desc}</div>
+          <div className="next-badge-bar-wrap">
+            <div className="next-badge-bar-track">
+              <div className="next-badge-bar-fill" style={{ width: `${pct}%`, background: style.color, boxShadow: `0 0 8px ${style.color}55` }} />
+            </div>
+            <span style={{ fontSize: '0.68rem', color: style.color, fontWeight: '700', flexShrink: 0 }}>{pct}%</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* ── Main component ──────────────────────────────────────────────── */
+export default function GoalPage({
+  prefs,
+  savedPlan,
   habitContract,
   momentum = {},
   history = [],
   streak = 0,
-  onReset, 
-  onViewChange, 
-  sidebarOpen, 
-  onToggleSidebar, 
-  isMobile, 
-  onOpenSidebar, 
-  onCloseSidebar, 
-  unlockedBadgeIds = [], 
-  xp = 0 
+  onReset,
+  onViewChange,
+  sidebarOpen,
+  onToggleSidebar,
+  isMobile,
+  onOpenSidebar,
+  onCloseSidebar,
+  unlockedBadgeIds = [],
+  xp = 0,
 }) {
-  const [activeGoalTab, setActiveGoalTab] = useState('short');
-
   const { level } = getLevelProgress(xp);
-  const goalMeta = GOAL_META[prefs?.goal] || { label: prefs?.goal || 'Not set', icon: Target, color: '#64748b' };
+  const goalMeta = GOAL_META[prefs?.goal] || { label: prefs?.goal || 'Not set', icon: Target, color: '#64748b', bg: 'rgba(100,116,139,0.12)' };
+  const GoalIcon = goalMeta.icon;
 
-  
   const totalSessions = history?.length ?? 0;
   const currentStreak = streak || 0;
-  
-  
   const daysPerWeek = habitContract?.daysPerWeek ?? parseInt(prefs?.frequency) ?? 3;
+
   const consistentWeeks = useMemo(() => {
     if (!history || history.length === 0) return 0;
-    
     const weekMap = {};
     history.forEach(h => {
       const date = new Date(h.date);
       const weekStart = new Date(date);
-      weekStart.setDate(date.getDate() - date.getDay());
+      const dayOffset = (date.getDay() + 6) % 7; // Monday=0
+      weekStart.setDate(date.getDate() - dayOffset);
       const weekKey = weekStart.toISOString().slice(0, 10);
       weekMap[weekKey] = (weekMap[weekKey] || 0) + 1;
     });
     return Object.values(weekMap).filter(count => count >= daysPerWeek).length;
   }, [history, daysPerWeek]);
 
-  
-  const ringPct = totalSessions > 0 ? Math.min(100, Math.round((currentStreak / 30) * 100)) : 0; 
-  const circumference = 2 * Math.PI * 54;
-  const strokeOffset = circumference - (circumference * ringPct) / 100;
+  // This week's count
+  const thisWeekCount = useMemo(() => {
+    const today = new Date();
+    const dayOffset = (today.getDay() + 6) % 7; // Monday=0
+    const weekStart = new Date(today);
+    weekStart.setDate(today.getDate() - dayOffset);
+    weekStart.setHours(0, 0, 0, 0);
+    const startStr = weekStart.toISOString().slice(0, 10);
+    return (history || []).filter(h => h.date >= startStr).length;
+  }, [history]);
 
-  const totalExercises = useMemo(() => {
-    if (!savedPlan) return 0;
-    return savedPlan.reduce((sum, d) => sum + (d.exercises?.length ?? 0), 0);
-  }, [savedPlan]);
+  // Habit contract summary line
+  const habitSummary = useMemo(() => {
+    const remaining = Math.max(0, daysPerWeek - thisWeekCount);
+    if (thisWeekCount >= daysPerWeek) return { text: 'Week complete! You hit your target.', accent: '#4ade80' };
+    if (remaining === 1) return { text: `1 more session this week to hit your goal.`, accent: '#f59e0b' };
+    return { text: `${remaining} more sessions this week to hit your ${daysPerWeek}× goal.`, accent: '#b0b0b0' };
+  }, [daysPerWeek, thisWeekCount]);
+
+  // ETA message
+  const etaMessage = useMemo(() => {
+    if (totalSessions === 0) return null;
+    const sessionsPerWeek = daysPerWeek;
+    const goal = prefs?.goal || 'general_fitness';
+    const targetSessions = goal === 'lose_weight' ? 15 : goal === 'increase_flexibility' ? 10 : 12;
+    const remaining = Math.max(0, targetSessions - totalSessions);
+    if (remaining === 0) return '✓ First major milestone reached!';
+    const weeksLeft = Math.ceil(remaining / sessionsPerWeek);
+    return `At your pace, ~${weeksLeft} week${weeksLeft !== 1 ? 's' : ''} to your first major milestone.`;
+  }, [totalSessions, daysPerWeek, prefs?.goal]);
+
+  // Build milestone journey
+  const { shortTermGoals, longTermGoals } = useMemo(() => {
+    const shortItems = [
+      { text: 'Complete first workout', done: totalSessions >= 1 },
+      { text: `3-day streak`, done: currentStreak >= 3 },
+      { text: `Complete ${daysPerWeek} sessions in a week`, done: consistentWeeks >= 1 },
+      { text: `7-day streak`, done: currentStreak >= 7 },
+    ];
+    
+    const longItems = [
+      { text: `3 consistent weeks`, done: consistentWeeks >= 3 },
+      { text: `25 total sessions`, done: totalSessions >= 25 },
+      { text: `30-day streak`, done: currentStreak >= 30 },
+      { text: `50 total sessions`, done: totalSessions >= 50 },
+    ];
+
+    let foundActive = false;
+    const processList = (items) => items.map(m => {
+      const active = !m.done && !foundActive;
+      if (active) foundActive = true;
+      return { ...m, active };
+    });
+
+    return { 
+      shortTermGoals: processList(shortItems), 
+      longTermGoals: processList(longItems) 
+    };
+  }, [totalSessions, currentStreak, daysPerWeek, consistentWeeks]);
 
   const targetAreas = prefs?.targetAreas ?? [];
   const injuries = prefs?.injuries ?? [];
-
-  const { shortGoals, longGoals } = getHabitMilestones(prefs?.goal, currentStreak, totalSessions, consistentWeeks);
-  const shortDone = shortGoals.filter(g => g.done).length;
-  const longDone = longGoals.filter(g => g.done).length;
 
   return (
     <DashboardLayout
@@ -167,222 +265,135 @@ export default function GoalPage({
     >
       <div className="inner-page animate-fade-in">
 
-        {/* Header */}
         <div className="inner-page-header">
-          <h1 className="inner-page-title">Your Goal</h1>
-          <p className="inner-page-subtitle">Personalised training profile, objectives & milestones.</p>
+          <h1 className="inner-page-title">My Goal</h1>
+          <p className="inner-page-subtitle">Your mission, your habit, your progress.</p>
         </div>
 
-        {/* Hero Goal Card */}
-        <div style={{
-          background: 'var(--bg-surface)', border: '1px solid var(--border-subtle)',
-          borderRadius: 'var(--radius-xl)', padding: '28px 32px',
-          display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-          marginBottom: '24px', position: 'relative', overflow: 'hidden',
-          boxShadow: 'var(--shadow-card)',
-        }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '20px', zIndex: 1 }}>
-            <div style={{ width: '68px', height: '68px', borderRadius: '50%', background: 'var(--bg-elevated)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '2rem', flexShrink: 0, color: 'var(--text-primary)' }}>
-              <Target size={32} strokeWidth={2.5} />
-            </div>
+        {/* ── Hero Goal Card ── */}
+        <div className="goal-hero-card">
+          <div className="goal-hero-left">
             <div>
-              <div style={{ fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--text-secondary)', marginBottom: '4px', fontWeight: '700' }}>Primary Goal</div>
-              <div style={{ fontSize: '1.8rem', fontWeight: '800', color: 'var(--text-primary)', fontFamily: 'var(--font-heading)' }}>{goalMeta.label}</div>
-              <div style={{ fontSize: '0.82rem', color: 'var(--text-muted)', marginTop: '4px' }}>
-                Week {habitContract?.weekNumber ?? 1} · {totalSessions} sessions all-time
+              <div className="goal-hero-label">Primary Goal</div>
+              <div className="goal-hero-name" style={{ color: goalMeta.color }}>{goalMeta.label}</div>
+              <div className="goal-hero-level">Lv.{level.index + 1} {level.name} · {xp} XP</div>
+              <div className="goal-hero-habit-summary" style={{ color: habitSummary.accent }}>
+                {habitSummary.text}
               </div>
-              
-              {/* Level indicator within hero */}
-              <div style={{
-                marginTop: '12px', display: 'inline-flex', alignItems: 'center', gap: '8px',
-                background: 'var(--bg-elevated)', padding: '6px 12px', borderRadius: '20px',
-                border: '1px solid var(--border-subtle)'
-              }}>
-                <span style={{ fontSize: '0.75rem', fontWeight: '700', color: 'var(--text-primary)', letterSpacing: '0.05em' }}>Lv.{level.index + 1} {level.name}</span>
-                <span style={{ fontSize: '0.7rem', color: 'var(--text-muted)' }}>• {xp} XP</span>
-              </div>
+              {etaMessage && (
+                <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginTop: '6px' }}>
+                  {etaMessage}
+                </div>
+              )}
             </div>
           </div>
 
-          {/* Ring — showing streak out of 30 days */}
-          <div style={{ position: 'relative', width: '128px', height: '128px', flexShrink: 0, zIndex: 1 }}>
-            <svg width="128" height="128" viewBox="0 0 128 128">
-              <circle cx="64" cy="64" r="54" fill="none" stroke="var(--border-subtle)" strokeWidth="10" />
-              <circle cx="64" cy="64" r="54" fill="none" stroke="var(--accent-success)" strokeWidth="10" strokeLinecap="round"
-                strokeDasharray={circumference} strokeDashoffset={strokeOffset}
-                style={{ transform: 'rotate(-90deg)', transformOrigin: '64px 64px', transition: 'stroke-dashoffset 1s ease' }}
-              />
-            </svg>
-            <div style={{ position: 'absolute', inset: 0, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
-              <span style={{ fontSize: '1.5rem', fontWeight: '800', color: 'var(--text-primary)', lineHeight: 1 }}>{currentStreak}</span>
-              <span style={{ fontSize: '0.68rem', color: 'var(--text-muted)', letterSpacing: '0.04em' }}>day streak</span>
+          {/* Weekly habit ring */}
+          <div className="goal-hero-ring">
+            <div style={{ fontSize: '0.65rem', fontWeight: '700', textTransform: 'uppercase', letterSpacing: '0.07em', color: 'rgba(255,255,255,0.4)', marginBottom: '10px', textAlign: 'center' }}>
+              This Week
             </div>
+            <WeeklyHabitRing
+              history={history}
+              daysPerWeek={daysPerWeek}
+              startDate={habitContract?.confirmedAt}
+              size="md"
+              showLabel={true}
+            />
           </div>
         </div>
 
-        {/* Stats Row */}
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '14px', marginBottom: '28px' }}>
+        {/* ── Stats Row ── */}
+        <div className="goal-stats-row">
           {[
-            { label: 'Total Sessions', value: totalSessions, icon: Calendar, accent: false },
-            { label: 'Current Streak', value: currentStreak, icon: FlameIcon, accent: true },
-            { label: 'Consistent Weeks', value: consistentWeeks, icon: CheckCircle, accent: false },
-            { label: 'Exercises', value: totalExercises, icon: Dumbbell, accent: false },
+            { label: 'Sessions', value: totalSessions },
+            { label: 'Streak', value: `${currentStreak}d` },
+            { label: 'Consistent Weeks', value: consistentWeeks },
+            { label: 'Badges', value: `${unlockedBadgeIds.length}/${ALL_BADGES.length}` },
           ].map(s => {
-            const Icon = s.icon;
             return (
-              <div key={s.label} style={{
-                background: s.accent ? '#d1fae5' : 'var(--bg-surface)',
-                border: s.accent ? '1px solid #00e676' : '1px solid var(--border-subtle)',
-                borderRadius: '16px', padding: '18px 16px', textAlign: 'center',
-                boxShadow: 'var(--shadow-card)',
-              }}>
-                <div style={{ marginBottom: '8px', color: s.accent ? '#059669' : 'var(--text-muted)', display: 'flex', justifyContent: 'center' }}>
-                  <Icon size={24} strokeWidth={2.5} />
-                </div>
-                <div style={{ fontSize: '1.5rem', fontWeight: '800', color: s.accent ? '#065f46' : 'var(--text-primary)' }}>{s.value}</div>
-                <div style={{ fontSize: '0.75rem', color: s.accent ? '#059669' : 'var(--text-muted)', marginTop: '3px', fontWeight: '600' }}>{s.label}</div>
+              <div key={s.label} className="goal-stat-card">
+                <div style={{ fontSize: '1.4rem', fontWeight: '800', color: 'var(--text-primary)', fontFamily: 'var(--font-heading)' }}>{s.value}</div>
+                <div style={{ fontSize: '0.72rem', color: 'var(--text-muted)', fontWeight: '500', marginTop: '4px' }}>{s.label}</div>
               </div>
             );
           })}
         </div>
 
-        {/* Goals Section — Short & Long Term */}
-        <div style={{ marginBottom: '28px' }}>
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '16px', flexWrap: 'wrap', gap: '10px' }}>
-            <h2 style={{ fontSize: '1.1rem', fontWeight: '700', color: 'var(--text-primary)', margin: 0 }}>Milestones & Goals</h2>
-            {/* Tab switcher */}
-            <div style={{ display: 'flex', background: 'var(--bg-elevated)', borderRadius: '10px', padding: '3px', gap: '2px' }}>
-              {[{ key: 'short', label: 'Short-term', done: shortDone, total: shortGoals.length }, { key: 'long', label: 'Long-term', done: longDone, total: longGoals.length }].map(tab => (
-                <button
-                  key={tab.key}
-                  onClick={() => setActiveGoalTab(tab.key)}
-                  style={{
-                    padding: '7px 16px', borderRadius: '8px', border: 'none', cursor: 'pointer',
-                    fontWeight: '600', fontSize: '0.82rem', transition: 'all 0.2s',
-                    background: activeGoalTab === tab.key ? 'var(--bg-surface)' : 'transparent',
-                    color: activeGoalTab === tab.key ? 'var(--text-primary)' : 'var(--text-secondary)',
-                    boxShadow: activeGoalTab === tab.key ? 'var(--shadow-card)' : 'none',
-                  }}
-                >
-                  {tab.label} <span style={{ fontSize: '0.72rem', opacity: 0.7 }}>({tab.done}/{tab.total})</span>
-                </button>
-              ))}
-            </div>
+        {/* ── Milestone Journey ── */}
+        <div className="prog-section-card">
+          <div className="prog-section-header" style={{ marginBottom: '24px' }}>
+            <span className="prog-section-title">Milestones</span>
           </div>
-
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-            {(activeGoalTab === 'short' ? shortGoals : longGoals).map((goal, i) => (
-              <div
-                key={i}
-                style={{
-                  display: 'flex', alignItems: 'center', gap: '14px',
-                  background: goal.done ? '#f0fdf4' : 'var(--bg-surface)',
-                  border: goal.done ? '1px solid #00e676' : '1px solid var(--border-subtle)',
-                  borderRadius: '14px', padding: '16px 20px',
-                  transition: 'all 0.2s',
-                }}
-              >
-                {/* Checkbox */}
-                <div style={{
-                  width: '24px', height: '24px', borderRadius: '50%', flexShrink: 0,
-                  background: goal.done ? 'var(--accent-primary)' : 'var(--bg-elevated)',
-                  border: goal.done ? '2px solid var(--accent-primary)' : '2px solid var(--border-subtle)',
-                  display: 'flex', alignItems: 'center', justifyContent: 'center',
-                  fontSize: '0.7rem', color: '#000', fontWeight: '700',
-                }}>
-                  {goal.done ? '✓' : ''}
-                </div>
-                <div style={{ flex: 1 }}>
-                  <p style={{
-                    margin: 0, fontSize: '0.9rem', fontWeight: '500',
-                    color: goal.done ? 'var(--text-secondary)' : 'var(--text-primary)',
-                    textDecoration: goal.done ? 'line-through' : 'none',
-                  }}>{goal.text}</p>
-                </div>
-                <span style={{
-                  fontSize: '0.72rem', fontWeight: '700',
-                  color: goal.done ? 'var(--accent-primary)' : 'var(--text-muted)',
-                  background: goal.done ? '#d1fae5' : 'var(--bg-elevated)',
-                  padding: '3px 10px', borderRadius: '20px', flexShrink: 0,
-                }}>
-                  {goal.milestone}
-                </span>
-              </div>
-            ))}
-          </div>
+          <MilestoneJourney milestones={shortTermGoals} title="Short-term Goals (Weekly)" />
+          <MilestoneJourney milestones={longTermGoals} title="Long-term Goals (Lifetime)" />
         </div>
 
-        {/* Badges Collection Section */}
-        <div style={{ marginBottom: '28px' }}>
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '16px', flexWrap: 'wrap', gap: '10px' }}>
-            <h2 style={{ fontSize: '1.1rem', fontWeight: '700', color: 'var(--text-primary)', margin: 0 }}>Achievements</h2>
-            <div style={{ fontSize: '0.85rem', fontWeight: '600', color: 'var(--text-secondary)' }}>
-              {unlockedBadgeIds.length} / {ALL_BADGES.length} unlocked
-            </div>
+        {/* ── Next Badge Spotlight ── */}
+        <NextBadgeSpotlight
+          unlockedBadgeIds={unlockedBadgeIds}
+          history={history}
+          streak={currentStreak}
+          completedQuestLog={[]}
+          xp={xp}
+        />
+
+        {/* ── Achievements Grid ── */}
+        <div className="prog-section-card">
+          <div className="prog-section-header">
+            <span className="prog-section-title">Achievements</span>
+            <span className="prog-section-sub">{unlockedBadgeIds.length} / {ALL_BADGES.length} unlocked</span>
           </div>
-          
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(140px, 1fr))', gap: '12px' }}>
+          <div className="goal-badges-grid">
             {ALL_BADGES.map(badge => {
               const isUnlocked = unlockedBadgeIds.includes(badge.id);
               const style = RARITY_STYLES[badge.rarity];
               const BadgeIcon = ICON_MAP[badge.icon] || Star;
-              
               return (
-                <div key={badge.id} style={{
-                  background: isUnlocked ? style.bg : 'var(--bg-surface)',
-                  border: isUnlocked ? `1px solid ${style.border}` : '1px solid var(--border-subtle)',
-                  borderRadius: '16px', padding: '16px 12px',
-                  display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center',
-                  opacity: isUnlocked ? 1 : 0.6,
-                  filter: isUnlocked ? 'none' : 'grayscale(100%)',
-                  transition: 'all 0.2s', position: 'relative',
-                  boxShadow: isUnlocked ? 'var(--shadow-card)' : 'none',
-                }} title={badge.desc}>
-                  <div style={{
-                    width: '48px', height: '48px', borderRadius: '50%',
-                    background: isUnlocked ? style.bg : 'var(--bg-elevated)',
-                    display: 'flex', alignItems: 'center', justifyContent: 'center',
-                    marginBottom: '10px', color: isUnlocked ? style.color : 'var(--text-muted)',
-                    border: isUnlocked ? `1px solid ${style.border}` : 'none'
-                  }}>
-                    <BadgeIcon size={24} strokeWidth={2.5} />
+                <div key={badge.id} className={`goal-badge-card ${isUnlocked ? 'unlocked' : ''}`}
+                  style={isUnlocked ? { background: style.bg, borderColor: style.border } : {}}
+                  title={badge.desc}
+                >
+                  <div className="goal-badge-icon-wrap"
+                    style={isUnlocked ? { background: style.bg, borderColor: style.border, color: style.color } : {}}
+                  >
+                    {isUnlocked ? <BadgeIcon size={22} /> : <Lock size={16} color="var(--text-muted)" />}
                   </div>
-                  <h4 style={{ margin: '0 0 4px', fontSize: '0.8rem', fontWeight: '700', color: isUnlocked ? 'var(--text-primary)' : 'var(--text-muted)' }}>
+                  <div className="goal-badge-name" style={isUnlocked ? { color: 'var(--text-primary)' } : {}}>
                     {badge.name}
-                  </h4>
-                  <span style={{ fontSize: '0.65rem', lineHeight: '1.3', color: isUnlocked ? style.color : 'var(--text-muted)', fontWeight: '500' }}>
+                  </div>
+                  <div className="goal-badge-desc" style={isUnlocked ? { color: style.color } : {}}>
                     {badge.desc}
-                  </span>
+                  </div>
                 </div>
               );
             })}
           </div>
         </div>
 
-        {/* Bottom grid — training profile + focus areas */}
+        {/* ── Training Profile ── */}
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', marginBottom: '28px' }}>
-          {/* Training Profile */}
           <div style={{ background: 'var(--bg-surface)', borderRadius: '16px', padding: '20px 24px', border: '1px solid var(--border-subtle)' }}>
-            <div style={{ fontSize: '0.72rem', fontWeight: '700', textTransform: 'uppercase', letterSpacing: '0.07em', color: 'var(--text-secondary)', marginBottom: '14px', display: 'flex', alignItems: 'center', gap: '6px' }}>
-              <User size={14} /> Training Profile
+            <div style={{ fontSize: '0.72rem', fontWeight: '700', textTransform: 'uppercase', letterSpacing: '0.07em', color: 'var(--text-muted)', marginBottom: '14px', display: 'flex', alignItems: 'center', gap: '6px' }}>
+              Training Profile
             </div>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
               {prefs?.frequency && (
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '0.88rem', padding: '6px 0', borderBottom: '1px solid var(--border-light)' }}>
-                  <span style={{ color: 'var(--text-muted)' }}>Current Frequency</span>
+                  <span style={{ color: 'var(--text-muted)' }}>Frequency</span>
                   <span style={{ fontWeight: '600', color: 'var(--text-primary)' }}>{FREQ_LABELS[prefs.frequency] ?? prefs.frequency}</span>
                 </div>
               )}
               {prefs?.duration && (
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '0.88rem', padding: '6px 0', borderBottom: '1px solid var(--border-light)' }}>
-                  <span style={{ color: 'var(--text-muted)' }}>Training Experience</span>
+                  <span style={{ color: 'var(--text-muted)' }}>Experience</span>
                   <span style={{ fontWeight: '600', color: 'var(--text-primary)' }}>{DURATION_LABELS[prefs.duration] ?? prefs.duration}</span>
                 </div>
               )}
-              {prefs?.daysPerWeek && (
+              {habitContract?.daysPerWeek && (
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '0.88rem', padding: '6px 0', borderBottom: '1px solid var(--border-light)' }}>
-                  <span style={{ color: 'var(--text-muted)' }}>Days per Week</span>
-                  <span style={{ fontWeight: '600', color: 'var(--text-primary)' }}>{prefs.daysPerWeek} days</span>
+                  <span style={{ color: 'var(--text-muted)' }}>Days/Week Committed</span>
+                  <span style={{ fontWeight: '600', color: 'var(--text-primary)' }}>{habitContract.daysPerWeek}×</span>
                 </div>
               )}
               {prefs?.sessionDuration && (
@@ -396,12 +407,12 @@ export default function GoalPage({
 
           {/* Focus Areas */}
           <div style={{ background: 'var(--bg-surface)', borderRadius: '16px', padding: '20px 24px', border: '1px solid var(--border-subtle)' }}>
-            <div style={{ fontSize: '0.72rem', fontWeight: '700', textTransform: 'uppercase', letterSpacing: '0.07em', color: 'var(--text-secondary)', marginBottom: '14px', display: 'flex', alignItems: 'center', gap: '6px' }}>
-              <Crosshair size={14} /> Focus Areas
+            <div style={{ fontSize: '0.72rem', fontWeight: '700', textTransform: 'uppercase', letterSpacing: '0.07em', color: 'var(--text-muted)', marginBottom: '14px', display: 'flex', alignItems: 'center', gap: '6px' }}>
+              Focus Areas
             </div>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
               {targetAreas.length > 0 ? targetAreas.map(key => {
-                const meta = AREA_META[key] ?? { label: key, icon: '●', muscles: '' };
+                const meta = AREA_META[key] ?? { label: key, muscles: '' };
                 return (
                   <div key={key} style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '10px 12px', background: 'var(--bg-elevated)', borderRadius: '10px', fontSize: '0.85rem' }}>
                     <div>
@@ -410,15 +421,19 @@ export default function GoalPage({
                     </div>
                   </div>
                 );
-              }) : <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)', fontStyle: 'italic' }}>No specific areas selected — full body training.</p>}
+              }) : (
+                <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)', fontStyle: 'italic' }}>
+                  No specific areas selected — full body training.
+                </p>
+              )}
             </div>
           </div>
 
           {/* Equipment */}
           {prefs?.equipment?.length > 0 && (
             <div style={{ background: 'var(--bg-surface)', borderRadius: '16px', padding: '20px 24px', border: '1px solid var(--border-subtle)' }}>
-              <div style={{ fontSize: '0.72rem', fontWeight: '700', textTransform: 'uppercase', letterSpacing: '0.07em', color: 'var(--text-secondary)', marginBottom: '14px', display: 'flex', alignItems: 'center', gap: '6px' }}>
-                <Wrench size={14} /> Equipment Available
+              <div style={{ fontSize: '0.72rem', fontWeight: '700', textTransform: 'uppercase', letterSpacing: '0.07em', color: 'var(--text-muted)', marginBottom: '14px', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                Equipment
               </div>
               <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
                 {prefs.equipment.map(e => (
@@ -433,12 +448,12 @@ export default function GoalPage({
           {/* Injuries */}
           {injuries.length > 0 && (
             <div style={{ background: 'var(--bg-surface)', borderRadius: '16px', padding: '20px 24px', border: '1px solid var(--border-subtle)' }}>
-              <div style={{ fontSize: '0.72rem', fontWeight: '700', textTransform: 'uppercase', letterSpacing: '0.07em', color: 'var(--text-secondary)', marginBottom: '14px', display: 'flex', alignItems: 'center', gap: '6px' }}>
-                <ShieldAlert size={14} /> Excluded Areas (Injuries)
+              <div style={{ fontSize: '0.72rem', fontWeight: '700', textTransform: 'uppercase', letterSpacing: '0.07em', color: 'var(--text-muted)', marginBottom: '14px', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                Excluded Areas
               </div>
               <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
                 {injuries.map(inj => (
-                  <span key={inj} style={{ padding: '4px 12px', background: '#fee2e2', border: '1px solid #fecaca', borderRadius: '20px', fontSize: '0.82rem', color: '#dc2626', fontWeight: '500' }}>
+                  <span key={inj} style={{ padding: '4px 12px', background: '#1f0a0a', border: '1px solid #7f1d1d', borderRadius: '20px', fontSize: '0.82rem', color: '#f87171', fontWeight: '500' }}>
                     {inj}
                   </span>
                 ))}
@@ -457,7 +472,6 @@ export default function GoalPage({
           </button>
         </div>
       </div>
-
     </DashboardLayout>
   );
 }
