@@ -169,7 +169,6 @@ export default function GoalPage({
 }) {
   const { level } = getLevelProgress(xp);
   const goalMeta = GOAL_META[prefs?.goal] || { label: prefs?.goal || 'Not set', icon: Target, color: '#64748b', bg: 'rgba(100,116,139,0.12)' };
-  const GoalIcon = goalMeta.icon;
 
   const totalSessions = history?.length ?? 0;
   const currentStreak = streak || 0;

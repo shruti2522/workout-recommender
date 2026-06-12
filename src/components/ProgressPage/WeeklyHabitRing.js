@@ -49,7 +49,7 @@ export default function WeeklyHabitRing({
     const completed = slots.filter(d => histSet.has(d)).length;
 
     return { completed, slots, todaySlotIdx };
-  }, [history, startDate]);
+  }, [history]);
 
   const historyDates = useMemo(() => new Set((history || []).map(h => h.date)), [history]);
   const isComplete = completed >= daysPerWeek;
