@@ -5,8 +5,7 @@ import { getLevelProgress, ALL_BADGES, RARITY_STYLES } from '../../utils/xp';
 import {
   Flame, Activity, Calendar, Dumbbell, Target, Shield,
   Thermometer, Star, Sunrise, Zap, Crown, RefreshCw,
-  User, Crosshair, Wrench, ShieldAlert,
-  RefreshCcw, Lock, TrendingUp,
+  RefreshCcw, Lock,
 } from 'lucide-react';
 
 const ICON_MAP = {
