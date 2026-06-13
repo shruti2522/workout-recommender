@@ -25,87 +25,6 @@
   background: var(--commitment-bg);
 }
 
-.commitment-sidebar {
-  display: none;
-}
-
-.commitment-sidebar-logo {
-  font-family: var(--commitment-font-display);
-  font-size: 1.5rem;
-  font-weight: 800;
-  letter-spacing: 0.02em;
-  color: var(--commitment-text);
-  padding: 0 20px 28px;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.commitment-logo-dot {
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-  background: var(--commitment-green);
-  flex-shrink: 0;
-}
-
-.commitment-nav-section {
-  padding: 0 12px;
-  margin-bottom: 24px;
-}
-
-.commitment-nav-label {
-  font-size: 0.65rem;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.1em;
-  color: var(--commitment-text-dim);
-  padding: 0 8px 8px;
-}
-
-.commitment-nav-item {
-  display: block;
-  padding: 8px 12px;
-  border-radius: 6px;
-  font-size: 0.88rem;
-  font-weight: 500;
-  color: var(--commitment-text-mid);
-  cursor: pointer;
-  transition: color 0.15s, background 0.15s;
-  text-decoration: none;
-}
-
-.commitment-nav-item:hover {
-  color: var(--commitment-text);
-  background: rgba(255,255,255,0.04);
-}
-
-.commitment-nav-item.active {
-  color: var(--commitment-text);
-  background: rgba(255,255,255,0.06);
-}
-
-.commitment-sidebar-spacer {
-  flex: 1;
-}
-
-.commitment-sidebar-user {
-  padding: 16px 20px 0;
-  border-top: 1px solid var(--commitment-border);
-}
-
-.commitment-user-name {
-  font-size: 0.85rem;
-  font-weight: 600;
-  color: var(--commitment-text);
-  margin-bottom: 2px;
-}
-
-.commitment-user-meta {
-  font-size: 0.75rem;
-  color: var(--commitment-text-dim);
-}
-
 .commitment-main {
   width: 100%;
   min-height: 100vh;
@@ -327,51 +246,12 @@
   border-color: rgba(255,255,255,0.2);
 }
 
-.commitment-mobile-bar {
-  display: none;
-  align-items: center;
-  justify-content: space-between;
-  padding: 14px 20px;
-  background: var(--commitment-bg-panel);
-  border-bottom: 1px solid var(--commitment-border);
-  position: sticky;
-  top: 0;
-  z-index: 10;
-}
-
-.commitment-mobile-logo-text {
-  font-family: var(--commitment-font-display);
-  font-size: 1.3rem;
-  font-weight: 800;
-  color: var(--commitment-text);
-  display: flex;
-  align-items: center;
-  gap: 7px;
-}
-
-.commitment-hamburger {
-  background: none;
-  border: none;
-  color: var(--commitment-text-mid);
-  cursor: pointer;
-  padding: 4px;
-  line-height: 0;
-}
-
 @media (max-width: 768px) {
   .commitment-shell {
     flex-direction: column;
     height: auto;
     min-height: 100vh;
     overflow: visible;
-  }
-
-  .commitment-sidebar {
-    display: none;
-  }
-
-  .commitment-mobile-bar {
-    display: flex;
   }
 
   .commitment-main {

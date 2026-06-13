@@ -17,82 +17,6 @@
   --plan-font-body:    'SamsungSans', 'Samsung Sans', 'Outfit', -apple-system, sans-serif;
 }
 
-.plan-card {
-  background: var(--plan-bg-card);
-  border: 1px solid var(--plan-border-med);
-  border-radius: 10px;
-  padding: 18px 20px;
-}
-
-.plan-card-title {
-  font-family: var(--plan-font-display);
-  font-size: 1.3rem;
-  font-weight: 700;
-  letter-spacing: 0.02em;
-  color: var(--plan-text);
-  margin: 0 0 3px 0;
-}
-
-.plan-card-detail {
-  font-size: 0.75rem;
-  color: var(--plan-text-dim);
-  margin: 0 0 14px 0;
-}
-
-.plan-card-stats {
-  display: flex;
-  align-items: center;
-  gap: 0;
-}
-
-.plan-stat {
-  padding-right: 20px;
-  margin-right: 20px;
-  border-right: 1px solid var(--plan-border);
-}
-
-.plan-stat:last-of-type {
-  border-right: none;
-}
-
-.plan-stat-val {
-  font-family: var(--plan-font-display);
-  font-size: 1.6rem;
-  font-weight: 800;
-  color: var(--plan-text);
-  line-height: 1;
-  margin: 0;
-}
-
-.plan-stat-lbl {
-  font-size: 0.62rem;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
-  color: var(--plan-text-dim);
-  margin-top: 2px;
-}
-
-.plan-btn-primary {
-  padding: 10px 22px;
-  border: none;
-  border-radius: 7px;
-  background: var(--plan-green);
-  color: var(--bg-base);
-  font-family: var(--plan-font-display);
-  font-size: 1rem;
-  font-weight: 700;
-  letter-spacing: 0.04em;
-  cursor: pointer;
-  transition: opacity 0.15s;
-  white-space: nowrap;
-  margin-left: auto;
-}
-
-.plan-btn-primary:hover {
-  opacity: 0.85;
-}
-
 .plan-btn-secondary {
   padding: 5px 12px;
   border: 1px solid var(--plan-border-med);
@@ -129,165 +53,6 @@
 .plan-btn-icon:hover {
   color: var(--plan-text);
   border-color: var(--border-subtle);
-}
-
-.plan-btn-small {
-  width: 24px;
-  height: 24px;
-  border: 1px solid var(--plan-border);
-  border-radius: 4px;
-  background: transparent;
-  color: var(--plan-text-dim);
-  font-size: 0.7rem;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: color 0.15s, border-color 0.15s;
-}
-
-.plan-btn-small:hover {
-  color: var(--plan-text-mid);
-  border-color: var(--plan-border-med);
-}
-
-.plan-ex-row {
-  display: flex;
-  align-items: center;
-  gap: 14px;
-  background: var(--plan-bg-card);
-  border: 1px solid var(--plan-border);
-  border-radius: 8px;
-  padding: 10px 14px 10px 10px;
-  transition: border-color 0.15s;
-  margin-bottom: 8px;
-}
-
-.plan-ex-row:hover {
-  border-color: var(--plan-border-med);
-}
-
-.plan-ex-num {
-  font-family: var(--plan-font-display);
-  font-size: 0.85rem;
-  font-weight: 700;
-  color: var(--plan-text-dim);
-  width: 18px;
-  text-align: center;
-  flex-shrink: 0;
-}
-
-.plan-ex-thumb {
-  width: 72px;
-  height: 52px;
-  border-radius: 5px;
-  overflow: hidden;
-  flex-shrink: 0;
-  background: var(--plan-bg-raised);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.plan-ex-thumb img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
-
-.plan-ex-info {
-  flex: 1;
-  min-width: 0;
-}
-
-.plan-ex-header {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  margin-bottom: 2px;
-}
-
-.plan-ex-name {
-  font-size: 0.88rem;
-  font-weight: 600;
-  color: var(--plan-text);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.plan-ex-tag {
-  font-size: 0.62rem;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
-  color: var(--plan-green);
-  background: transparent;
-  padding: 2px 6px;
-  border: 1px solid var(--plan-green);
-  border-radius: 4px;
-  flex-shrink: 0;
-}
-
-.plan-ex-meta {
-  font-size: 0.75rem;
-  color: var(--plan-text-mid);
-}
-
-.plan-ex-meta-sep {
-  color: var(--plan-text-dim);
-  padding: 0 3px;
-}
-
-.plan-ex-kcal {
-  font-size: 0.72rem;
-  color: var(--plan-green);
-  font-weight: 500;
-}
-
-.plan-ex-note {
-  font-size: 0.72rem;
-  color: var(--plan-text-dim);
-  margin-top: 2px;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.plan-ex-actions {
-  display: flex;
-  align-items: center;
-  gap: 4px;
-  flex-shrink: 0;
-}
-
-.plan-ex-actions button {
-  width: 24px;
-  height: 24px;
-  border: 1px solid var(--plan-border);
-  border-radius: 4px;
-  background: transparent;
-  color: var(--plan-text-dim);
-  font-size: 0.85rem;
-  font-weight: 600;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: color 0.15s, border-color 0.15s;
-}
-
-.plan-ex-actions button:hover {
-  color: var(--plan-text-mid);
-  border-color: var(--plan-border-med);
-}
-
-.plan-font-display {
-  font-family: var(--plan-font-display);
-}
-
-.plan-font-body {
-  font-family: var(--plan-font-body);
 }
 
 .plan-progress-ring {
@@ -335,54 +100,6 @@
   font-size: 0.82rem;
   font-weight: 600;
   color: var(--plan-text);
-}
-
-.plan-ring-detail {
-  font-size: 0.72rem;
-  color: var(--plan-text-mid);
-}
-
-.plan-ring-badge {
-  font-size: 0.72rem;
-  font-weight: 700;
-  background: var(--plan-green-dim);
-  color: var(--plan-green);
-  padding: 2px 8px;
-  border-radius: 20px;
-  border: 1px solid var(--plan-green-faint);
-  display: inline-block;
-  margin-right: 8px;
-}
-
-.plan-quest-row {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  padding: 7px 0;
-  border-bottom: 1px solid var(--plan-border);
-}
-
-.plan-quest-row:last-child {
-  border-bottom: none;
-}
-
-.plan-quest-name {
-  flex: 1;
-  font-size: 0.8rem;
-  color: var(--plan-text-mid);
-  line-height: 1.3;
-}
-
-.plan-quest-name.done {
-  text-decoration: line-through;
-  color: var(--plan-text-dim);
-}
-
-.plan-quest-xp {
-  font-size: 0.72rem;
-  font-weight: 600;
-  color: var(--plan-green);
-  flex-shrink: 0;
 }
 
 .plan-ex-list-header {
@@ -442,34 +159,8 @@
   flex-shrink: 0;
 }
 
-.plan-loading-screen {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  min-height: 100vh;
-  background: var(--plan-bg);
-  padding: 40px 20px;
-}
-
-.plan-loading-spinner {
-  width: 48px;
-  height: 48px;
-  border: 3px solid var(--plan-border-med);
-  border-top-color: var(--plan-green);
-  border-radius: 50%;
-  animation: spin 1s linear infinite;
-  margin-bottom: 16px;
-}
-
 @keyframes spin {
   to { transform: rotate(360deg); }
-}
-
-.plan-loading-text {
-  font-size: 0.95rem;
-  color: var(--plan-text-mid);
-  font-family: var(--plan-font-body);
 }
 
 .plan-mode-row {
@@ -654,14 +345,6 @@
   font-weight: 700;
 }
 
-.plan-day-tab-dot {
-  width: 6px;
-  height: 6px;
-  border-radius: 50%;
-  background: var(--plan-green);
-  flex-shrink: 0;
-}
-
 .plan-day-summary {
   background: var(--plan-bg-card);
   border: 1px solid var(--plan-border);
@@ -692,24 +375,6 @@
   display: flex;
   align-items: center;
   gap: 8px;
-}
-
-.plan-day-summary-meta {
-  font-size: 0.73rem;
-  color: var(--plan-text-mid);
-  letter-spacing: 0.01em;
-  margin: 0;
-}
-
-.plan-day-summary-badge {
-  font-size: 0.62rem;
-  font-weight: 700;
-  background: var(--plan-green-dim);
-  color: var(--plan-green);
-  padding: 2px 8px;
-  border-radius: 20px;
-  border: 1px solid var(--plan-green-faint);
-  letter-spacing: 0.04em;
 }
 
 .plan-day-summary-right {

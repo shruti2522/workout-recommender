@@ -60,39 +60,6 @@
   font-family: var(--font-body);
 }
 
-.chat-progress {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  margin-bottom: 28px;
-  flex-shrink: 0;
-}
-
-.chat-progress-label {
-  font-size: 0.68rem;
-  letter-spacing: 0.10em;
-  text-transform: uppercase;
-  font-weight: 600;
-  color: var(--c-text-muted);
-  text-align: right;
-  display: none;
-}
-
-.chat-progress-track {
-  height: 2px;
-  background: var(--c-surface-raised);
-  border-radius: 2px;
-  overflow: hidden;
-}
-
-.chat-progress-fill {
-  height: 100%;
-  background: var(--c-accent);
-  border-radius: 2px;
-  transition: width 0.5s cubic-bezier(0.4, 0, 0.2, 1);
-  opacity: 0.7;
-}
-
 .chat-messages {
   flex: 1;
   overflow-y: auto;
