@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import './Chat.css';
-import { classifyChatInput } from '../../../services/geminiService';
+import { classifyChatInput, extractPreferencesFromText } from '../../../services/geminiService';
 
 const TOTAL_STEPS = 6;
 
@@ -81,6 +81,7 @@ export default function Chat({ onComplete }) {
   const [messages, setMessages] = useState([]);
   const [inputText, setInputText] = useState('');
   const [isTyping, setIsTyping] = useState(false);
+  const [answeredKeys, setAnsweredKeys] = useState([]);
   
   const [prefs, setPrefs] = useState({
     goal: 'general_fitness',
@@ -138,34 +139,61 @@ export default function Chat({ onComplete }) {
     appendUserMessage(answerText);
     
     const currentStepConfig = STEPS[step];
-    let extractedValue = currentStepConfig.fallback;
+    let newPrefs = { ...prefs };
+    let newAnsweredKeys = [...answeredKeys];
 
     const matchedChip = currentStepConfig.chips.find(
       c => c.label.toLowerCase() === answerText.toLowerCase()
     );
 
     if (matchedChip) {
-      extractedValue = matchedChip.value;
+      newPrefs[currentStepConfig.key] = matchedChip.value;
+      if (!newAnsweredKeys.includes(currentStepConfig.key)) {
+        newAnsweredKeys.push(currentStepConfig.key);
+      }
     } else {
       setIsTyping(true);
       try {
-        extractedValue = await classifyChatInput(answerText, currentStepConfig);
+        const extractedPrefs = await extractPreferencesFromText(answerText, currentStepConfig.question);
+        if (extractedPrefs) {
+          Object.keys(extractedPrefs).forEach(k => {
+            if (extractedPrefs[k] !== null && extractedPrefs[k] !== undefined) {
+              newPrefs[k] = extractedPrefs[k];
+              if (!newAnsweredKeys.includes(k)) {
+                newAnsweredKeys.push(k);
+              }
+            }
+          });
+        }
+        
+        if (!newAnsweredKeys.includes(currentStepConfig.key)) {
+          newPrefs[currentStepConfig.key] = currentStepConfig.fallback;
+          newAnsweredKeys.push(currentStepConfig.key);
+        }
       } catch (err) {
-        console.error("Classification error:", err);
+        console.error("Extraction error:", err);
+        if (!newAnsweredKeys.includes(currentStepConfig.key)) {
+          newPrefs[currentStepConfig.key] = currentStepConfig.fallback;
+          newAnsweredKeys.push(currentStepConfig.key);
+        }
       }
       setIsTyping(false);
     }
     
-    const updatedPrefs = { ...prefs, [currentStepConfig.key]: extractedValue };
-    setPrefs(updatedPrefs);
+    setPrefs(newPrefs);
+    setAnsweredKeys(newAnsweredKeys);
 
-    if (step < TOTAL_STEPS - 1) {
-      const nextStep = step + 1;
+    let nextStep = step + 1;
+    while (nextStep < TOTAL_STEPS && newAnsweredKeys.includes(STEPS[nextStep].key)) {
+      nextStep++;
+    }
+
+    if (nextStep < TOTAL_STEPS) {
       setStep(nextStep);
       setIsTyping(true);
       setTimeout(() => {
         setIsTyping(false);
-        if (nextStep === 3) {
+        if (nextStep === 3 && step < 3) {
           appendBotMessage("Awesome, we've got your foundation. Let's talk schedule.");
         }
         appendBotMessage(
@@ -180,7 +208,7 @@ export default function Chat({ onComplete }) {
         setIsTyping(false);
         appendBotMessage("Perfect. Building your custom plan...");
         setTimeout(() => {
-          onComplete(updatedPrefs);
+          onComplete(newPrefs);
         }, 1000);
       }, 600);
     }
@@ -189,16 +217,10 @@ export default function Chat({ onComplete }) {
   
 
   const knownFacts = Object.entries(prefs).filter(([k, v]) => {
-    
     if (k === 'injuries' || k === 'weeklyTime') return false;
     const stepConfig = STEPS.find(s => s.key === k);
     if (!stepConfig) return false;
-    
-    
-    const currentStepIndex = STEPS.findIndex(s => s.key === k);
-    if (currentStepIndex >= step) return false;
-    
-    return true;
+    return answeredKeys.includes(k);
   }).map(([k, v]) => {
     const stepConfig = STEPS.find(s => s.key === k);
     const chip = stepConfig.chips.find(c => JSON.stringify(c.value) === JSON.stringify(v));

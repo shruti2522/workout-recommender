@@ -360,22 +360,22 @@ export async function generatePlan(prefs, filteredExercises, signal, allExercise
   throw lastError;
 }
 
-export async function extractPreferencesFromText(userText) {
+export async function extractPreferencesFromText(userText, currentQuestion = '') {
   if (!GEMINI_API_KEY || GEMINI_API_KEY === 'PASTE_YOUR_GEMINI_API_KEY_HERE') {
     throw new Error('API key is missing or invalid.');
   }
 
   const prompt = `You are a fitness assistant. Deduce the user's fitness profile from their message.
-Message: "${userText}"
+${currentQuestion ? `The bot just asked: "${currentQuestion}"\n` : ''}User Message: "${userText}"
 
-Extract the following preferences based on the message. If something is not explicitly mentioned, use reasonable defaults.
+Extract the following preferences based on the message and the question context. If a preference is NOT explicitly or implicitly mentioned in the text, you MUST return null for that field. Do not use defaults.
 - frequency: number of days per week they work out (e.g. "2", "3", "4", "5", "6")
 - goal: exactly one of ["build_muscle", "lose_weight", "improve_endurance", "increase_flexibility", "general_fitness"]
-- equipment: array of strings. Use standard options like "No equipment (bodyweight)", "Dumbbells", "Barbell", "Kettlebells", "Resistance bands", "Cable machine", "Gym machines".
+- equipment: array of strings. Options: "No equipment (bodyweight)", "Dumbbells", "Barbell", "Kettlebells", "Resistance bands", "Cable machine", "Gym machines".
 - targetAreas: array of strings. Options: "upper_body", "lower_body", "core", "full_body".
-- duration: their workout experience level. Exactly one of ["under_6m", "6m_2y", "2y_plus", "returning"]. Default to "6m_2y" if unsure.
-- injuries: array of strings (e.g., ["knees", "lower back"]). Empty if none mentioned.
-- sessionDuration: their desired session length. Extract from context. Use one of ["20_30", "30_45", "45_60", "60_90", "90_plus"]. Mapping guide: "15-30 min" or "under 30" -> "20_30", "30-45 min" -> "30_45", "45 min" or "45-60 min" -> "45_60", "1 hour" or "60 min" or "an hour" -> "60_90", "1 hour+" or "more than an hour" or "1.5 hours" or "90 minutes" or "90+" -> "90_plus". Default to "45_60" if unclear.
+- duration: their workout experience level. Exactly one of ["under_6m", "6m_2y", "2y_plus", "returning"].
+- injuries: array of strings (e.g., ["knees", "lower back"]). Empty array if none mentioned.
+- sessionDuration: their desired session length. Use one of ["20_30", "30_45", "45_60", "60_90", "90_plus"]. Mapping: "15-30 min" or "under 30" -> "20_30", "30-45 min" -> "30_45", "45 min" or "45-60 min" -> "45_60", "1 hour" or "60 min" -> "60_90", "90+" -> "90_plus".
 `;
 
   const response = await fetch(`${GEMINI_API_URL}?key=${GEMINI_API_KEY}`, {
@@ -389,15 +389,14 @@ Extract the following preferences based on the message. If something is not expl
         responseSchema: {
           type: "OBJECT",
           properties: {
-            frequency: { type: "STRING" },
-            goal: { type: "STRING" },
-            equipment: { type: "ARRAY", items: { type: "STRING" } },
-            targetAreas: { type: "ARRAY", items: { type: "STRING" } },
-            duration: { type: "STRING" },
-            injuries: { type: "ARRAY", items: { type: "STRING" } },
-            sessionDuration: { type: "STRING" }
-          },
-          required: ["frequency", "goal", "equipment", "targetAreas", "duration", "injuries", "sessionDuration"]
+            frequency: { type: "STRING", nullable: true },
+            goal: { type: "STRING", nullable: true },
+            equipment: { type: "ARRAY", items: { type: "STRING" }, nullable: true },
+            targetAreas: { type: "ARRAY", items: { type: "STRING" }, nullable: true },
+            duration: { type: "STRING", nullable: true },
+            injuries: { type: "ARRAY", items: { type: "STRING" }, nullable: true },
+            sessionDuration: { type: "STRING", nullable: true }
+          }
         }
       }
     })
