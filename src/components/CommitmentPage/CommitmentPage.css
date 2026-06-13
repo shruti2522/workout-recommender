@@ -403,4 +403,13 @@
     border: none;
     gap: 32px;
   }
+
+  .commitment-stats-band {
+    grid-template-columns: 1fr;
+  }
+
+  .commitment-stat-cell + .commitment-stat-cell {
+    border-left: none;
+    border-top: 1px solid var(--commitment-border);
+  }
 }

@@ -334,7 +334,7 @@ function ExerciseCard({ exercise, savedPlan, setSavedPlan, onAdded }) {
       {showInstructions && (
         <div className="modal-overlay" onClick={() => setShowInstructions(false)} style={{ zIndex: 9999, padding: '20px' }}>
           <div className="modal-content" onClick={(e) => e.stopPropagation()} style={{ maxWidth: '1000px', width: '100%', borderRadius: 'var(--radius-xl)', overflow: 'hidden', display: 'flex', flexDirection: 'column', maxHeight: '90vh', padding: 0 }}>
-            <div style={{ padding: '40px', overflowY: 'auto', flex: 1 }}>
+            <div className="lib-modal-content" style={{ overflowY: 'auto', flex: 1 }}>
             
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '32px' }}>
               <div>
@@ -350,7 +350,7 @@ function ExerciseCard({ exercise, savedPlan, setSavedPlan, onAdded }) {
               <button className="modal-close-btn" onClick={() => setShowInstructions(false)} style={{ position: 'relative', top: '-10px', right: '-10px', width: '36px', height: '36px', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'var(--bg-elevated)', borderRadius: '50%' }}>✕</button>
             </div>
 
-            <div style={{ display: 'grid', gridTemplateColumns: '1.2fr 1fr', gap: '48px' }}>
+            <div className="lib-modal-grid">
               
               <div style={{ display: 'flex', flexDirection: 'column', gap: '40px' }}>
                 <div>

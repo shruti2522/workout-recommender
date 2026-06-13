@@ -67,7 +67,7 @@ function App() {
 
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
-  const [theme, setTheme] = useLocalStorage('fs_theme', 'dark');
+  const [theme, setTheme] = useLocalStorage('fs_theme', 'light');
   const prevIsMobile = useRef(null);
 
   useEffect(() => {

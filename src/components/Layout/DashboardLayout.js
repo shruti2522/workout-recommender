@@ -22,27 +22,23 @@ export default function DashboardLayout({
 
       
       <div className="mobile-header">
-        <button
-          className="mobile-menu-btn"
-          onClick={onOpenSidebar}
-          aria-label="Open menu"
-        >
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <line x1="3" y1="12" x2="21" y2="12"></line>
-            <line x1="3" y1="6" x2="21" y2="6"></line>
-            <line x1="3" y1="18" x2="21" y2="18"></line>
-          </svg>
-        </button>
         <button className="mobile-logo" style={{ background: 'transparent', border: 'none', padding: 0, cursor: 'pointer', fontFamily: 'inherit' }} onClick={() => onViewChange('hero')}>
           <span className="sidebar-logo-icon">T</span>
           Trainr
         </button>
+        <button
+          onClick={onToggleTheme}
+          className="mobile-theme-toggle"
+          aria-label={`Switch to ${theme === 'dark' ? 'light' : 'dark'} mode`}
+          style={{ background: 'transparent', border: 'none', color: 'var(--text-primary)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}
+        >
+          {theme === 'dark' ? (
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+          ) : (
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+          )}
+        </button>
       </div>
-
-    
-      {sidebarOpen && isMobile && (
-        <div className="sidebar-backdrop" onClick={onCloseSidebar} />
-      )}
 
       <aside className={`layout-sidebar ${sidebarOpen ? 'open' : ''}`}>
         <div className="sidebar-header">
@@ -166,6 +162,31 @@ export default function DashboardLayout({
         <aside className="layout-summary">
           {summaryPanel}
         </aside>
+      )}
+
+      {isMobile && (
+        <nav className="bottom-nav">
+          <div className={`bottom-nav-item ${activeTab === 'plan' ? 'active' : ''}`} onClick={() => onViewChange('results')}>
+            <CalendarCheck size={22} />
+            <span>Plan</span>
+          </div>
+          <div className={`bottom-nav-item ${activeTab === 'library' ? 'active' : ''}`} onClick={() => onViewChange('library')}>
+            <Dumbbell size={22} />
+            <span>Library</span>
+          </div>
+          <div className={`bottom-nav-item ${activeTab === 'progress' ? 'active' : ''}`} onClick={() => onViewChange('progress')}>
+            <TrendingUp size={22} />
+            <span>Progress</span>
+          </div>
+          <div className={`bottom-nav-item ${activeTab === 'history' ? 'active' : ''}`} onClick={() => onViewChange('history')}>
+            <History size={22} />
+            <span>History</span>
+          </div>
+          <div className={`bottom-nav-item ${activeTab === 'goal' ? 'active' : ''}`} onClick={() => onViewChange('goal')}>
+            <Target size={22} />
+            <span>Goal</span>
+          </div>
+        </nav>
       )}
     </div>
   );

@@ -49,17 +49,7 @@ export default function CommitmentPage({
   return (
     <div className="commitment-shell">
       <div className="commitment-main">
-        <div className="commitment-mobile-bar">
-          <div className="commitment-mobile-logo-text">
-            <span className="commitment-logo-dot"></span>
-            Trainr
-          </div>
-          <button className="commitment-hamburger" aria-label="Menu">
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
-              <line x1="3" y1="7" x2="21" y2="7"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="17" x2="21" y2="17"/>
-            </svg>
-          </button>
-        </div>
+
 
         <div className="commitment-wrap commitment-split-layout">
           
