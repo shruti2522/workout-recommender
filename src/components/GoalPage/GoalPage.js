@@ -95,6 +95,7 @@ export default function GoalPage({
 	onToggleTheme,
 	onUpdatePrefs,
 	onUpdateHabitContract,
+	setSavedPlan,
 }) {
 	const [activeMilestoneTab, setActiveMilestoneTab] = useState('short');
 	const { level } = getLevelProgress(xp);
@@ -199,6 +200,7 @@ export default function GoalPage({
 			delete toSave.injuriesRaw;
 		}
 		if (onUpdatePrefs) onUpdatePrefs(toSave);
+		if (setSavedPlan) setSavedPlan(null);
 		if (habitContract && onUpdateHabitContract) {
 			onUpdateHabitContract({
 				...habitContract,

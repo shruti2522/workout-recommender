@@ -354,6 +354,7 @@ function App() {
             unlockedBadgeIds={unlockedBadges}
             xp={totalXP}
             onUpdatePrefs={setPrefs}
+            setSavedPlan={setSavedPlan}
             onUpdateHabitContract={setHabitContract}
             {...sidebarProps}
           />
