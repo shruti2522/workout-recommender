@@ -15,8 +15,6 @@ const LEVEL_ICON_MAP = {
 	trophy: Trophy,
 };
 
-
-
 function RecentSessions({ history }) {
 	const sessions = useMemo(() => {
 		if (!history) return [];
@@ -52,7 +50,6 @@ function RecentSessions({ history }) {
 	);
 }
 
-
 function MuscleBar({ muscle, percentage }) {
 	return (
 		<div className="prog-muscle-row">
@@ -64,7 +61,6 @@ function MuscleBar({ muscle, percentage }) {
 		</div>
 	);
 }
-
 
 function XPLevelBar({ xp }) {
 	const { level, pct, current, needed } = getLevelProgress(xp || 0);
@@ -119,7 +115,6 @@ function XPLevelBar({ xp }) {
 		</div>
 	);
 }
-
 
 export default function ProgressPage({
 	savedPlan,
@@ -181,7 +176,6 @@ export default function ProgressPage({
 		return Object.values(weekMap).filter(count => count >= daysPerWeek).length;
 	}, [history, daysPerWeek]);
 
-
 	const momentumMsg = useMemo(() => {
 		if (streak === 0 && (history?.length ?? 0) === 0) return null;
 		if (streak >= 14) return { icon: null, text: `${streak}-day streak — you're on fire! Don't stop now.`, accent: 'var(--accent-primary)' };
@@ -210,14 +204,12 @@ export default function ProgressPage({
 					<p className="inner-page-subtitle">Your progress, week by week.</p>
 				</div>
 
-
 				{momentumMsg && (
 					<div className="prog-momentum-msg" style={{ borderLeftColor: momentumMsg.accent }}>
 						<span style={{ fontSize: '1.2rem' }}>{momentumMsg.icon}</span>
 						<span style={{ color: momentumMsg.accent, fontWeight: '600', fontSize: '0.9rem' }}>{momentumMsg.text}</span>
 					</div>
 				)}
-
 
 				<div className="prog-hero-row">
 					<div className="prog-habit-hero">
@@ -252,12 +244,7 @@ export default function ProgressPage({
 					</div>
 				</div>
 
-
-
-
-
 				<XPLevelBar xp={xp} />
-
 
 				<div className="prog-section-card" style={{ paddingRight: 0, paddingLeft: 0, overflow: 'hidden' }}>
 					<div className="prog-section-header" style={{ padding: '0 16px' }}>
@@ -275,7 +262,6 @@ export default function ProgressPage({
 						</div>
 					)}
 				</div>
-
 
 				<div className="prog-section-card">
 					<div className="prog-section-header">

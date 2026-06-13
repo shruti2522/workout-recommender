@@ -27,7 +27,6 @@ export default function WorkoutComplete({
 
 	const streak = useMemo(() => calculateStreak(history), [history]);
 
-
 	const { thisWeekCount, daysCommitted } = useMemo(() => {
 		const today = new Date();
 		const dayOfWeek = today.getDay();
@@ -39,10 +38,8 @@ export default function WorkoutComplete({
 		return { thisWeekCount: count, daysCommitted: 3 };
 	}, [history]);
 
-
 	const xpGained = XP_PER_SESSION;
 	const { level } = getLevelProgress(xp);
-
 
 	const nextDay = useMemo(() => {
 		if (!savedPlan) return null;

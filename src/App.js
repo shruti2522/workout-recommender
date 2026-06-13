@@ -89,7 +89,7 @@ function App() {
     const newlyUnlocked = currentUnlocked.filter(id => !unlockedBadges.includes(id));
     const removedBadges = unlockedBadges.filter(id => !currentUnlocked.includes(id));
     
-    // Auto-sync badges if there's new badges OR if we somehow have badges that shouldn't be unlocked (e.g. wiped history)
+    
     if (newlyUnlocked.length > 0 || removedBadges.length > 0) {
       setUnlockedBadges(currentUnlocked);
       if (newlyUnlocked.length > 0) {
@@ -100,7 +100,6 @@ function App() {
       }
     }
   }, [history, streak, completedQuests, unlockedBadges, setUnlockedBadges]);
-
 
   
   useEffect(() => {
@@ -134,8 +133,6 @@ function App() {
     window.addEventListener('resize', checkMobile);
     return () => window.removeEventListener('resize', checkMobile);
   }, []);
-
-
 
   const handleWizardComplete = useCallback((preferences) => {
     setPrefs(preferences);
@@ -227,7 +224,9 @@ function App() {
       if (!prev) return prev;
       return prev.map(d => d.key === sessionDay.key ? { ...d, completed: true } : d);
     });
-    
+
+    const today = new Date().toISOString().slice(0, 10);
+
     if (sessionDay) {
       const muscles = [...new Set(
         (sessionDay.exercises ?? []).flatMap(ex => ex.primaryMuscles ?? [])
@@ -237,7 +236,7 @@ function App() {
       setHistory(prev => [
         ...(prev ?? []),
         {
-          date: new Date().toISOString().slice(0, 10),
+          date: today,
           dayLabel: sessionDay.label ?? '',
           elapsed,
           totalSets,
@@ -246,8 +245,18 @@ function App() {
         },
       ]);
     }
+
+    setCompletedQuests(prev => {
+      const existing = prev || [];
+      const autoQuestIds = ['complete_session', 'no_skip'];
+      const toAdd = autoQuestIds.filter(qid =>
+        !existing.some(e => e.date === today && e.questId === qid)
+      ).map(qid => ({ date: today, questId: qid }));
+      return toAdd.length > 0 ? [...existing, ...toAdd] : existing;
+    });
+
     setView('complete');
-  }, [sessionDay, setWorkoutElapsed, setSavedPlan, setHistory, setView]);
+  }, [sessionDay, setWorkoutElapsed, setSavedPlan, setHistory, setCompletedQuests, setView]);
 
   const handleBackToPlan = useCallback(() => {
     setSessionDay(null);
@@ -273,7 +282,6 @@ function App() {
       { date: new Date().toISOString().slice(0, 10), questId }
     ]);
   }, [setCompletedQuests]);
-
 
   return (
     <>

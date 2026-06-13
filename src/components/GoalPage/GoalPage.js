@@ -41,7 +41,6 @@ const DURATION_LABELS = {
 	'2y_plus': 'Several years',
 };
 
-
 function MilestoneJourney({ milestones, title }) {
 	return (
 		<div className="milestone-list" style={{ marginBottom: '24px' }}>
@@ -75,8 +74,6 @@ function MilestoneJourney({ milestones, title }) {
 		</div>
 	);
 }
-
-
 
 export default function GoalPage({
 	prefs,
@@ -121,7 +118,6 @@ export default function GoalPage({
 		return Object.values(weekMap).filter(count => count >= daysPerWeek).length;
 	}, [history, daysPerWeek]);
 
-
 	const thisWeekCount = useMemo(() => {
 		const today = new Date();
 		const dayOffset = (today.getDay() + 6) % 7;
@@ -132,14 +128,12 @@ export default function GoalPage({
 		return (history || []).filter(h => h.date >= startStr).length;
 	}, [history]);
 
-
 	const habitSummary = useMemo(() => {
 		const remaining = Math.max(0, daysPerWeek - thisWeekCount);
 		if (thisWeekCount >= daysPerWeek) return { text: 'Week complete! You hit your target.', accent: 'var(--accent-success)' };
 		if (remaining === 1) return { text: `1 more session this week to hit your goal.`, accent: '#f59e0b' };
 		return { text: `${remaining} more sessions this week to hit your ${daysPerWeek}× goal.`, accent: 'var(--text-secondary)' };
 	}, [daysPerWeek, thisWeekCount]);
-
 
 	const etaMessage = useMemo(() => {
 		if (totalSessions === 0) return null;
@@ -151,7 +145,6 @@ export default function GoalPage({
 		const weeksLeft = Math.ceil(remaining / sessionsPerWeek);
 		return `At your pace, ~${weeksLeft} week${weeksLeft !== 1 ? 's' : ''} to your first major milestone.`;
 	}, [totalSessions, daysPerWeek, prefs?.goal]);
-
 
 	const { shortTermGoals, longTermGoals } = useMemo(() => {
 		const shortItems = [
@@ -189,7 +182,7 @@ export default function GoalPage({
 	}, [totalSessions, currentStreak, daysPerWeek, consistentWeeks, xp, unlockedBadgeIds.length, thisWeekCount]);
 
 	const targetAreas = prefs?.targetAreas ?? [];
-	// eslint-disable-next-line no-unused-vars
+	
 	const injuries = prefs?.injuries ?? [];
 
 	const [isEditingProfile, setIsEditingProfile] = useState(false);
@@ -265,7 +258,7 @@ export default function GoalPage({
 					</div>
 
 					<div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '16px' }}>
-						{/* Card 1 */}
+						{}
 						<div style={{ background: 'var(--bg-surface)', borderRadius: '16px', padding: '20px 24px', border: '1px solid var(--border-subtle)' }}>
 							{!isEditingProfile ? (
 								<div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
@@ -337,7 +330,7 @@ export default function GoalPage({
 							)}
 						</div>
 
-						{/* Card 2 */}
+						{}
 						<div style={{ background: 'var(--bg-surface)', borderRadius: '16px', padding: '20px 24px', border: '1px solid var(--border-subtle)' }}>
 							{!isEditingProfile ? (
 								<div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
@@ -395,7 +388,6 @@ export default function GoalPage({
 					</div>
 				</div>
 
-
 				<div className="prog-section-card">
 					<div className="prog-section-header" style={{ marginBottom: '20px' }}>
 						<span className="prog-section-title">Milestones</span>
@@ -420,8 +412,6 @@ export default function GoalPage({
 						<MilestoneJourney milestones={longTermGoals} title="Long-term Goals (Lifetime)" />
 					)}
 				</div>
-
-
 
 				<div className="prog-section-card">
 					<div className="prog-section-header">
@@ -454,10 +444,6 @@ export default function GoalPage({
 						})}
 					</div>
 				</div>
-
-
-
-
 
 				<div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
 					<button className="btn btn-primary" onClick={() => onViewChange('results')}>

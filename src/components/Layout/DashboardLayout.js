@@ -2,8 +2,6 @@ import React from 'react';
 import { CalendarCheck, Dumbbell, TrendingUp, History, Target } from 'lucide-react';
 import { getLevelProgress } from '../../utils/xp';
 
-
-
 export default function DashboardLayout({
   children,
   activeTab,

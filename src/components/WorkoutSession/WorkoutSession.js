@@ -62,8 +62,6 @@ function SetTimer({ durationSeconds, onDone }) {
 	);
 }
 
-
-
 export default function WorkoutSession({ day, onBack, onComplete, onUpdateProgress }) {
 	const exercises = day.exercises;
 

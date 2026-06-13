@@ -1,9 +1,5 @@
 
 
-
-
-
-
 export function calculateStreak(history) {
   if (!history || history.length === 0) return 0;
 
@@ -31,12 +27,10 @@ export function calculateStreak(history) {
   return streak;
 }
 
-
 export function hasWorkedOutToday(history) {
   const today = new Date().toISOString().slice(0, 10);
   return (history || []).some(h => h.date === today);
 }
-
 
 export const LEVELS = [
   { index: 0, name: 'Starter',  icon: 'seedling', color: '#94a3b8', minXP: 0,    maxXP: 50   },
@@ -51,9 +45,24 @@ export const XP_PER_SESSION = 50;
 export const XP_PER_QUEST   = 25;
 export const STREAK_BONUS_XP = { 3: 30, 7: 100, 14: 200, 30: 500 };
 
+const QUEST_XP_MAP = {
+  complete_session: 25,
+  hit_50_reps:      15,
+  burn_150_kcal:    20,
+  try_quick:        15,
+  no_skip:          10,
+  drink_water:      15,
+  sleep_well:       15,
+  stretch_5m:       15,
+  add_exercise:     10,
+  shuffle_one:      10,
+};
+
 export function calculateTotalXP(history, completedQuestLog) {
   const sessionXP = (history?.length || 0) * XP_PER_SESSION;
-  const questXP   = (completedQuestLog?.length || 0) * XP_PER_QUEST;
+  const questXP = (completedQuestLog || []).reduce((sum, entry) => {
+    return sum + (QUEST_XP_MAP[entry.questId] ?? XP_PER_QUEST);
+  }, 0);
   const streak    = calculateStreak(history);
   const bonusXP   = Object.entries(STREAK_BONUS_XP)
     .filter(([threshold]) => streak >= Number(threshold))
@@ -76,7 +85,6 @@ export function getLevelProgress(xp) {
   const pct     = Math.min(100, Math.round((current / needed) * 100));
   return { level: lvl, pct, current, needed };
 }
-
 
 export const ALL_BADGES = [
   {
@@ -202,7 +210,6 @@ export function getUnlockedBadges(history, streak, completedQuestLog) {
   }).map(b => b.id);
 }
 
-
 const QUEST_POOL = [
   
   { id: 'complete_session', title: 'Complete today\'s session', desc: 'Finish your full workout plan for today', xp: 25, icon: 'dumbbell', autoComplete: true },
@@ -210,7 +217,7 @@ const QUEST_POOL = [
   { id: 'hit_50_reps',    title: 'Hit 50 total reps',       desc: 'Rack up 50 reps across all exercises today',  xp: 15, icon: 'activity', autoComplete: false },
   { id: 'burn_150_kcal',  title: 'Burn 150+ kcal',          desc: 'Torch at least 150 calories in your session', xp: 20, icon: 'flame', autoComplete: false },
   
-  { id: 'try_recovery',   title: 'Recovery day',             desc: 'Complete a stretch-only Recovery session',     xp: 15, icon: 'heart', autoComplete: false },
+
   { id: 'try_quick',      title: 'Lightning round',          desc: 'Knock out a Quick session today',             xp: 15, icon: 'zap', autoComplete: false },
   
   { id: 'no_skip',        title: 'No rest for the driven',   desc: 'Show up and complete at least one set',        xp: 10, icon: 'check-circle', autoComplete: true },
@@ -220,9 +227,8 @@ const QUEST_POOL = [
   { id: 'stretch_5m',     title: 'Stay Limber',              desc: 'Do 5 minutes of freestyle stretching',        xp: 15, icon: 'activity', autoComplete: false },
   
   { id: 'add_exercise',   title: 'Customise your plan',      desc: 'Add a new exercise to today\'s session',      xp: 10, icon: 'plus-circle', autoComplete: false },
-  { id: 'shuffle_one',    title: 'Mix it up',                desc: 'Shuffle at least one exercise today',          xp: 10, icon: 'shuffle', autoComplete: false },
+  { id: 'shuffle_one',    title: 'Swap an Exercise',         desc: 'Swap at least one exercise in today\'s session', xp: 10, icon: 'shuffle', autoComplete: false },
 ];
-
 
 function seededRandom(seed, n) {
   return Math.floor(Math.abs(Math.sin(seed + n) * 1000000)) % 1000000;
@@ -238,7 +244,7 @@ export function getDailyQuests(dateStr) {
   const q1 = QUEST_POOL[0];
 
   
-  const pool2 = QUEST_POOL.filter(q => ['hit_50_reps', 'burn_150_kcal', 'try_recovery', 'try_quick', 'add_exercise', 'shuffle_one'].includes(q.id));
+  const pool2 = QUEST_POOL.filter(q => ['hit_50_reps', 'burn_150_kcal', 'try_quick', 'add_exercise', 'shuffle_one'].includes(q.id));
   const q2 = pool2[seededRandom(seed, 1) % pool2.length];
 
   
@@ -250,7 +256,6 @@ export function getDailyQuests(dateStr) {
 
   return [q1, q2, q3].filter(Boolean);
 }
-
 
 export function isQuestDoneToday(questId, completedQuestLog, history, streak) {
   const today = new Date().toISOString().slice(0, 10);
@@ -267,7 +272,6 @@ export function isQuestDoneToday(questId, completedQuestLog, history, streak) {
   
   return (completedQuestLog || []).some(e => e.date === today && e.questId === questId);
 }
-
 
 export function getTodayCompletedQuestIds(completedQuestLog, history, streak) {
   const today = new Date().toISOString().slice(0, 10);

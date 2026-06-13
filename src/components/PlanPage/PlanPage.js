@@ -69,7 +69,7 @@ export default function PlanPage({
     const combined = Array.from(new Set([...existing, ...newInjuries]));
     
     onUpdatePrefs({ ...prefs, injuries: combined });
-    setSavedPlan(null); // Triggers plan regeneration
+    setSavedPlan(null); 
     setShowInjuryModal(false);
     setInjuryInput('');
   };
@@ -156,7 +156,7 @@ export default function PlanPage({
     if (filtered.length > 0) fetchPlan();
     else setIsLoading(false);
     return () => controller.abort();
-  }, [filtered, level, score, savedPlan, setSavedPlan]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [filtered, level, score, savedPlan, setSavedPlan]); 
 
   useEffect(() => {
     if (!savedPlan || savedPlan.length === 0) return;
@@ -203,7 +203,7 @@ export default function PlanPage({
   }
 
   const goalLabel = GOAL_OPTIONS.find((o) => o.key === prefs.goal)?.label || '';
-  // eslint-disable-next-line no-unused-vars
+  
   const dayCount = getDayCount(prefs.frequency);
   const currentDay = savedPlan ? (savedPlan[activeDay] ?? savedPlan[0]) : null;
 
@@ -248,7 +248,7 @@ export default function PlanPage({
     return (sets * ((ex.reps || 10) * 4) + sets * restSec) / 60;
   }
 
-  // eslint-disable-next-line no-unused-vars
+  
   const estMinutes = sessionExercises.length > 0
     ? Math.round(sessionExercises.reduce((sum, ex) => sum + exDurationMinutes(ex), 0))
     : 0;
@@ -307,7 +307,7 @@ export default function PlanPage({
     Array.from({ length: ex.sets || 1 }, (_, si) => ({ ei }))
   );
   const currentStep = steps[currentStepIdx] || steps[steps.length - 1] || { ei: 0 };
-  // eslint-disable-next-line no-unused-vars
+  
   const completedExercisesCount = currentDay?.completed ? totalExercisesCount : currentStep.ei;
   
   const progressPct = currentDay?.completed 

@@ -1,6 +1,5 @@
 import React, { useMemo } from 'react';
 
-
 export default function WeeklyHabitRing({
   history = [],
   daysPerWeek = 3,
@@ -12,7 +11,7 @@ export default function WeeklyHabitRing({
     const today = new Date();
     today.setHours(0, 0, 0, 0);
 
-    const anchorDOW = 1; // Monday
+    const anchorDOW = 1; 
 
     const todayDOW = today.getDay();
     const daysBack = (todayDOW - anchorDOW + 7) % 7;

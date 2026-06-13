@@ -60,7 +60,6 @@
   font-family: var(--font-body);
 }
 
-
 .chat-progress {
   display: flex;
   flex-direction: column;
@@ -122,7 +121,6 @@
   align-self: flex-end;
   flex-direction: row-reverse;
 }
-
 
 .chat-avatar {
   width: 28px;

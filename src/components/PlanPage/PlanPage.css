@@ -1,8 +1,5 @@
 
 
-
-
-
 :root {
   --plan-bg: #0f0f0d;
   --plan-bg-panel: #181816;
@@ -19,8 +16,6 @@
   --plan-font-display: 'SamsungSans', 'Samsung Sans', 'Outfit', -apple-system, sans-serif;
   --plan-font-body:    'SamsungSans', 'Samsung Sans', 'Outfit', -apple-system, sans-serif;
 }
-
-
 
 .plan-card {
   background: var(--plan-bg-card);
@@ -77,8 +72,6 @@
   color: var(--plan-text-dim);
   margin-top: 2px;
 }
-
-
 
 .plan-btn-primary {
   padding: 10px 22px;
@@ -157,8 +150,6 @@
   color: var(--plan-text-mid);
   border-color: var(--plan-border-med);
 }
-
-
 
 .plan-ex-row {
   display: flex;
@@ -291,8 +282,6 @@
   border-color: var(--plan-border-med);
 }
 
-
-
 .plan-font-display {
   font-family: var(--plan-font-display);
 }
@@ -300,8 +289,6 @@
 .plan-font-body {
   font-family: var(--plan-font-body);
 }
-
-
 
 .plan-progress-ring {
   display: flex;
@@ -367,8 +354,6 @@
   margin-right: 8px;
 }
 
-
-
 .plan-quest-row {
   display: flex;
   align-items: center;
@@ -400,8 +385,6 @@
   flex-shrink: 0;
 }
 
-
-
 .plan-ex-list-header {
   display: flex;
   align-items: center;
@@ -422,8 +405,6 @@
   align-items: center;
   gap: 8px;
 }
-
-
 
 .plan-muscle-row {
   display: flex;
@@ -461,8 +442,6 @@
   flex-shrink: 0;
 }
 
-
-
 .plan-loading-screen {
   display: flex;
   flex-direction: column;
@@ -492,8 +471,6 @@
   color: var(--plan-text-mid);
   font-family: var(--plan-font-body);
 }
-
-
 
 .plan-mode-row {
   display: flex;
@@ -593,15 +570,11 @@
   flex-shrink: 0;
 }
 
-
-
 .plan-page {
   background: var(--plan-bg);
   color: var(--plan-text);
   font-family: var(--plan-font-body);
 }
-
-
 
 .plan-page-header {
   margin-bottom: 14px;
@@ -646,8 +619,6 @@
   color: var(--plan-text-mid);
 }
 
-
-
 .plan-day-tabs {
   margin-bottom: 12px;
   display: flex;
@@ -691,8 +662,6 @@
   background: var(--plan-green);
   flex-shrink: 0;
 }
-
-
 
 .plan-day-summary {
   background: var(--plan-bg-card);
@@ -807,8 +776,6 @@
   opacity: 0.85;
 }
 
-
-
 .ex-list {
   display: flex;
   flex-direction: column;
@@ -820,8 +787,6 @@
   text-align: center;
   color: var(--plan-text-mid);
 }
-
-
 
 @media (max-width: 768px) {
   .plan-page-header {

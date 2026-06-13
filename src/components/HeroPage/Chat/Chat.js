@@ -208,7 +208,6 @@ export default function Chat({ onComplete }) {
   return (
     <div className="chat-container">
 
-
       <div className="chat-messages">
         {messages.map((msg, idx) => (
           <React.Fragment key={idx}>
@@ -216,7 +215,6 @@ export default function Chat({ onComplete }) {
               {msg.sender === 'bot' && <div className="chat-avatar">T</div>}
               <div className={`chat-bubble ${msg.sender}`}>{msg.text}</div>
             </div>
-
 
             {msg.options && idx === messages.length - 1 && !isTyping && (
               <div className="chat-options">
