@@ -180,7 +180,7 @@ function App() {
     setShowCommitmentAfterPlan(true);
     setView('results');
     setIsSidebarOpen(false);
-  }, [setPrefs, setSavedPlan, setHistory, setWorkoutElapsed, setHabitContract, setMomentum, setCurrentWeek, setView]);
+  }, [setPrefs, setSavedPlan, setHistory, setWorkoutElapsed, setHabitContract, setMomentum, setCurrentWeek, setView, setCompletedQuests, setUnlockedBadges]);
 
   const handleReset = useCallback(() => {
     setPrefs(null);
