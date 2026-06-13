@@ -178,10 +178,10 @@ export default function ProgressPage({
 
 	const momentumMsg = useMemo(() => {
 		if (streak === 0 && (history?.length ?? 0) === 0) return null;
-		if (streak >= 14) return { icon: null, text: `${streak}-day streak — you're on fire! Don't stop now.`, accent: 'var(--accent-primary)' };
-		if (streak >= 7) return { icon: null, text: `${streak}-day streak — incredible consistency!`, accent: 'var(--accent-primary)' };
-		if (streak >= 3) return { icon: null, text: `${streak}-day streak — you're building momentum!`, accent: 'var(--accent-success)' };
-		if (streak >= 1) return { icon: null, text: `${streak}-day streak — keep showing up!`, accent: 'var(--accent-success)' };
+		if (streak >= 14) return { icon: null, text: `${streak} day streak, you're on fire! Don't stop now.`, accent: 'var(--accent-primary)' };
+		if (streak >= 7) return { icon: null, text: `${streak} day streak, incredible consistency!`, accent: 'var(--accent-primary)' };
+		if (streak >= 3) return { icon: null, text: `${streak} day streak, you're building momentum!`, accent: 'var(--accent-success)' };
+		if (streak >= 1) return { icon: null, text: `${streak} day streak, keep showing up!`, accent: 'var(--accent-success)' };
 		return { icon: null, text: "Ready to start a new streak?", accent: '#9ca3af' };
 	}, [streak, history]);
 
