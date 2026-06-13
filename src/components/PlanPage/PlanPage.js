@@ -617,20 +617,30 @@ export default function PlanPage({
                             {phaseLabel}
                           </div>
                         )}
-                        <ExerciseRow
-                          exercise={ex}
-                          index={exIdx}
-                          filteredPool={filtered}
-                          onShuffle={() => handleShuffle(activeDay, exIdx)}
-                          onDelete={() => handleDelete(activeDay, exIdx)}
-                          onPick={(newEx) => handlePick(activeDay, exIdx, newEx)}
-                          isReordering={isReordering}
-                          onDragStart={isReordering ? handleDragStart : undefined}
-                          onDragEnter={isReordering ? handleDragEnter : undefined}
-                          onDragEnd={isReordering ? handleDragEnd : undefined}
-                          caloriesBurned={kcal}
-                          onStartFromHere={() => onStartSession({ ...currentDay, exercises: sessionExercises, startExerciseIdx: exIdx, mode: sessionMode, progress: sessionProgress })}
-                        />
+                        {(() => {
+                          const completedSteps = sessionProgress?.completedSteps || [];
+                          const exStepIndices = steps.map((s, i) => s.ei === exIdx ? i : -1).filter(i => i !== -1);
+                          const isExCompleted = currentDay?.completed || (
+                            exStepIndices.length > 0 && exStepIndices.every(i => completedSteps.includes(i))
+                          );
+                          return (
+                            <ExerciseRow
+                              exercise={ex}
+                              index={exIdx}
+                              isCompleted={isExCompleted}
+                              filteredPool={filtered}
+                              onShuffle={() => handleShuffle(activeDay, exIdx)}
+                              onDelete={() => handleDelete(activeDay, exIdx)}
+                              onPick={(newEx) => handlePick(activeDay, exIdx, newEx)}
+                              isReordering={isReordering}
+                              onDragStart={isReordering ? handleDragStart : undefined}
+                              onDragEnter={isReordering ? handleDragEnter : undefined}
+                              onDragEnd={isReordering ? handleDragEnd : undefined}
+                              caloriesBurned={kcal}
+                              onStartFromHere={() => onStartSession({ ...currentDay, exercises: sessionExercises, startExerciseIdx: exIdx, mode: sessionMode, progress: sessionProgress })}
+                            />
+                          );
+                        })()}
                       </React.Fragment>
                     );
                   });

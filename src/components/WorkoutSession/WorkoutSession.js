@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { getExerciseImageUrl, capitalize } from '../../utils/helpers';
-import { ChevronLeft, ChevronRight } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Check } from 'lucide-react';
 
 function SetTimer({ durationSeconds, onDone }) {
 	const isCountdown = !!durationSeconds;
@@ -76,6 +76,9 @@ export default function WorkoutSession({ day, onBack, onComplete, onUpdateProgre
 		}
 		return day.progress?.stepIdx || 0;
 	});
+	const [completedSteps, setCompletedSteps] = useState(() => {
+		return day.progress?.completedSteps || [];
+	});
 	const [elapsed, setElapsed] = useState(0);
 	const [setTimerKey, setSetTimerKey] = useState(0);
 	const [imgError, setImgError] = useState(false);
@@ -90,9 +93,9 @@ export default function WorkoutSession({ day, onBack, onComplete, onUpdateProgre
 
 	useEffect(() => {
 		if (onUpdateProgress) {
-			onUpdateProgress(stepIdx, 'exercise');
+			onUpdateProgress(stepIdx, 'exercise', completedSteps);
 		}
-	}, [stepIdx, onUpdateProgress]);
+	}, [stepIdx, completedSteps, onUpdateProgress]);
 
 	const totalSteps = steps.length;
 	const progress = (stepIdx / totalSteps) * 100;
@@ -135,6 +138,7 @@ export default function WorkoutSession({ day, onBack, onComplete, onUpdateProgre
 	}
 
 	function finishSet() {
+		setCompletedSteps(prev => Array.from(new Set([...prev, stepIdx])));
 		advance();
 	}
 
@@ -225,7 +229,8 @@ export default function WorkoutSession({ day, onBack, onComplete, onUpdateProgre
 								if (i < currentStep.si) statusClass = 'session-set-complete';
 								else if (i === currentStep.si) statusClass = 'session-set-active';
 								return (
-									<div key={i} className={`session-set-badge ${statusClass}`}>
+									<div key={i} className={`session-set-badge ${statusClass}`} style={{ display: 'flex', alignItems: 'center', gap: '4px', justifyContent: 'center' }}>
+										{i < currentStep.si && <Check size={14} />}
 										Set {i + 1}
 									</div>
 								);

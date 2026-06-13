@@ -213,10 +213,10 @@ function App() {
     setView('session');
   }, [setSessionDay, setView]);
 
-  const handleUpdateSessionProgress = useCallback((stepIdx, phase) => {
+  const handleUpdateSessionProgress = useCallback((stepIdx, phase, completedSteps = []) => {
     setSavedPlan(prev => {
       if (!prev) return prev;
-      return prev.map(d => d.key === sessionDay.key ? { ...d, progress: { stepIdx, phase, mode: sessionDay.mode || 'full' } } : d);
+      return prev.map(d => d.key === sessionDay.key ? { ...d, progress: { stepIdx, phase, completedSteps, mode: sessionDay.mode || 'full' } } : d);
     });
   }, [sessionDay, setSavedPlan]);
 

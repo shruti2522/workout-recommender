@@ -32,6 +32,10 @@ export default function ExerciseRow({ exercise, index, isCompleted, filteredPool
           <div className="ex-row-drag-handle">
             <GripVertical size={16} />
           </div>
+        ) : isCompleted ? (
+          <span className="ex-row-num" style={{ color: 'var(--plan-green)', background: 'rgba(34, 197, 94, 0.1)' }}>
+            <Check size={16} strokeWidth={3} />
+          </span>
         ) : (
           <span className="ex-row-num">{index + 1}</span>
         )}
@@ -66,6 +70,12 @@ export default function ExerciseRow({ exercise, index, isCompleted, filteredPool
 
           <div className="ex-row-meta">
             {effort && <span>{effort}</span>}
+            {exercise.mechanic && (
+              <>
+                <span className="meta-divider">|</span>
+                <span style={{ textTransform: 'capitalize' }}>{exercise.mechanic}</span>
+              </>
+            )}
             {exercise.restSeconds > 0 && (
               <>
                 <span className="meta-divider">|</span>

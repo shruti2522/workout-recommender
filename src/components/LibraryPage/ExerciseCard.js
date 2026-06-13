@@ -73,6 +73,11 @@ export default function ExerciseCard({ exercise, sets, reps, durationSeconds, re
               {capitalize(exercise.equipment)}
             </span>
           )}
+          {exercise.mechanic && (
+            <span className="badge badge-gray" style={{ background: 'var(--bg-elevated)', border: '1px solid var(--border-subtle)' }}>
+              {capitalize(exercise.mechanic)}
+            </span>
+          )}
         </div>
 
         {}

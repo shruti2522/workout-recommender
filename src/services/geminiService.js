@@ -58,6 +58,7 @@ function buildPrompt(prefs, filteredExercises) {
     name: ex.name,
     primaryMuscles: ex.primaryMuscles,
     category: ex.category,
+    mechanic: ex.mechanic,
   }));
 
   const sessionLabel = SESSION_DURATION_LABELS[sessionDuration] || '45–60 minutes (standard session)';
@@ -105,7 +106,7 @@ INSTRUCTIONS:
    - "warmup"   — Phase 1: 1-2 dynamic stretching, mobility, or light cardio exercises.
    - "main"     — Phase 2: The bulk of the exercises (${goal === 'increase_flexibility' ? 'deep stretching' : 'strength/cardio'}). Compound movements first, isolation last.
    - "cooldown" — Phase 3: 1-2 static stretching exercises to aid recovery.
-4. Completely tailor the main exercises to the user's primary goal and target areas. DO NOT rely on standard Push/Pull/Legs splits unless it perfectly fits the goal.
+4. Completely tailor the main exercises to the user's primary goal and target areas. Use the "mechanic" field to ensure "compound" movements are programmed before "isolation" movements. DO NOT rely on standard Push/Pull/Legs splits unless it perfectly fits the goal.
 5. Assign sets and reps calibrated to the user's session duration (${sessionLabel}): ${setsGuidance}
    - For strength/hypertrophy: use reps (e.g., 8–12). Apply the set count guidance above.
    - For cardio/stretching/planks (Warm-ups & Cool-downs): use durationSeconds (e.g., 45s or 60s), 1–2 sets.

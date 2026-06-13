@@ -1355,6 +1355,8 @@ h1, h2, h3, h4 {
   display: none;
 }
 
+/*mobile responsive*/
+
 .mobile-header {
   display: none;
   align-items: center;
