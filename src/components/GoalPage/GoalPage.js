@@ -199,8 +199,23 @@ export default function GoalPage({
 			toSave.injuries = toSave.injuriesRaw.split(',').map(s => s.trim()).filter(Boolean);
 			delete toSave.injuriesRaw;
 		}
+
+		let hasChanged = false;
+		if (!prefs) {
+			hasChanged = true;
+		} else {
+			hasChanged = 
+				toSave.goal !== prefs.goal ||
+				toSave.frequency !== prefs.frequency ||
+				toSave.duration !== prefs.duration ||
+				toSave.sessionDuration !== prefs.sessionDuration ||
+				JSON.stringify(toSave.injuries || []) !== JSON.stringify(prefs.injuries || []) ||
+				JSON.stringify(toSave.targetAreas || []) !== JSON.stringify(prefs.targetAreas || []) ||
+				JSON.stringify(toSave.equipment || []) !== JSON.stringify(prefs.equipment || []);
+		}
+
 		if (onUpdatePrefs) onUpdatePrefs(toSave);
-		if (setSavedPlan) setSavedPlan(null);
+		if (hasChanged && setSavedPlan) setSavedPlan(null);
 		if (habitContract && onUpdateHabitContract) {
 			onUpdateHabitContract({
 				...habitContract,
